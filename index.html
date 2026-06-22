@@ -189,7 +189,11 @@
     background: var(--amber-50);
     color: var(--amber-600);
     font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
   }
+
+  .tag:active { opacity: 0.7; }
 
   .tag-fast { background: #FFF3CD; color: #664D03; }
   .tag-doc { background: var(--blue-50); color: var(--blue-800); }
@@ -456,7 +460,11 @@
     padding: 5px 12px;
     border-radius: 20px;
     font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
   }
+
+  .detail-tag:active { opacity: 0.7; }
 
   .maps-btn {
     display: flex;
@@ -551,6 +559,49 @@
   }
 
   .status-btn:active { transform: scale(0.95); }
+
+  /* Image Modal */
+  .image-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 600;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .image-modal.open { display: flex; }
+
+  .image-modal-content {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  .image-modal-close {
+    position: fixed;
+    top: 1.5rem;
+    right: 1.5rem;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s;
+    z-index: 601;
+  }
+
+  .image-modal-close:active { background: rgba(255,255,255,0.3); }
 </style>
 </head>
 <body>
@@ -706,6 +757,12 @@
   </div>
 </div>
 
+<!-- Image Modal para Carteirinha -->
+<div class="image-modal" id="image-modal">
+  <button class="image-modal-close" id="image-modal-close">✕</button>
+  <img class="image-modal-content" id="image-modal-img" src="unimed.webp" alt="Carteirinha do plano">
+</div>
+
 <script>
 const STORAGE_KEY = 'consultas_v1';
 let consultas = [];
@@ -757,10 +814,7 @@ function today() {
 }
 
 function cardStatus(dataStr, manualStatus) {
-  // Se tiver status manual, usa ele
   if (manualStatus) return manualStatus;
-  
-  // Caso contrário, calcula automaticamente
   const t = today();
   if (dataStr === t) return 'today';
   if (dataStr > t) return 'upcoming';
@@ -824,7 +878,7 @@ function render() {
 
     const tags = (c.tags||[]).slice(0,3).map(t => {
       const info = TAG_LABELS[t];
-      return info ? `<span class="tag" style="background:${info.bg};color:${info.color}">${info.label}</span>` : '';
+      return info ? `<span class="tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
     }).join('');
 
     card.innerHTML = `
@@ -847,6 +901,22 @@ function render() {
     card.addEventListener('click', () => openDetail(c.id));
     list.appendChild(card);
   });
+
+  // Adicionar evento de clique nas tags para abrir a imagem
+  document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openImageModal();
+    });
+  });
+}
+
+function openImageModal() {
+  document.getElementById('image-modal').classList.add('open');
+}
+
+function closeImageModal() {
+  document.getElementById('image-modal').classList.remove('open');
 }
 
 function openDetail(id) {
@@ -897,13 +967,20 @@ function openDetail(id) {
     tagsSection.style.display = '';
     tagsDiv.innerHTML = c.tags.map(t => {
       const info = TAG_LABELS[t];
-      return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}">${info.label}</span>` : '';
+      return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
     }).join('');
+
+    // Adicionar evento nas tags do detalhe
+    tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openImageModal();
+      });
+    });
   } else {
     tagsSection.style.display = 'none';
   }
 
-  // Atualizar status toggle
   const currentStatus = cardStatus(c.data, c.status);
   document.querySelectorAll('.status-btn').forEach(btn => {
     btn.className = 'status-btn';
@@ -974,7 +1051,6 @@ function saveForm() {
     atualizadoEm: new Date().toISOString(),
   };
 
-  // Preservar status manual se existir
   if (editingId) {
     const existing = consultas.find(x => x.id === editingId);
     if (existing && existing.status) {
@@ -1002,16 +1078,14 @@ function deleteConsulta(id) {
   closeDetail();
 }
 
-// Função para atualizar status manual
 function updateStatus(status) {
   if (!viewingId) return;
   const c = consultas.find(x => x.id === viewingId);
   if (!c) return;
 
-  // Se o status for o mesmo que o calculado automaticamente, remove o manual
   const autoStatus = cardStatus(c.data, null);
   if (status === autoStatus) {
-    delete c.status; // Remove status manual
+    delete c.status;
   } else {
     c.status = status;
   }
@@ -1019,7 +1093,6 @@ function updateStatus(status) {
   c.atualizadoEm = new Date().toISOString();
   save();
   render();
-  // Atualiza a view sem fechar
   openDetail(viewingId);
 }
 
@@ -1028,6 +1101,10 @@ document.getElementById('fab-btn').addEventListener('click', () => openForm());
 document.getElementById('form-cancel').addEventListener('click', closeForm);
 document.getElementById('form-save').addEventListener('click', saveForm);
 document.getElementById('back-btn').addEventListener('click', closeDetail);
+document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
+document.getElementById('image-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('image-modal')) closeImageModal();
+});
 
 document.getElementById('detail-edit-btn').addEventListener('click', () => {
   const id = viewingId;
@@ -1060,14 +1137,12 @@ document.querySelectorAll('.chk-label').forEach(lbl => {
   });
 });
 
-// Eventos dos botões de status
 document.querySelectorAll('.status-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     updateStatus(btn.dataset.status);
   });
 });
 
-// Auto-fill chegada 20min antes
 document.getElementById('f-hora').addEventListener('change', e => {
   const chegada = document.getElementById('f-chegada');
   if (chegada.value) return;
@@ -1081,7 +1156,6 @@ document.getElementById('f-hora').addEventListener('change', e => {
 // Init
 load();
 
-// Se não tiver consultas, adiciona a pré-preenchida com status correto
 if (consultas.length === 0) {
   const preFill = {
     id: genId(),
@@ -1094,7 +1168,7 @@ if (consultas.length === 0) {
     maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
     obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
     tags: ['documento', 'cpf', 'carteirinha'],
-    status: 'upcoming', // Força status como "agendada"
+    status: 'upcoming',
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
   };
@@ -1104,7 +1178,6 @@ if (consultas.length === 0) {
 
 render();
 
-// Service Worker
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
 }
