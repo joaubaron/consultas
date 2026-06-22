@@ -1,1494 +1,1302 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <meta name="theme-color" content="#185FA5">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Consultas">
-  <title>Consultas Médicas</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --blue-50: #E6F1FB;
-      --blue-100: #B5D4F4;
-      --blue-200: #85B7EB;
-      --blue-400: #378ADD;
-      --blue-600: #185FA5;
-      --blue-800: #0C447C;
-      --blue-900: #042C53;
-      --teal-50: #E1F5EE;
-      --teal-400: #1D9E75;
-      --teal-600: #0F6E56;
-      --amber-50: #FAEEDA;
-      --amber-400: #BA7517;
-      --amber-600: #854F0B;
-      --red-50: #FCEBEB;
-      --red-600: #A32D2D;
-      --gray-50: #F1EFE8;
-      --gray-100: #D3D1C7;
-      --gray-400: #888780;
-      --gray-600: #5F5E5A;
-      --gray-800: #444441;
-      --gray-900: #2C2C2A;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      background: #f0f4f8;
-      color: #1a1a2e;
-      min-height: 100dvh;
-    }
-
-    header {
-      background: var(--blue-600);
-      color: white;
-      padding: 1rem 1.25rem;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
-      backdrop-filter: blur(4px);
-    }
-
-    header h1 {
-      font-size: 1.2rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    header h1 span {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 0.1rem 0.6rem;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-    }
-
-    header p {
-      font-size: 0.8rem;
-      opacity: 0.85;
-      margin-top: 4px;
-      font-weight: 400;
-    }
-
-    .fab {
-      position: fixed;
-      bottom: 1.75rem;
-      right: 1.75rem;
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: var(--blue-600);
-      color: white;
-      border: none;
-      font-size: 2rem;
-      cursor: pointer;
-      z-index: 200;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 6px 16px rgba(24, 95, 165, 0.45);
-      transition: transform 0.15s, box-shadow 0.2s;
-      line-height: 1;
-    }
-
-    .fab:active {
-      transform: scale(0.92);
-      box-shadow: 0 3px 10px rgba(24, 95, 165, 0.3);
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--gray-400);
-    }
-
-    .empty-state .icon {
-      font-size: 4rem;
-      margin-bottom: 1rem;
-      opacity: 0.6;
-    }
-    .empty-state h2 {
-      font-size: 1.1rem;
-      font-weight: 500;
-      color: var(--gray-600);
-    }
-    .empty-state p {
-      font-size: 0.9rem;
-      margin-top: 0.4rem;
-      color: var(--gray-400);
-    }
-
-    .list {
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.9rem;
-      padding-bottom: 6rem;
-    }
-
-    .month-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--blue-600);
-      padding: 0.75rem 0 0.3rem;
-      border-bottom: 1px solid rgba(24, 95, 165, 0.1);
-      margin-bottom: 0.2rem;
-    }
-
-    .card {
-      background: white;
-      border-radius: 18px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.15s;
-      border: 1px solid rgba(0, 0, 0, 0.02);
-    }
-
-    .card:active {
-      transform: scale(0.98);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-    }
-
-    .card-stripe {
-      height: 5px;
-    }
-
-    .upcoming {
-      background: linear-gradient(90deg, var(--blue-600), var(--blue-400));
-    }
-    .today-stripe {
-      background: linear-gradient(90deg, var(--teal-400), #4BC0A0);
-    }
-    .past-stripe {
-      background: linear-gradient(90deg, var(--gray-100), var(--gray-400));
-    }
-
-    .card-body {
-      padding: 1rem 1.1rem;
-    }
-
-    .card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 0.5rem;
-    }
-
-    .card-title {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.3;
-      flex: 1;
-      letter-spacing: -0.01em;
-    }
-
-    .badge {
-      font-size: 0.6rem;
-      font-weight: 700;
-      padding: 3px 12px;
-      border-radius: 40px;
-      white-space: nowrap;
-      flex-shrink: 0;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-    }
-
-    .badge-upcoming {
-      background: var(--blue-50);
-      color: var(--blue-800);
-      border: 1px solid var(--blue-200);
-    }
-    .badge-today {
-      background: var(--teal-50);
-      color: var(--teal-600);
-      border: 1px solid #9CDECB;
-    }
-    .badge-past {
-      background: var(--gray-50);
-      color: var(--gray-600);
-      border: 1px solid var(--gray-100);
-    }
-
-    .card-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem 1rem;
-      margin-top: 0.6rem;
-      background: #f8fafc;
-      padding: 0.4rem 0.6rem;
-      border-radius: 14px;
-    }
-
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 0.78rem;
-      color: var(--gray-800);
-      font-weight: 500;
-    }
-
-    .meta-icon {
-      font-size: 0.9rem;
-      opacity: 0.8;
-    }
-
-    .card-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 0.7rem;
-    }
-
-    .tag {
-      font-size: 0.7rem;
-      padding: 4px 12px;
-      border-radius: 40px;
-      background: var(--amber-50);
-      color: var(--amber-600);
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      border: 1px solid rgba(0, 0, 0, 0.02);
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
-    }
-
-    .tag:active {
-      opacity: 0.7;
-      transform: scale(0.96);
-    }
-
-    .tag-fast {
-      background: #FFF3CD;
-      color: #664D03;
-    }
-    .tag-doc {
-      background: var(--blue-50);
-      color: var(--blue-800);
-    }
-    .tag-roupa {
-      background: var(--teal-50);
-      color: var(--teal-600);
-    }
-
-    /* Modal */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.55);
-      z-index: 300;
-      align-items: flex-end;
-      backdrop-filter: blur(2px);
-    }
-
-    .overlay.open {
-      display: flex;
-    }
-
-    .sheet {
-      background: white;
-      width: 100%;
-      border-radius: 28px 28px 0 0;
-      padding: 1.5rem 1.25rem 2rem;
-      max-height: 94dvh;
-      overflow-y: auto;
-      animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
-      box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.08);
-    }
-
-    @keyframes slideUp {
-      from {
-        transform: translateY(100%);
-        opacity: 0.6;
-      }
-      to {
-        transform: translateY(0);
-        opacity: 1;
-      }
-    }
-
-    .sheet-handle {
-      width: 40px;
-      height: 4px;
-      background: var(--gray-100);
-      border-radius: 4px;
-      margin: 0 auto 1.5rem;
-    }
-
-    .sheet-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      color: var(--blue-800);
-      letter-spacing: -0.01em;
-    }
-
-    .field {
-      margin-bottom: 1.25rem;
-    }
-
-    .field label {
-      display: block;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--gray-600);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      margin-bottom: 0.4rem;
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      border: 1.5px solid var(--gray-100);
-      border-radius: 14px;
-      padding: 0.7rem 0.9rem;
-      font-size: 0.95rem;
-      color: #111;
-      background: #fafcff;
-      outline: none;
-      font-family: inherit;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: var(--blue-400);
-      background: white;
-      box-shadow: 0 0 0 4px rgba(24, 95, 165, 0.08);
-    }
-
-    .field textarea {
-      resize: vertical;
-      min-height: 70px;
-    }
-
-    .row2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-    }
-
-    .checkgroup {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-
-    .chk-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.82rem;
-      background: var(--gray-50);
-      border: 1.5px solid var(--gray-100);
-      padding: 6px 14px;
-      border-radius: 40px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
-      font-weight: 500;
-      color: var(--gray-700);
-    }
-
-    .chk-label input {
-      display: none;
-    }
-
-    .chk-label.checked {
-      background: var(--blue-50);
-      border-color: var(--blue-200);
-      color: var(--blue-800);
-      font-weight: 600;
-      box-shadow: 0 0 0 2px rgba(24, 95, 165, 0.1);
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 0.75rem;
-      margin-top: 1.75rem;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 0.8rem;
-      border-radius: 16px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-    }
-
-    .btn:active {
-      opacity: 0.8;
-      transform: scale(0.97);
-    }
-    .btn-primary {
-      background: var(--blue-600);
-      color: white;
-      box-shadow: 0 4px 12px rgba(24, 95, 165, 0.25);
-    }
-    .btn-secondary {
-      background: var(--gray-50);
-      color: var(--gray-800);
-      border: 1px solid var(--gray-100);
-    }
-    .btn-danger {
-      background: var(--red-50);
-      color: var(--red-600);
-      border: 1px solid #f8d7da;
-    }
-
-    /* Detail view */
-    .detail-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: white;
-      z-index: 400;
-      overflow-y: auto;
-      animation: fadeIn 0.25s ease;
-    }
-
-    .detail-overlay.open {
-      display: block;
-    }
-
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .detail-header {
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      border-bottom: 1px solid var(--gray-50);
-      position: sticky;
-      top: 0;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(8px);
-      z-index: 10;
-    }
-
-    .btn-back {
-      background: var(--gray-50);
-      border: none;
-      font-size: 1.6rem;
-      cursor: pointer;
-      padding: 0 0.1rem;
-      color: var(--blue-600);
-      line-height: 1;
-      width: 40px;
-      height: 40px;
-      border-radius: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.15s;
-    }
-
-    .btn-back:active {
-      background: var(--gray-100);
-    }
-
-    .detail-header-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #111;
-      letter-spacing: -0.01em;
-    }
-
-    .detail-banner {
-      padding: 1.5rem 1.25rem 0.8rem;
-    }
-
-    .detail-specialty {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--blue-600);
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-    }
-
-    .detail-name {
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #0f172a;
-      line-height: 1.2;
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75rem;
-      padding: 0 1.25rem 1.25rem;
-    }
-
-    .detail-card {
-      background: var(--gray-50);
-      border-radius: 16px;
-      padding: 0.9rem 1rem;
-      border: 1px solid rgba(0, 0, 0, 0.02);
-    }
-
-    .detail-card.full {
-      grid-column: 1 / -1;
-    }
-    .detail-card.blue {
-      background: var(--blue-50);
-      border-left: 4px solid var(--blue-400);
-    }
-    .detail-card.amber {
-      background: var(--amber-50);
-      border-left: 4px solid var(--amber-400);
-    }
-    .detail-card.teal {
-      background: var(--teal-50);
-      border-left: 4px solid var(--teal-400);
-    }
-
-    .detail-card-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 700;
-      color: var(--gray-400);
-      margin-bottom: 0.3rem;
-    }
-
-    .detail-card.blue .detail-card-label {
-      color: var(--blue-600);
-    }
-    .detail-card.amber .detail-card-label {
-      color: var(--amber-600);
-    }
-    .detail-card.teal .detail-card-label {
-      color: var(--teal-600);
-    }
-
-    .detail-card-value {
-      font-size: 1rem;
-      font-weight: 700;
-      color: #111;
-      line-height: 1.4;
-    }
-
-    .detail-card.blue .detail-card-value {
-      color: var(--blue-800);
-    }
-    .detail-card.amber .detail-card-value {
-      color: var(--amber-600);
-    }
-    .detail-card.teal .detail-card-value {
-      color: var(--teal-600);
-    }
-
-    .detail-card-sub {
-      font-size: 0.78rem;
-      color: var(--gray-400);
-      margin-top: 2px;
-      font-weight: 500;
-    }
-
-    .detail-tags-section {
-      padding: 0 1.25rem 1.25rem;
-    }
-
-    .detail-tags-label {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      font-weight: 700;
-      color: var(--gray-400);
-      margin-bottom: 0.6rem;
-    }
-
-    .detail-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .detail-tag {
-      font-size: 0.8rem;
-      padding: 6px 16px;
-      border-radius: 40px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.15s, transform 0.1s;
-      border: 1px solid rgba(0, 0, 0, 0.02);
-    }
-
-    .detail-tag:active {
-      opacity: 0.7;
-      transform: scale(0.96);
-    }
-
-    .maps-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--blue-600);
-      color: white;
-      border: none;
-      padding: 0.6rem 1.2rem;
-      border-radius: 40px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 0.7rem;
-      text-decoration: none;
-      transition: background 0.15s, transform 0.1s;
-      box-shadow: 0 4px 12px rgba(24, 95, 165, 0.25);
-    }
-
-    .maps-btn:active {
-      transform: scale(0.97);
-      background: var(--blue-800);
-    }
-
-    .action-row {
-      display: flex;
-      gap: 0.75rem;
-      padding: 1rem 1.25rem;
-      border-top: 1px solid var(--gray-50);
-      position: sticky;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(8px);
-    }
-
-    .action-row .btn {
-      flex: 1;
-    }
-
-    .confirm-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.6);
-      z-index: 500;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      backdrop-filter: blur(3px);
-    }
-
-    .confirm-overlay.open {
-      display: flex;
-    }
-
-    .confirm-box {
-      background: white;
-      border-radius: 24px;
-      padding: 1.75rem 1.5rem;
-      width: 100%;
-      max-width: 340px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-      animation: fadeIn 0.2s ease;
-    }
-
-    .confirm-box h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-      color: #0f172a;
-    }
-    .confirm-box p {
-      font-size: 0.9rem;
-      color: var(--gray-600);
-      margin-bottom: 1.5rem;
-    }
-    .confirm-box .btn-row {
-      margin-top: 0;
-    }
-
-    /* Status toggle */
-    .status-toggle {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.2rem;
-      padding: 0 1.25rem 1rem;
-      flex-wrap: wrap;
-    }
-
-    .status-btn {
-      padding: 8px 18px;
-      border-radius: 40px;
-      border: 2px solid var(--gray-100);
-      background: white;
-      font-size: 0.8rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
-      color: var(--gray-600);
-      flex: 1;
-      text-align: center;
-      min-width: 80px;
-    }
-
-    .status-btn:active {
-      transform: scale(0.95);
-    }
-
-    .status-btn.active-upcoming {
-      border-color: var(--blue-600);
-      background: var(--blue-50);
-      color: var(--blue-800);
-      box-shadow: 0 0 0 3px rgba(24, 95, 165, 0.1);
-    }
-
-    .status-btn.active-today {
-      border-color: var(--teal-400);
-      background: var(--teal-50);
-      color: var(--teal-600);
-      box-shadow: 0 0 0 3px rgba(29, 158, 117, 0.1);
-    }
-
-    .status-btn.active-past {
-      border-color: var(--gray-400);
-      background: var(--gray-50);
-      color: var(--gray-600);
-      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.02);
-    }
-
-    /* Image Modal */
-    .image-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.88);
-      z-index: 600;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      flex-direction: column;
-      gap: 1rem;
-      backdrop-filter: blur(6px);
-    }
-
-    .image-modal.open {
-      display: flex;
-    }
-
-    .image-modal-content {
-      width: 95%;
-      max-width: 600px;
-      height: auto;
-      border-radius: 20px;
-      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
-      cursor: pointer;
-      transition: transform 0.15s;
-      border: 2px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .image-modal-content:active {
-      transform: scale(0.98);
-    }
-
-    .image-modal-close {
-      position: fixed;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: rgba(255, 255, 255, 0.12);
-      border: none;
-      color: white;
-      font-size: 1.6rem;
-      cursor: pointer;
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(6px);
-      transition: background 0.15s;
-      z-index: 601;
-    }
-
-    .image-modal-close:active {
-      background: rgba(255, 255, 255, 0.25);
-    }
-
-    .image-modal-footer {
-      display: flex;
-      justify-content: center;
-      margin-top: 0.25rem;
-    }
-
-    .image-modal-flip-btn {
-      background: rgba(255, 255, 255, 0.10);
-      border: 1px solid rgba(255, 255, 255, 0.20);
-      color: white;
-      padding: 0.6rem 2rem;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      transition: background 0.15s, transform 0.1s;
-      letter-spacing: 0.03em;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-    }
-
-    .image-modal-flip-btn:active {
-      background: rgba(255, 255, 255, 0.20);
-      transform: scale(0.96);
-    }
-
-    .image-modal-flip-btn span {
-      display: inline-block;
-      margin-right: 6px;
-    }
-
-    @media (max-width: 480px) {
-      .image-modal-content {
-        width: 98%;
-      }
-      .sheet {
-        padding: 1.25rem 1rem 1.5rem;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Consultas">
+<title>Consultas Médicas</title>
+<link rel="manifest" href="manifest.json">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue-50: #E6F1FB;
+    --blue-100: #B5D4F4;
+    --blue-200: #85B7EB;
+    --blue-400: #378ADD;
+    --blue-600: #185FA5;
+    --blue-800: #0C447C;
+    --blue-900: #042C53;
+    --teal-50: #E1F5EE;
+    --teal-400: #1D9E75;
+    --teal-600: #0F6E56;
+    --amber-50: #FAEEDA;
+    --amber-400: #BA7517;
+    --amber-600: #854F0B;
+    --red-50: #FCEBEB;
+    --red-600: #A32D2D;
+    --gray-50: #F1EFE8;
+    --gray-100: #D3D1C7;
+    --gray-400: #888780;
+    --gray-600: #5F5E5A;
+    --gray-800: #444441;
+    --gray-900: #2C2C2A;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1a1a2e;
+    min-height: 100dvh;
+  }
+
+  header {
+    background: var(--blue-600);
+    color: white;
+    padding: 1rem 1.25rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+
+  header h1 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  header p {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    margin-top: 2px;
+  }
+
+  .fab {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--blue-600);
+    color: white;
+    border: none;
+    font-size: 1.75rem;
+    cursor: pointer;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(24,95,165,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    line-height: 1;
+  }
+
+  .fab:active { transform: scale(0.95); }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--gray-400);
+  }
+
+  .empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .empty-state h2 { font-size: 1rem; font-weight: 500; color: var(--gray-600); }
+  .empty-state p { font-size: 0.85rem; margin-top: 0.4rem; }
+
+  .list { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; padding-bottom: 5rem; }
+
+  .month-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--blue-600);
+    padding: 0.5rem 0 0.25rem;
+  }
+
+  .card {
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s;
+  }
+
+  .card:active { transform: scale(0.985); }
+
+  .card-stripe {
+    height: 4px;
+  }
+
+  .upcoming { background: var(--blue-600); }
+  .today-stripe { background: var(--teal-400); }
+  .past-stripe { background: var(--gray-100); }
+
+  .card-body { padding: 0.9rem 1rem; }
+
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .badge-upcoming { background: var(--blue-50); color: var(--blue-800); }
+  .badge-today { background: var(--teal-50); color: var(--teal-600); }
+  .badge-past { background: var(--gray-50); color: var(--gray-600); }
+
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+  }
+
+  .meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.78rem;
+    color: var(--gray-600);
+  }
+
+  .meta-icon { font-size: 0.9rem; }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 0.65rem;
+  }
+
+  .tag {
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--amber-50);
+    color: var(--amber-600);
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .tag:active { opacity: 0.7; }
+
+  .tag-fast { background: #FFF3CD; color: #664D03; }
+  .tag-doc { background: var(--blue-50); color: var(--blue-800); }
+  .tag-roupa { background: var(--teal-50); color: var(--teal-600); }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 300;
+    align-items: flex-end;
+  }
+
+  .overlay.open { display: flex; }
+
+  .sheet {
+    background: white;
+    width: 100%;
+    border-radius: 20px 20px 0 0;
+    padding: 1.5rem 1.25rem 2rem;
+    max-height: 92dvh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  .sheet-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--gray-100);
+    border-radius: 2px;
+    margin: 0 auto 1.25rem;
+  }
+
+  .sheet-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    color: var(--blue-800);
+  }
+
+  .field { margin-bottom: 1rem; }
+
+  .field label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--gray-600);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.35rem;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    width: 100%;
+    border: 1px solid var(--gray-100);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.9rem;
+    color: #111;
+    background: #fafafa;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.15s;
+  }
+
+  .field input:focus,
+  .field textarea:focus,
+  .field select:focus {
+    border-color: var(--blue-400);
+    background: white;
+  }
+
+  .field textarea { resize: vertical; min-height: 70px; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  .checkgroup {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chk-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-100);
+    padding: 5px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s, border-color 0.12s;
+  }
+
+  .chk-label input { display: none; }
+
+  .chk-label.checked {
+    background: var(--blue-50);
+    border-color: var(--blue-200);
+    color: var(--blue-800);
+    font-weight: 500;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .btn:active { opacity: 0.8; }
+  .btn-primary { background: var(--blue-600); color: white; }
+  .btn-secondary { background: var(--gray-50); color: var(--gray-800); }
+  .btn-danger { background: var(--red-50); color: var(--red-600); }
+
+  /* Detail view */
+  .detail-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: white;
+    z-index: 400;
+    overflow-y: auto;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .detail-overlay.open { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid var(--gray-50);
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 10;
+  }
+
+  .btn-back {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0;
+    color: var(--blue-600);
+    line-height: 1;
+  }
+
+  .detail-header-title { font-size: 0.95rem; font-weight: 600; color: #111; }
+
+  .detail-banner {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .detail-specialty {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue-600);
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
+
+  .detail-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.2;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .detail-card {
+    background: var(--gray-50);
+    border-radius: 12px;
+    padding: 0.85rem 1rem;
+  }
+
+  .detail-card.full { grid-column: 1 / -1; }
+  .detail-card.blue { background: var(--blue-50); }
+  .detail-card.amber { background: var(--amber-50); }
+  .detail-card.teal { background: var(--teal-50); }
+
+  .detail-card-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    color: var(--gray-400);
+    margin-bottom: 0.35rem;
+  }
+
+  .detail-card.blue .detail-card-label { color: var(--blue-600); }
+  .detail-card.amber .detail-card-label { color: var(--amber-600); }
+  .detail-card.teal .detail-card-label { color: var(--teal-600); }
+
+  .detail-card-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #111;
+    line-height: 1.4;
+  }
+
+  .detail-card.blue .detail-card-value { color: var(--blue-800); }
+  .detail-card.amber .detail-card-value { color: var(--amber-600); }
+  .detail-card.teal .detail-card-value { color: var(--teal-600); }
+
+  .detail-card-sub {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    margin-top: 2px;
+  }
+
+  .detail-tags-section {
+    padding: 0 1.25rem 1.25rem;
+  }
+
+  .detail-tags-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    color: var(--gray-400);
+    margin-bottom: 0.5rem;
+  }
+
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .detail-tag {
+    font-size: 0.8rem;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .detail-tag:active { opacity: 0.7; }
+
+  .maps-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-600);
+    color: white;
+    border: none;
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    text-decoration: none;
+  }
+
+  .action-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--gray-50);
+    position: sticky;
+    bottom: 0;
+    background: white;
+  }
+
+  .action-row .btn { flex: 1; }
+
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .confirm-overlay.open { display: flex; }
+
+  .confirm-box {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .confirm-box h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .confirm-box p { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 1.25rem; }
+  .confirm-box .btn-row { margin-top: 0; }
+
+  /* Status toggle */
+  .status-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0 1.25rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .status-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-100);
+    background: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--gray-600);
+  }
+
+  .status-btn.active-upcoming {
+    border-color: var(--blue-600);
+    background: var(--blue-50);
+    color: var(--blue-800);
+  }
+
+  .status-btn.active-today {
+    border-color: var(--teal-400);
+    background: var(--teal-50);
+    color: var(--teal-600);
+  }
+
+  .status-btn.active-past {
+    border-color: var(--gray-400);
+    background: var(--gray-50);
+    color: var(--gray-600);
+  }
+
+  .status-btn:active { transform: scale(0.95); }
+
+  /* Image Modal - Estilização Otimizada e Intuitiva */
+  .image-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 600;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    flex-direction: column;
+  }
+
+  .image-modal.open { display: flex; }
+
+  .image-container-wrapper {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .image-modal-content {
+    width: 100%;
+    height: auto;
+    border-radius: 16px;
+    box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .image-modal-content:active { transform: scale(0.98); }
+
+  /* Controles de Frente / Verso integrados */
+  .image-toggle-controls {
+    display: flex;
+    background: rgba(255, 255, 255, 0.15);
+    padding: 4px;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 280px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .image-toggle-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .image-toggle-btn.active {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  }
+
+  .image-modal-close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    transition: background 0.15s;
+    z-index: 601;
+  }
+
+  .image-modal-close:active { background: rgba(255,255,255,0.35); }
+
+  .image-modal-hint {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 6px 16px;
+    border-radius: 20px;
+    pointer-events: none;
+    letter-spacing: 0.02em;
+  }
+</style>
 </head>
 <body>
 
-  <header>
-    <h1>🏥 Minhas Consultas <span>PWA</span></h1>
-    <p id="count-label">Carregando...</p>
-  </header>
+<header>
+  <h1>🏥 Minhas Consultas</h1>
+  <p id="count-label">Carregando...</p>
+</header>
 
-  <div id="list-view">
-    <div id="list" class="list"></div>
-    <div id="empty" class="empty-state" style="display:none">
-      <div class="icon">📅</div>
-      <h2>Nenhuma consulta cadastrada</h2>
-      <p>Toque em + para adicionar uma consulta</p>
+<div id="list-view">
+  <div id="list" class="list"></div>
+  <div id="empty" class="empty-state" style="display:none">
+    <div class="icon">📅</div>
+    <h2>Nenhuma consulta cadastrada</h2>
+    <p>Toque em + para adicionar uma consulta</p>
+  </div>
+</div>
+
+<button class="fab" id="fab-btn" aria-label="Nova consulta">+</button>
+
+<!-- Form Sheet -->
+<div class="overlay" id="form-overlay">
+  <div class="sheet" id="form-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="form-title">Nova consulta</div>
+
+    <div class="field">
+      <label>Tipo / Especialidade</label>
+      <input type="text" id="f-tipo" placeholder="Ex: Consulta Pré Operatório com Dr. Brandão">
+    </div>
+
+    <div class="field">
+      <label>Atendente / Clínica</label>
+      <input type="text" id="f-atendente" placeholder="Ex: Gabriela Nunes – CardioPrime">
+    </div>
+
+    <div class="row2">
+      <div class="field">
+        <label>Data</label>
+        <input type="date" id="f-data">
+      </div>
+      <div class="field">
+        <label>Hora da consulta</label>
+        <input type="time" id="f-hora">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Chegar às (horário de chegada)</label>
+      <input type="time" id="f-chegada">
+    </div>
+
+    <div class="field">
+      <label>Local / Endereço</label>
+      <input type="text" id="f-local" placeholder="Ex: Shopping Park Europeu – 2º piso, Lj 2051/2053">
+    </div>
+
+    <div class="field">
+      <label>Link Google Maps</label>
+      <input type="url" id="f-maps" placeholder="https://goo.gl/maps/...">
+    </div>
+
+    <div class="field">
+      <label>Preparações necessárias</label>
+      <div class="checkgroup" id="chk-group">
+        <label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
+        <label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento</label>
+        <label class="chk-label" data-val="cpf"><input type="checkbox">📋 CPF</label>
+        <label class="chk-label" data-val="carteirinha"><input type="checkbox">💳 Carteirinha Unimed</label>
+        <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
+        <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações / Detalhes</label>
+      <textarea id="f-obs" placeholder="Informações adicionais, preparo específico, etc."></textarea>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="form-cancel">Cancelar</button>
+      <button class="btn btn-primary" id="form-save">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail View -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-header">
+    <button class="btn-back" id="back-btn">‹</button>
+    <div class="detail-header-title" id="detail-header-title"></div>
+  </div>
+
+  <div class="detail-banner">
+    <div class="detail-specialty" id="d-atendente"></div>
+    <div class="detail-name" id="d-tipo"></div>
+  </div>
+
+  <!-- Status Toggle -->
+  <div class="status-toggle" id="status-toggle">
+    <button class="status-btn" data-status="upcoming">📅 Agendada</button>
+    <button class="status-btn" data-status="today">✅ Hoje</button>
+    <button class="status-btn" data-status="past">✔️ Realizada</button>
+  </div>
+
+  <div class="detail-grid">
+    <div class="detail-card blue">
+      <div class="detail-card-label">Data</div>
+      <div class="detail-card-value" id="d-data"></div>
+    </div>
+    <div class="detail-card blue">
+      <div class="detail-card-label">Hora da consulta</div>
+      <div class="detail-card-value" id="d-hora"></div>
+    </div>
+    <div class="detail-card teal full" id="d-chegada-card" style="display:none">
+      <div class="detail-card-label">⏱️ Chegar às</div>
+      <div class="detail-card-value" id="d-chegada"></div>
+      <div class="detail-card-sub">Chegue com antecedência</div>
+    </div>
+    <div class="detail-card full" id="d-local-card" style="display:none">
+      <div class="detail-card-label">📍 Local</div>
+      <div class="detail-card-value" id="d-local"></div>
+      <a class="maps-btn" id="d-maps-link" href="#" target="_blank" rel="noopener" style="display:none">
+        🗺️ Abrir no Maps
+      </a>
+    </div>
+    <div class="detail-card amber full" id="d-obs-card" style="display:none">
+      <div class="detail-card-label">📝 Observações</div>
+      <div class="detail-card-value" id="d-obs"></div>
     </div>
   </div>
 
-  <button class="fab" id="fab-btn" aria-label="Nova consulta">+</button>
-
-  <!-- Form Sheet -->
-  <div class="overlay" id="form-overlay">
-    <div class="sheet" id="form-sheet">
-      <div class="sheet-handle"></div>
-      <div class="sheet-title" id="form-title">Nova consulta</div>
-
-      <div class="field">
-        <label>Tipo / Especialidade</label>
-        <input type="text" id="f-tipo" placeholder="Ex: Consulta Pré Operatório com Dr. Brandão">
-      </div>
-
-      <div class="field">
-        <label>Atendente / Clínica</label>
-        <input type="text" id="f-atendente" placeholder="Ex: Gabriela Nunes – CardioPrime">
-      </div>
-
-      <div class="row2">
-        <div class="field">
-          <label>Data</label>
-          <input type="date" id="f-data">
-        </div>
-        <div class="field">
-          <label>Hora da consulta</label>
-          <input type="time" id="f-hora">
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Chegar às (horário de chegada)</label>
-        <input type="time" id="f-chegada">
-      </div>
-
-      <div class="field">
-        <label>Local / Endereço</label>
-        <input type="text" id="f-local" placeholder="Ex: Shopping Park Europeu – 2º piso, Lj 2051/2053">
-      </div>
-
-      <div class="field">
-        <label>Link Google Maps</label>
-        <input type="url" id="f-maps" placeholder="https://goo.gl/maps/...">
-      </div>
-
-      <div class="field">
-        <label>Preparações necessárias</label>
-        <div class="checkgroup" id="chk-group">
-          <label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
-          <label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento</label>
-          <label class="chk-label" data-val="cpf"><input type="checkbox">📋 CPF</label>
-          <label class="chk-label" data-val="carteirinha"><input type="checkbox">💳 Carteirinha Unimed</label>
-          <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
-          <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
-        </div>
-      </div>
-
-      <div class="field">
-        <label>Observações / Detalhes</label>
-        <textarea id="f-obs" placeholder="Informações adicionais, preparo específico, etc."></textarea>
-      </div>
-
-      <div class="btn-row">
-        <button class="btn btn-secondary" id="form-cancel">Cancelar</button>
-        <button class="btn btn-primary" id="form-save">Salvar</button>
-      </div>
-    </div>
+  <div class="detail-tags-section" id="d-tags-section" style="display:none">
+    <div class="detail-tags-label">Trazer / Preparation</div>
+    <div class="detail-tags" id="d-tags"></div>
   </div>
 
-  <!-- Detail View -->
-  <div class="detail-overlay" id="detail-overlay">
-    <div class="detail-header">
-      <button class="btn-back" id="back-btn">‹</button>
-      <div class="detail-header-title" id="detail-header-title"></div>
-    </div>
+  <div class="action-row">
+    <button class="btn btn-secondary" id="detail-edit-btn">✏️ Editar</button>
+    <button class="btn btn-danger" id="detail-delete-btn">🗑️ Excluir</button>
+  </div>
+</div>
 
-    <div class="detail-banner">
-      <div class="detail-specialty" id="d-atendente"></div>
-      <div class="detail-name" id="d-tipo"></div>
-    </div>
-
-    <!-- Status Toggle -->
-    <div class="status-toggle" id="status-toggle">
-      <button class="status-btn" data-status="upcoming">📅 Agendada</button>
-      <button class="status-btn" data-status="today">✅ Hoje</button>
-      <button class="status-btn" data-status="past">✔️ Realizada</button>
-    </div>
-
-    <div class="detail-grid">
-      <div class="detail-card blue">
-        <div class="detail-card-label">Data</div>
-        <div class="detail-card-value" id="d-data"></div>
-      </div>
-      <div class="detail-card blue">
-        <div class="detail-card-label">Hora da consulta</div>
-        <div class="detail-card-value" id="d-hora"></div>
-      </div>
-      <div class="detail-card teal full" id="d-chegada-card" style="display:none">
-        <div class="detail-card-label">⏱️ Chegar às</div>
-        <div class="detail-card-value" id="d-chegada"></div>
-        <div class="detail-card-sub">Chegue com antecedência</div>
-      </div>
-      <div class="detail-card full" id="d-local-card" style="display:none">
-        <div class="detail-card-label">📍 Local</div>
-        <div class="detail-card-value" id="d-local"></div>
-        <a class="maps-btn" id="d-maps-link" href="#" target="_blank" rel="noopener" style="display:none">
-          🗺️ Abrir no Maps
-        </a>
-      </div>
-      <div class="detail-card amber full" id="d-obs-card" style="display:none">
-        <div class="detail-card-label">📝 Observações</div>
-        <div class="detail-card-value" id="d-obs"></div>
-      </div>
-    </div>
-
-    <div class="detail-tags-section" id="d-tags-section" style="display:none">
-      <div class="detail-tags-label">Trazer / Preparação</div>
-      <div class="detail-tags" id="d-tags"></div>
-    </div>
-
-    <div class="action-row">
-      <button class="btn btn-secondary" id="detail-edit-btn">✏️ Editar</button>
-      <button class="btn btn-danger" id="detail-delete-btn">🗑️ Excluir</button>
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3>Excluir consulta?</h3>
+    <p>Esta ação não pode ser desfeita.</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+      <button class="btn btn-danger" id="confirm-ok">Excluir</button>
     </div>
   </div>
+</div>
 
-  <!-- Confirm Delete -->
-  <div class="confirm-overlay" id="confirm-overlay">
-    <div class="confirm-box">
-      <h3>Excluir consulta?</h3>
-      <p>Esta ação não pode ser desfeita.</p>
-      <div class="btn-row">
-        <button class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
-        <button class="btn btn-danger" id="confirm-ok">Excluir</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Image Modal para Carteirinha -->
-  <div class="image-modal" id="image-modal">
-    <button class="image-modal-close" id="image-modal-close">✕</button>
+<!-- Image Modal Otimizado para Carteirinha -->
+<div class="image-modal" id="image-modal">
+  <button class="image-modal-close" id="image-modal-close">✕</button>
+  <div class="image-container-wrapper">
     <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
-    <div class="image-modal-footer">
-      <button class="image-modal-flip-btn" id="image-modal-flip">🔄 <span id="flip-label">Verso</span></button>
+    
+    <div class="image-modal-hint" id="image-modal-hint">Clique para ver verso</div>
+
+    <div class="image-toggle-controls">
+      <button class="image-toggle-btn active" id="btn-view-frente">Frente</button>
+      <button class="image-toggle-btn" id="btn-view-verso">Verso</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const STORAGE_KEY = 'consultas_v1';
-    let consultas = [];
-    let editingId = null;
-    let viewingId = null;
-    let currentImageIndex = 0;
-    const IMAGES = ['unimed1.webp', 'unimed2.webp'];
+<script>
+const STORAGE_KEY = 'consultas_v1';
+let consultas = [];
+let editingId = null;
+let viewingId = null;
+let currentImageIndex = 0;
+const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
-    const TAG_LABELS = {
-      jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
-      documento: { label: '🪪 Documento com foto', bg: '#E6F1FB', color: '#0C447C' },
-      cpf: { label: '📋 CPF', bg: '#E6F1FB', color: '#0C447C' },
-      carteirinha: { label: '💳 Carteirinha Unimed', bg: '#E1F5EE', color: '#0F6E56' },
-      roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
-      exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
-    };
+const TAG_LABELS = {
+  jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
+  documento: { label: '🪪 Documento com foto', bg: '#E6F1FB', color: '#0C447C' },
+  cpf: { label: '📋 CPF', bg: '#E6F1FB', color: '#0C447C' },
+  carteirinha: { label: '💳 Carteirinha Unimed', bg: '#E1F5EE', color: '#0F6E56' },
+  roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
+  exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
+};
 
-    function load() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        consultas = raw ? JSON.parse(raw) : [];
-      } catch (e) { consultas = []; }
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    consultas = raw ? JSON.parse(raw) : [];
+  } catch(e) { consultas = []; }
+}
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas));
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function parseDate(str) {
+  if (!str) return null;
+  const [y,m,d] = str.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function formatDate(str) {
+  if (!str) return '';
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function formatHora(str) {
+  if (!str) return '';
+  return str;
+}
+
+function today() {
+  const t = new Date();
+  return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function cardStatus(dataStr, manualStatus) {
+  if (manualStatus) return manualStatus;
+  const t = today();
+  if (dataStr === t) return 'today';
+  if (dataStr > t) return 'upcoming';
+  return 'past';
+}
+
+function monthLabel(str) {
+  if (!str) return '';
+  const [y,m] = str.split('-');
+  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  return `${months[parseInt(m)-1]} ${y}`;
+}
+
+function render() {
+  const list = document.getElementById('list');
+  const empty = document.getElementById('empty');
+  const countLabel = document.getElementById('count-label');
+
+  const sorted = [...consultas].sort((a,b) => {
+    const da = (a.data||'') + (a.hora||'');
+    const db = (b.data||'') + (b.hora||'');
+    return da.localeCompare(db);
+  });
+
+  list.innerHTML = '';
+
+  if (sorted.length === 0) {
+    empty.style.display = 'block';
+    countLabel.textContent = 'Nenhuma consulta';
+    return;
+  }
+
+  empty.style.display = 'none';
+  const upcoming = sorted.filter(c => {
+    const status = cardStatus(c.data, c.status);
+    return status === 'upcoming' || status === 'today';
+  });
+  const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
+  countLabel.textContent = `${upcoming.length} próxima${upcoming.length !== 1 ? 's' : ''} · ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
+
+  let lastMonth = null;
+
+  sorted.forEach(c => {
+    const status = cardStatus(c.data, c.status);
+    const mn = monthLabel(c.data);
+    if (mn !== lastMonth) {
+      const ml = document.createElement('div');
+      ml.className = 'month-label';
+      ml.textContent = mn || 'Sem data';
+      list.appendChild(ml);
+      lastMonth = mn;
     }
 
-    function save() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas));
-    }
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.id = c.id;
 
-    function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
+    const badgeClass = status === 'today' ? 'badge-today' : status === 'upcoming' ? 'badge-upcoming' : 'badge-past';
+    const badgeText = status === 'today' ? 'HOJE' : status === 'upcoming' ? 'AGENDADA' : 'REALIZADA';
 
-    function parseDate(str) {
-      if (!str) return null;
-      const [y, m, d] = str.split('-').map(Number);
-      return new Date(y, m - 1, d);
-    }
+    const tags = (c.tags||[]).slice(0,3).map(t => {
+      const info = TAG_LABELS[t];
+      return info ? `<span class="tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
+    }).join('');
 
-    function formatDate(str) {
-      if (!str) return '';
-      const [y, m, d] = str.split('-');
-      return `${d}/${m}/${y}`;
-    }
+    card.innerHTML = `
+      <div class="card-stripe ${stripeClass}"></div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-title">${c.tipo || 'Consulta'}</div>
+          <span class="badge ${badgeClass}">${badgeText}</span>
+        </div>
+        <div class="card-meta">
+          ${c.data ? `<span class="meta-item"><span class="meta-icon">📅</span>${formatDate(c.data)}</span>` : ''}
+          ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>${c.hora}</span>` : ''}
+          ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar: ${c.chegada}</span>` : ''}
+        </div>
+        ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
+        ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+      </div>
+    `;
 
-    function formatHora(str) {
-      if (!str) return '';
-      return str;
-    }
+    card.addEventListener('click', () => openDetail(c.id));
+    list.appendChild(card);
+  });
 
-    function today() {
-      const t = new Date();
-      return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-    }
-
-    function cardStatus(dataStr, manualStatus) {
-      if (manualStatus) return manualStatus;
-      const t = today();
-      if (dataStr === t) return 'today';
-      if (dataStr > t) return 'upcoming';
-      return 'past';
-    }
-
-    function monthLabel(str) {
-      if (!str) return '';
-      const [y, m] = str.split('-');
-      const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro',
-        'Novembro', 'Dezembro'
-      ];
-      return `${months[parseInt(m) - 1]} ${y}`;
-    }
-
-    function render() {
-      const list = document.getElementById('list');
-      const empty = document.getElementById('empty');
-      const countLabel = document.getElementById('count-label');
-
-      const sorted = [...consultas].sort((a, b) => {
-        const da = (a.data || '') + (a.hora || '');
-        const db = (b.data || '') + (b.hora || '');
-        return da.localeCompare(db);
-      });
-
-      list.innerHTML = '';
-
-      if (sorted.length === 0) {
-        empty.style.display = 'block';
-        countLabel.textContent = 'Nenhuma consulta';
-        return;
-      }
-
-      empty.style.display = 'none';
-      const upcoming = sorted.filter(c => {
-        const status = cardStatus(c.data, c.status);
-        return status === 'upcoming' || status === 'today';
-      });
-      const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
-      countLabel.textContent = `${upcoming.length} próxima${upcoming.length !== 1 ? 's' : ''} · ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
-
-      let lastMonth = null;
-
-      sorted.forEach(c => {
-        const status = cardStatus(c.data, c.status);
-        const mn = monthLabel(c.data);
-        if (mn !== lastMonth) {
-          const ml = document.createElement('div');
-          ml.className = 'month-label';
-          ml.textContent = mn || 'Sem data';
-          list.appendChild(ml);
-          lastMonth = mn;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.dataset.id = c.id;
-
-        const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
-        const badgeClass = status === 'today' ? 'badge-today' : status === 'upcoming' ? 'badge-upcoming' : 'badge-past';
-        const badgeText = status === 'today' ? 'HOJE' : status === 'upcoming' ? 'AGENDADA' : 'REALIZADA';
-
-        const tags = (c.tags || []).slice(0, 3).map(t => {
-          const info = TAG_LABELS[t];
-          return info ? `<span class="tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` :
-            '';
-        }).join('');
-
-        card.innerHTML = `
-            <div class="card-stripe ${stripeClass}"></div>
-            <div class="card-body">
-              <div class="card-top">
-                <div class="card-title">${c.tipo || 'Consulta'}</div>
-                <span class="badge ${badgeClass}">${badgeText}</span>
-              </div>
-              <div class="card-meta">
-                ${c.data ? `<span class="meta-item"><span class="meta-icon">📅</span>${formatDate(c.data)}</span>` : ''}
-                ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>${c.hora}</span>` : ''}
-                ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar: ${c.chegada}</span>` : ''}
-              </div>
-              ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
-              ${tags ? `<div class="card-tags">${tags}</div>` : ''}
-            </div>
-          `;
-
-        card.addEventListener('click', () => openDetail(c.id));
-        list.appendChild(card);
-      });
-
-      document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openImageModal();
-        });
-      });
-    }
-
-    function openImageModal() {
-      currentImageIndex = 0;
-      const img = document.getElementById('image-modal-img');
-      img.src = IMAGES[currentImageIndex];
-      img.alt = 'Carteirinha Unimed - Frente';
-      document.getElementById('flip-label').textContent = 'Verso';
-      document.getElementById('image-modal').classList.add('open');
-    }
-
-    function closeImageModal() {
-      document.getElementById('image-modal').classList.remove('open');
-    }
-
-    function toggleImage() {
-      currentImageIndex = (currentImageIndex + 1) % IMAGES.length;
-      const img = document.getElementById('image-modal-img');
-      img.src = IMAGES[currentImageIndex];
-      if (currentImageIndex === 0) {
-        img.alt = 'Carteirinha Unimed - Frente';
-        document.getElementById('flip-label').textContent = 'Verso';
-      } else {
-        img.alt = 'Carteirinha Unimed - Verso';
-        document.getElementById('flip-label').textContent = 'Frente';
-      }
-    }
-
-    function openDetail(id) {
-      const c = consultas.find(x => x.id === id);
-      if (!c) return;
-      viewingId = id;
-
-      document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
-      document.getElementById('d-atendente').textContent = c.atendente || '';
-      document.getElementById('d-tipo').textContent = c.tipo || 'Consulta';
-      document.getElementById('d-data').textContent = formatDate(c.data) || '—';
-      document.getElementById('d-hora').textContent = c.hora || '—';
-
-      const chegadaCard = document.getElementById('d-chegada-card');
-      if (c.chegada) {
-        chegadaCard.style.display = '';
-        document.getElementById('d-chegada').textContent = c.chegada + 'h';
-      } else {
-        chegadaCard.style.display = 'none';
-      }
-
-      const localCard = document.getElementById('d-local-card');
-      if (c.local) {
-        localCard.style.display = '';
-        document.getElementById('d-local').textContent = c.local;
-        const mapsLink = document.getElementById('d-maps-link');
-        if (c.maps) {
-          mapsLink.style.display = 'inline-flex';
-          mapsLink.href = c.maps;
-        } else {
-          mapsLink.style.display = 'none';
-        }
-      } else {
-        localCard.style.display = 'none';
-      }
-
-      const obsCard = document.getElementById('d-obs-card');
-      if (c.obs) {
-        obsCard.style.display = '';
-        document.getElementById('d-obs').textContent = c.obs;
-      } else {
-        obsCard.style.display = 'none';
-      }
-
-      const tagsSection = document.getElementById('d-tags-section');
-      const tagsDiv = document.getElementById('d-tags');
-      if (c.tags && c.tags.length) {
-        tagsSection.style.display = '';
-        tagsDiv.innerHTML = c.tags.map(t => {
-          const info = TAG_LABELS[t];
-          return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` :
-            '';
-        }).join('');
-
-        tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openImageModal();
-          });
-        });
-      } else {
-        tagsSection.style.display = 'none';
-      }
-
-      const currentStatus = cardStatus(c.data, c.status);
-      document.querySelectorAll('.status-btn').forEach(btn => {
-        btn.className = 'status-btn';
-        if (btn.dataset.status === currentStatus) {
-          btn.classList.add(`active-${currentStatus}`);
-        }
-      });
-
-      document.getElementById('detail-overlay').classList.add('open');
-    }
-
-    function closeDetail() {
-      document.getElementById('detail-overlay').classList.remove('open');
-      viewingId = null;
-    }
-
-    function openForm(id) {
-      editingId = id || null;
-      document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
-
-      const c = id ? consultas.find(x => x.id === id) : null;
-      document.getElementById('f-tipo').value = c ? c.tipo : '';
-      document.getElementById('f-atendente').value = c ? c.atendente : '';
-      document.getElementById('f-data').value = c ? c.data : today();
-      document.getElementById('f-hora').value = c ? c.hora : '';
-      document.getElementById('f-chegada').value = c ? c.chegada : '';
-      document.getElementById('f-local').value = c ? c.local : '';
-      document.getElementById('f-maps').value = c ? c.maps : '';
-      document.getElementById('f-obs').value = c ? c.obs : '';
-
-      const labels = document.querySelectorAll('.chk-label');
-      labels.forEach(lbl => {
-        const val = lbl.dataset.val;
-        const checked = c && c.tags && c.tags.includes(val);
-        lbl.querySelector('input').checked = checked;
-        lbl.classList.toggle('checked', checked);
-      });
-
-      document.getElementById('form-overlay').classList.add('open');
-    }
-
-    function closeForm() {
-      document.getElementById('form-overlay').classList.remove('open');
-      editingId = null;
-    }
-
-    function saveForm() {
-      const tipo = document.getElementById('f-tipo').value.trim();
-      if (!tipo) { document.getElementById('f-tipo').focus(); return; }
-
-      const tags = [];
-      document.querySelectorAll('.chk-label').forEach(lbl => {
-        if (lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
-      });
-
-      const obj = {
-        id: editingId || genId(),
-        tipo,
-        atendente: document.getElementById('f-atendente').value.trim(),
-        data: document.getElementById('f-data').value,
-        hora: document.getElementById('f-hora').value,
-        chegada: document.getElementById('f-chegada').value,
-        local: document.getElementById('f-local').value.trim(),
-        maps: document.getElementById('f-maps').value.trim(),
-        obs: document.getElementById('f-obs').value.trim(),
-        tags,
-        criadoEm: editingId ? (consultas.find(x => x.id === editingId) || {}).criadoEm : new Date().toISOString(),
-        atualizadoEm: new Date().toISOString(),
-      };
-
-      if (editingId) {
-        const existing = consultas.find(x => x.id === editingId);
-        if (existing && existing.status) {
-          obj.status = existing.status;
-        }
-      }
-
-      if (editingId) {
-        const idx = consultas.findIndex(x => x.id === editingId);
-        if (idx >= 0) consultas[idx] = obj;
-      } else {
-        consultas.push(obj);
-      }
-
-      save();
-      render();
-      closeForm();
-      if (editingId) openDetail(obj.id);
-    }
-
-    function deleteConsulta(id) {
-      consultas = consultas.filter(x => x.id !== id);
-      save();
-      render();
-      closeDetail();
-    }
-
-    function updateStatus(status) {
-      if (!viewingId) return;
-      const c = consultas.find(x => x.id === viewingId);
-      if (!c) return;
-
-      const autoStatus = cardStatus(c.data, null);
-      if (status === autoStatus) {
-        delete c.status;
-      } else {
-        c.status = status;
-      }
-
-      c.atualizadoEm = new Date().toISOString();
-      save();
-      render();
-      openDetail(viewingId);
-    }
-
-    // Events
-    document.getElementById('fab-btn').addEventListener('click', () => openForm());
-    document.getElementById('form-cancel').addEventListener('click', closeForm);
-    document.getElementById('form-save').addEventListener('click', saveForm);
-    document.getElementById('back-btn').addEventListener('click', closeDetail);
-    document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
-    document.getElementById('image-modal-img').addEventListener('click', toggleImage);
-    document.getElementById('image-modal-flip').addEventListener('click', (e) => {
+  document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
+    el.addEventListener('click', (e) => {
       e.stopPropagation();
-      toggleImage();
+      openImageModal();
     });
-    document.getElementById('image-modal').addEventListener('click', (e) => {
-      if (e.target === document.getElementById('image-modal')) closeImageModal();
-    });
+  });
+}
 
-    document.getElementById('detail-edit-btn').addEventListener('click', () => {
-      const id = viewingId;
-      closeDetail();
-      openForm(id);
-    });
+function openImageModal() {
+  currentImageIndex = 0;
+  updateImageModalUI();
+  document.getElementById('image-modal').classList.add('open');
+}
 
-    document.getElementById('detail-delete-btn').addEventListener('click', () => {
-      document.getElementById('confirm-overlay').classList.add('open');
-    });
+function closeImageModal() {
+  document.getElementById('image-modal').classList.remove('open');
+}
 
-    document.getElementById('confirm-cancel').addEventListener('click', () => {
-      document.getElementById('confirm-overlay').classList.remove('open');
-    });
+// Atualiza de forma centralizada o estado visual do Modal de Imagem
+function updateImageModalUI() {
+  const img = document.getElementById('image-modal-img');
+  const hint = document.getElementById('image-modal-hint');
+  const btnFrente = document.getElementById('btn-view-frente');
+  const btnVerso = document.getElementById('btn-view-verso');
 
-    document.getElementById('confirm-ok').addEventListener('click', () => {
-      document.getElementById('confirm-overlay').classList.remove('open');
-      deleteConsulta(viewingId);
-    });
+  img.src = IMAGES[currentImageIndex];
+  
+  if (currentImageIndex === 0) {
+    img.alt = 'Carteirinha Unimed - Frente';
+    hint.textContent = 'Clique para ver verso';
+    btnFrente.classList.add('active');
+    btnVerso.classList.remove('active');
+  } else {
+    img.alt = 'Carteirinha Unimed - Verso';
+    hint.textContent = 'Clique para ver frente';
+    btnFrente.classList.remove('active');
+    btnVerso.classList.add('active');
+  }
+}
 
-    document.getElementById('form-overlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('form-overlay')) closeForm();
-    });
+function toggleImage() {
+  currentImageIndex = (currentImageIndex + 1) % IMAGES.length;
+  updateImageModalUI();
+}
 
-    document.querySelectorAll('.chk-label').forEach(lbl => {
-      lbl.addEventListener('click', () => {
-        const inp = lbl.querySelector('input');
-        inp.checked = !inp.checked;
-        lbl.classList.toggle('checked', inp.checked);
+function setSpecificImage(index) {
+  if (currentImageIndex === index) return;
+  currentImageIndex = index;
+  updateImageModalUI();
+}
+
+function openDetail(id) {
+  const c = consultas.find(x => x.id === id);
+  if (!c) return;
+  viewingId = id;
+
+  document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
+  document.getElementById('d-atendente').textContent = c.atendente || '';
+  document.getElementById('d-tipo').textContent = c.tipo || 'Consulta';
+  document.getElementById('d-data').textContent = formatDate(c.data) || '—';
+  document.getElementById('d-hora').textContent = c.hora || '—';
+
+  const llegadaCard = document.getElementById('d-chegada-card');
+  if (c.chegada) {
+    llegadaCard.style.display = '';
+    document.getElementById('d-chegada').textContent = c.chegada + 'h';
+  } else {
+    llegadaCard.style.display = 'none';
+  }
+
+  const localCard = document.getElementById('d-local-card');
+  if (c.local) {
+    localCard.style.display = '';
+    document.getElementById('d-local').textContent = c.local;
+    const mapsLink = document.getElementById('d-maps-link');
+    if (c.maps) {
+      mapsLink.style.display = 'flex';
+      mapsLink.href = c.maps;
+    } else {
+      mapsLink.style.display = 'none';
+    }
+  } else {
+    localCard.style.display = 'none';
+  }
+
+  const obsCard = document.getElementById('d-obs-card');
+  if (c.obs) {
+    obsCard.style.display = '';
+    document.getElementById('d-obs').textContent = c.obs;
+  } else {
+    obsCard.style.display = 'none';
+  }
+
+  const tagsSection = document.getElementById('d-tags-section');
+  const tagsDiv = document.getElementById('d-tags');
+  if (c.tags && c.tags.length) {
+    tagsSection.style.display = '';
+    tagsDiv.innerHTML = c.tags.map(t => {
+      const info = TAG_LABELS[t];
+      return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
+    }).join('');
+
+    tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openImageModal();
       });
     });
+  } else {
+    tagsSection.style.display = 'none';
+  }
 
-    document.querySelectorAll('.status-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        updateStatus(btn.dataset.status);
-      });
-    });
-
-    document.getElementById('f-hora').addEventListener('change', e => {
-      const chegada = document.getElementById('f-chegada');
-      if (chegada.value) return;
-      const [h, m] = e.target.value.split(':').map(Number);
-      const total = h * 60 + m - 20;
-      if (total >= 0) {
-        chegada.value = `${String(Math.floor(total / 60)).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`;
-      }
-    });
-
-    // Init
-    load();
-
-    if (consultas.length === 0) {
-      const preFill = {
-        id: genId(),
-        tipo: 'Consulta Pré Operatório com Dr. Brandão',
-        atendente: 'Gabriela Nunes – CardioPrime',
-        data: '2025-06-25',
-        hora: '10:40',
-        chegada: '10:20',
-        local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
-        maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
-        obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
-        tags: ['documento', 'cpf', 'carteirinha'],
-        status: 'upcoming',
-        criadoEm: new Date().toISOString(),
-        atualizadoEm: new Date().toISOString(),
-      };
-      consultas.push(preFill);
-      save();
+  const currentStatus = cardStatus(c.data, c.status);
+  document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.className = 'status-btn';
+    if (btn.dataset.status === currentStatus) {
+      btn.classList.add(`active-${currentStatus}`);
     }
+  });
 
-    render();
+  document.getElementById('detail-overlay').classList.add('open');
+}
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+function closeDetail() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  viewingId = null;
+}
+
+function openForm(id) {
+  editingId = id || null;
+  document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
+
+  const c = id ? consultas.find(x => x.id === id) : null;
+  document.getElementById('f-tipo').value = c ? c.tipo : '';
+  document.getElementById('f-atendente').value = c ? c.atendente : '';
+  document.getElementById('f-data').value = c ? c.data : today();
+  document.getElementById('f-hora').value = c ? c.hora : '';
+  document.getElementById('f-chegada').value = c ? c.chegada : '';
+  document.getElementById('f-local').value = c ? c.local : '';
+  document.getElementById('f-maps').value = c ? c.maps : '';
+  document.getElementById('f-obs').value = c ? c.obs : '';
+
+  const labels = document.querySelectorAll('.chk-label');
+  labels.forEach(lbl => {
+    const val = lbl.dataset.val;
+    const checked = c && c.tags && c.tags.includes(val);
+    lbl.querySelector('input').checked = checked;
+    lbl.classList.toggle('checked', checked);
+  });
+
+  document.getElementById('form-overlay').classList.add('open');
+}
+
+function closeForm() {
+  document.getElementById('form-overlay').classList.remove('open');
+  editingId = null;
+}
+
+function saveForm() {
+  const tipo = document.getElementById('f-tipo').value.trim();
+  if (!tipo) { document.getElementById('f-tipo').focus(); return; }
+
+  const tags = [];
+  document.querySelectorAll('.chk-label').forEach(lbl => {
+    if (lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
+  });
+
+  const obj = {
+    id: editingId || genId(),
+    tipo,
+    atendente: document.getElementById('f-atendente').value.trim(),
+    data: document.getElementById('f-data').value,
+    hora: document.getElementById('f-hora').value,
+    chegada: document.getElementById('f-chegada').value,
+    local: document.getElementById('f-local').value.trim(),
+    maps: document.getElementById('f-maps').value.trim(),
+    obs: document.getElementById('f-obs').value.trim(),
+    tags,
+    criadoEm: editingId ? (consultas.find(x=>x.id===editingId)||{}).criadoEm : new Date().toISOString(),
+    atualizadoEm: new Date().toISOString(),
+  };
+
+  if (editingId) {
+    const existing = consultas.find(x => x.id === editingId);
+    if (existing && existing.status) {
+      obj.status = existing.status;
     }
-  </script>
+  }
+
+  if (editingId) {
+    const idx = consultas.findIndex(x => x.id === editingId);
+    if (idx >= 0) consultas[idx] = obj;
+  } else {
+    consultas.push(obj);
+  }
+
+  save();
+  render();
+  closeForm();
+  if (editingId) openDetail(obj.id);
+}
+
+function deleteConsulta(id) {
+  consultas = consultas.filter(x => x.id !== id);
+  save();
+  render();
+  closeDetail();
+}
+
+function updateStatus(status) {
+  if (!viewingId) return;
+  const c = consultas.find(x => x.id === viewingId);
+  if (!c) return;
+
+  const autoStatus = cardStatus(c.data, null);
+  if (status === autoStatus) {
+    delete c.status;
+  } else {
+    c.status = status;
+  }
+  
+  c.atualizadoEm = new Date().toISOString();
+  save();
+  render();
+  openDetail(viewingId);
+}
+
+// Events
+document.getElementById('fab-btn').addEventListener('click', () => openForm());
+document.getElementById('form-cancel').addEventListener('click', closeForm);
+document.getElementById('form-save').addEventListener('click', saveForm);
+document.getElementById('back-btn').addEventListener('click', closeDetail);
+document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
+document.getElementById('image-modal-img').addEventListener('click', toggleImage);
+
+// Cliques nos botões estáticos de controle
+document.getElementById('btn-view-frente').addEventListener('click', (e) => {
+  e.stopPropagation();
+  setSpecificImage(0);
+});
+document.getElementById('btn-view-verso').addEventListener('click', (e) => {
+  e.stopPropagation();
+  setSpecificImage(1);
+});
+
+document.getElementById('image-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('image-modal')) closeImageModal();
+});
+
+document.getElementById('detail-edit-btn').addEventListener('click', () => {
+  const id = viewingId;
+  closeDetail();
+  openForm(id);
+});
+
+document.getElementById('detail-delete-btn').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').classList.add('open');
+});
+
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').classList.remove('open');
+});
+
+document.getElementById('confirm-ok').addEventListener('click', () => {
+  document.getElementById('confirm-overlay').classList.remove('open');
+  deleteConsulta(viewingId);
+});
+
+document.getElementById('form-overlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('form-overlay')) closeForm();
+});
+
+document.querySelectorAll('.chk-label').forEach(lbl => {
+  lbl.addEventListener('click', () => {
+    const inp = lbl.querySelector('input');
+    inp.checked = !inp.checked;
+    lbl.classList.toggle('checked', inp.checked);
+  });
+});
+
+document.querySelectorAll('.status-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    updateStatus(btn.dataset.status);
+  });
+});
+
+document.getElementById('f-hora').addEventListener('change', e => {
+  const chegada = document.getElementById('f-chegada');
+  if (chegada.value) return;
+  const [h,m] = e.target.value.split(':').map(Number);
+  const total = h * 60 + m - 20;
+  if (total >= 0) {
+    chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+  }
+});
+
+// Init
+load();
+
+if (consultas.length === 0) {
+  const preFill = {
+    id: genId(),
+    tipo: 'Consulta Pré Operatório com Dr. Brandão',
+    atendente: 'Gabriela Nunes – CardioPrime',
+    data: '2025-06-25',
+    hora: '10:40',
+    chegada: '10:20',
+    local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
+    maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
+    obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
+    tags: ['documento', 'cpf', 'carteirinha'],
+    status: 'upcoming',
+    criadoEm: new Date().toISOString(),
+    atualizadoEm: new Date().toISOString(),
+  };
+  consultas.push(preFill);
+  save();
+}
+
+render();
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
 </body>
 </html>
