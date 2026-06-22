@@ -984,7 +984,7 @@ function render() {
       <div class="card-body">
         <div class="card-top">
           <div>
-            <div class="card-title">${c.tipo || 'Consulta'}</div>
+            <div class="card-title">${formatDate(c.data)} - ${c.tipo || 'Consulta'}</div>
             ${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
           </div>
           <span class="badge ${badgeClass}">${badgeText}</span>
