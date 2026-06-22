@@ -1056,8 +1056,8 @@ function render() {
         ${c.medico ? `<div class="card-medico">👨‍⚕️ ${c.medico}</div>` : ''}
         ${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
         <div class="card-meta">
-          ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>${c.hora}</span>` : ''}
-          ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar: ${c.chegada}</span>` : ''}
+          ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐Consulta às </span>${c.hora}</span>` : ''}
+          ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
         </div>
         ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
         ${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.slice(0,3).map(t => {
