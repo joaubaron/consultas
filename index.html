@@ -570,17 +570,23 @@
     align-items: center;
     justify-content: center;
     padding: 2rem;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
   .image-modal.open { display: flex; }
 
-.image-modal-content {
-  width: 90%;
-  max-width: 800px;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-}
+  .image-modal-content {
+    width: 90%;
+    max-width: 800px;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+
+  .image-modal-content:active { transform: scale(0.98); }
 
   .image-modal-close {
     position: fixed;
@@ -603,6 +609,13 @@
   }
 
   .image-modal-close:active { background: rgba(255,255,255,0.3); }
+
+  .image-modal-hint {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.75rem;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
 </style>
 </head>
 <body>
@@ -671,7 +684,7 @@
         <label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
         <label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento</label>
         <label class="chk-label" data-val="cpf"><input type="checkbox">📋 CPF</label>
-        <label class="chk-label" data-val="carteirinha"><input type="checkbox">💳 Carteirinha</label>
+        <label class="chk-label" data-val="carteirinha"><input type="checkbox">💳 Carteirinha Unimed</label>
         <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
         <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
       </div>
@@ -761,7 +774,8 @@
 <!-- Image Modal para Carteirinha -->
 <div class="image-modal" id="image-modal">
   <button class="image-modal-close" id="image-modal-close">✕</button>
-  <img class="image-modal-content" id="image-modal-img" src="unimed.webp" alt="Carteirinha Unimed">
+  <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
+  <div class="image-modal-hint">👆 Toque na imagem para virar</div>
 </div>
 
 <script>
@@ -769,6 +783,8 @@ const STORAGE_KEY = 'consultas_v1';
 let consultas = [];
 let editingId = null;
 let viewingId = null;
+let currentImageIndex = 0;
+const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
   jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
@@ -913,11 +929,22 @@ function render() {
 }
 
 function openImageModal() {
+  currentImageIndex = 0;
+  const img = document.getElementById('image-modal-img');
+  img.src = IMAGES[currentImageIndex];
+  img.alt = 'Carteirinha Unimed - Frente';
   document.getElementById('image-modal').classList.add('open');
 }
 
 function closeImageModal() {
   document.getElementById('image-modal').classList.remove('open');
+}
+
+function toggleImage() {
+  currentImageIndex = (currentImageIndex + 1) % IMAGES.length;
+  const img = document.getElementById('image-modal-img');
+  img.src = IMAGES[currentImageIndex];
+  img.alt = currentImageIndex === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
 }
 
 function openDetail(id) {
@@ -1103,6 +1130,7 @@ document.getElementById('form-cancel').addEventListener('click', closeForm);
 document.getElementById('form-save').addEventListener('click', saveForm);
 document.getElementById('back-btn').addEventListener('click', closeDetail);
 document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
+document.getElementById('image-modal-img').addEventListener('click', toggleImage);
 document.getElementById('image-modal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('image-modal')) closeImageModal();
 });
