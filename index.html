@@ -150,6 +150,13 @@
     flex: 1;
   }
 
+  .card-medico {
+    font-size: 0.78rem;
+    color: var(--blue-600);
+    font-weight: 600;
+    margin-top: 2px;
+  }
+
   .badge {
     font-size: 0.65rem;
     font-weight: 700;
@@ -410,6 +417,13 @@
     font-weight: 700;
     color: white;
     line-height: 1.25;
+  }
+
+  .detail-medico {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 4px;
+    font-weight: 500;
   }
 
   /* Status toggle */
@@ -724,9 +738,16 @@
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="form-title">Nova consulta</div>
 
+    <!-- CAMPO: Título da consulta -->
     <div class="field">
-      <label>Tipo / Especialidade</label>
-      <input type="text" id="f-tipo" placeholder="Ex: Consulta Pré Operatório com Dr. Brandão">
+      <label>📌 Título da consulta</label>
+      <input type="text" id="f-titulo" placeholder="Ex: Consulta Pré Operatório">
+    </div>
+
+    <!-- CAMPO: Médico / Especialista -->
+    <div class="field">
+      <label>👨‍⚕️ Médico / Especialista</label>
+      <input type="text" id="f-medico" placeholder="Ex: Dr. Brandão">
     </div>
 
     <div class="field">
@@ -793,7 +814,8 @@
 
   <div class="detail-banner">
     <div class="detail-specialty" id="d-atendente"></div>
-    <div class="detail-name" id="d-tipo"></div>
+    <div class="detail-name" id="d-titulo"></div>
+    <div class="detail-medico" id="d-medico"></div>
   </div>
 
   <div class="status-toggle" id="status-toggle">
@@ -979,12 +1001,17 @@ function render() {
       return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
     }).join('');
 
+    // Mostra título + médico no card
+    const tituloDisplay = c.titulo || c.tipo || 'Consulta';
+    const medicoDisplay = c.medico || '';
+
     card.innerHTML = `
       <div class="card-stripe ${stripeClass}"></div>
       <div class="card-body">
         <div class="card-top">
           <div>
-            <div class="card-title">${formatDate(c.data)} - ${c.tipo || 'Consulta'}</div>
+            <div class="card-title">${formatDate(c.data)} - ${tituloDisplay}</div>
+            ${medicoDisplay ? `<div class="card-medico">👨‍⚕️ ${medicoDisplay}</div>` : ''}
             ${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
           </div>
           <span class="badge ${badgeClass}">${badgeText}</span>
@@ -1044,9 +1071,11 @@ function openDetail(id) {
   if (!c) return;
   viewingId = id;
 
+  const tituloDisplay = c.titulo || c.tipo || 'Consulta';
   document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
   document.getElementById('d-atendente').textContent = c.atendente || '';
-  document.getElementById('d-tipo').textContent = c.tipo || 'Consulta';
+  document.getElementById('d-titulo').textContent = tituloDisplay;
+  document.getElementById('d-medico').textContent = c.medico ? '👨‍⚕️ ' + c.medico : '';
   document.getElementById('d-data').textContent = formatDate(c.data) || '—';
   document.getElementById('d-hora').textContent = c.hora || '—';
 
@@ -1121,7 +1150,9 @@ function openForm(id) {
   document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
 
   const c = id ? consultas.find(x => x.id === id) : null;
-  document.getElementById('f-tipo').value = c ? c.tipo : '';
+  // Campos: título e médico
+  document.getElementById('f-titulo').value = c ? (c.titulo || c.tipo || '') : '';
+  document.getElementById('f-medico').value = c ? (c.medico || '') : '';
   document.getElementById('f-atendente').value = c ? c.atendente : '';
   document.getElementById('f-data').value = c ? c.data : today();
   document.getElementById('f-hora').value = c ? c.hora : '';
@@ -1147,8 +1178,8 @@ function closeForm() {
 }
 
 function saveForm() {
-  const tipo = document.getElementById('f-tipo').value.trim();
-  if (!tipo) { document.getElementById('f-tipo').focus(); return; }
+  const titulo = document.getElementById('f-titulo').value.trim();
+  if (!titulo) { document.getElementById('f-titulo').focus(); return; }
 
   const tags = [];
   document.querySelectorAll('.chk-label').forEach(lbl => {
@@ -1157,7 +1188,8 @@ function saveForm() {
 
   const obj = {
     id: editingId || genId(),
-    tipo,
+    titulo: titulo,
+    medico: document.getElementById('f-medico').value.trim(),
     atendente: document.getElementById('f-atendente').value.trim(),
     data: document.getElementById('f-data').value,
     hora: document.getElementById('f-hora').value,
@@ -1267,14 +1299,7 @@ document.getElementById('f-hora').addEventListener('change', e => {
 load();
 
 if (consultas.length === 0) {
-  // Obtém a data atual no formato DD/MM/AAAA para exibição
   const hoje = new Date();
-  const dia = String(hoje.getDate()).padStart(2, '0');
-  const mes = String(hoje.getMonth() + 1).padStart(2, '0');
-  const ano = hoje.getFullYear();
-  const dataExibicao = `${dia}/${mes}/${ano}`;
-  
-  // Calcula a data de amanhã para armazenamento (formato YYYY-MM-DD)
   const amanha = new Date(hoje);
   amanha.setDate(amanha.getDate() + 1);
   const anoAmanha = amanha.getFullYear();
@@ -1284,9 +1309,10 @@ if (consultas.length === 0) {
 
   const preFill = {
     id: genId(),
-    tipo: 'Consulta Pré Operatório com Dr. Brandão',
+    titulo: 'Consulta Pré Operatório',
+    medico: 'Dr. Brandão',
     atendente: 'Gabriela Nunes – CardioPrime',
-    data: dataAmanha, // Armazena no formato YYYY-MM-DD
+    data: dataAmanha,
     hora: '10:40',
     chegada: '10:20',
     local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
