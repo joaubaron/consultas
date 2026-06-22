@@ -1023,7 +1023,7 @@ const status = cardStatus(c.data, c.status);
 return status === 'upcoming' || status === 'today';
 });
 const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
-countLabel.textContent = `${upcoming.length} próxima${upcoming.length !== 1 ? 's' : ''} · ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
+countLabel.textContent = `${upcoming.length} consulta próxima${upcoming.length !== 1 ? 's' : ''} · ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
 
 let lastMonth = null;
 
