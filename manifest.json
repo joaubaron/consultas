@@ -2,7 +2,7 @@
   "name": "Consultas Médicas",
   "short_name": "Consultas",
   "description": "Agenda de consultas médicas offline",
-  "start_url": "consultas.html",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#185FA5",
   "theme_color": "#185FA5",
