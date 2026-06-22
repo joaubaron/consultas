@@ -560,80 +560,40 @@
 
   .status-btn:active { transform: scale(0.95); }
 
-  /* Image Modal - Estilização Otimizada e Intuitiva */
+  /* Image Modal - Melhorado */
   .image-modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0,0,0,0.92);
     z-index: 600;
     align-items: center;
     justify-content: center;
     padding: 1rem;
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .image-modal.open { display: flex; }
 
-  .image-container-wrapper {
-    width: 100%;
-    max-width: 450px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-  }
-
   .image-modal-content {
     width: 100%;
+    max-width: 480px;
     height: auto;
     border-radius: 16px;
-    box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid rgba(255,255,255,0.1);
+    transition: transform 0.2s, opacity 0.2s;
+    object-fit: contain;
   }
 
-  .image-modal-content:active { transform: scale(0.98); }
-
-  /* Controles de Frente / Verso integrados */
-  .image-toggle-controls {
-    display: flex;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 4px;
-    border-radius: 30px;
-    width: 100%;
-    max-width: 280px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .image-toggle-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .image-toggle-btn.active {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  }
+  .image-modal-content:active { transform: scale(0.97); }
 
   .image-modal-close {
     position: fixed;
-    top: 1.25rem;
-    right: 1.25rem;
-    background: rgba(255,255,255,0.2);
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255,255,255,0.15);
     border: none;
     color: white;
     font-size: 1.5rem;
@@ -644,23 +604,129 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(8px);
     transition: background 0.15s;
     z-index: 601;
   }
 
-  .image-modal-close:active { background: rgba(255,255,255,0.35); }
+  .image-modal-close:active { background: rgba(255,255,255,0.3); }
 
   .image-modal-hint {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.8rem;
     text-align: center;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 6px 16px;
+    margin-top: 0.25rem;
+  }
+
+  /* Toggle Frente/Verso */
+  .face-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    background: rgba(255,255,255,0.1);
+    padding: 0.75rem 1.5rem;
+    border-radius: 40px;
+    backdrop-filter: blur(8px);
+  }
+
+  .face-toggle-label {
+    color: rgba(255,255,255,0.5);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+    user-select: none;
+  }
+
+  .face-toggle-label.active {
+    color: white;
+  }
+
+  .face-toggle-track {
+    width: 56px;
+    height: 30px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 15px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+  }
+
+  .face-toggle-track:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
+  .face-toggle-thumb {
+    width: 24px;
+    height: 24px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  }
+
+  .face-toggle-track.verso .face-toggle-thumb {
+    transform: translateX(26px);
+  }
+
+  .face-toggle-track.verso {
+    background: var(--teal-400);
+  }
+
+  .face-toggle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 0.65rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 0.75rem;
+    backdrop-filter: blur(8px);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .face-toggle-btn:active {
+    background: rgba(255,255,255,0.2);
+    transform: scale(0.97);
+  }
+
+  .face-toggle-btn .face-icon {
+    font-size: 1.1rem;
+  }
+
+  /* Badge de lado */
+  .face-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    padding: 0.4rem 0.9rem;
     border-radius: 20px;
-    pointer-events: none;
-    letter-spacing: 0.02em;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .face-badge .face-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--teal-400);
   }
 </style>
 </head>
@@ -795,7 +861,7 @@
   </div>
 
   <div class="detail-tags-section" id="d-tags-section" style="display:none">
-    <div class="detail-tags-label">Trazer / Preparation</div>
+    <div class="detail-tags-label">Trazer / Preparação</div>
     <div class="detail-tags" id="d-tags"></div>
   </div>
 
@@ -817,19 +883,31 @@
   </div>
 </div>
 
-<!-- Image Modal Otimizado para Carteirinha -->
+<!-- Image Modal para Carteirinha - Melhorado -->
 <div class="image-modal" id="image-modal">
   <button class="image-modal-close" id="image-modal-close">✕</button>
-  <div class="image-container-wrapper">
-    <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
-    
-    <div class="image-modal-hint" id="image-modal-hint">Clique para ver verso</div>
 
-    <div class="image-toggle-controls">
-      <button class="image-toggle-btn active" id="btn-view-frente">Frente</button>
-      <button class="image-toggle-btn" id="btn-view-verso">Verso</button>
-    </div>
+  <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
+
+  <div class="face-badge" id="face-badge">
+    <span class="face-dot"></span>
+    <span id="face-badge-text">Frente</span>
   </div>
+
+  <div class="face-toggle">
+    <span class="face-toggle-label active" id="label-frente">FRENTE</span>
+    <div class="face-toggle-track" id="face-toggle-track">
+      <div class="face-toggle-thumb"></div>
+    </div>
+    <span class="face-toggle-label" id="label-verso">VERSO</span>
+  </div>
+
+  <button class="face-toggle-btn" id="face-toggle-btn">
+    <span class="face-icon">🔄</span>
+    <span id="face-btn-text">Ver verso da carteirinha</span>
+  </button>
+
+  <div class="image-modal-hint">Toque na imagem para virar</div>
 </div>
 
 <script>
@@ -839,6 +917,7 @@ let editingId = null;
 let viewingId = null;
 let currentImageIndex = 0;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
+const FACE_NAMES = ['Frente', 'Verso'];
 
 const TAG_LABELS = {
   jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
@@ -973,6 +1052,7 @@ function render() {
     list.appendChild(card);
   });
 
+  // Adicionar evento de clique nas tags para abrir a imagem
   document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
     el.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -991,37 +1071,33 @@ function closeImageModal() {
   document.getElementById('image-modal').classList.remove('open');
 }
 
-// Atualiza de forma centralizada o estado visual do Modal de Imagem
-function updateImageModalUI() {
-  const img = document.getElementById('image-modal-img');
-  const hint = document.getElementById('image-modal-hint');
-  const btnFrente = document.getElementById('btn-view-frente');
-  const btnVerso = document.getElementById('btn-view-verso');
-
-  img.src = IMAGES[currentImageIndex];
-  
-  if (currentImageIndex === 0) {
-    img.alt = 'Carteirinha Unimed - Frente';
-    hint.textContent = 'Clique para ver verso';
-    btnFrente.classList.add('active');
-    btnVerso.classList.remove('active');
-  } else {
-    img.alt = 'Carteirinha Unimed - Verso';
-    hint.textContent = 'Clique para ver frente';
-    btnFrente.classList.remove('active');
-    btnVerso.classList.add('active');
-  }
-}
-
 function toggleImage() {
   currentImageIndex = (currentImageIndex + 1) % IMAGES.length;
   updateImageModalUI();
 }
 
-function setSpecificImage(index) {
-  if (currentImageIndex === index) return;
-  currentImageIndex = index;
-  updateImageModalUI();
+function updateImageModalUI() {
+  const img = document.getElementById('image-modal-img');
+  img.src = IMAGES[currentImageIndex];
+  img.alt = `Carteirinha Unimed - ${FACE_NAMES[currentImageIndex]}`;
+
+  const isVerso = currentImageIndex === 1;
+
+  // Atualizar badge
+  document.getElementById('face-badge-text').textContent = FACE_NAMES[currentImageIndex];
+  document.querySelector('.face-dot').style.background = isVerso ? '#1D9E75' : '#378ADD';
+
+  // Atualizar labels do toggle
+  document.getElementById('label-frente').classList.toggle('active', !isVerso);
+  document.getElementById('label-verso').classList.toggle('active', isVerso);
+
+  // Atualizar track do toggle
+  document.getElementById('face-toggle-track').classList.toggle('verso', isVerso);
+
+  // Atualizar botão
+  document.getElementById('face-btn-text').textContent = isVerso
+    ? 'Ver frente da carteirinha'
+    : 'Ver verso da carteirinha';
 }
 
 function openDetail(id) {
@@ -1035,12 +1111,12 @@ function openDetail(id) {
   document.getElementById('d-data').textContent = formatDate(c.data) || '—';
   document.getElementById('d-hora').textContent = c.hora || '—';
 
-  const llegadaCard = document.getElementById('d-chegada-card');
+  const chegadaCard = document.getElementById('d-chegada-card');
   if (c.chegada) {
-    llegadaCard.style.display = '';
+    chegadaCard.style.display = '';
     document.getElementById('d-chegada').textContent = c.chegada + 'h';
   } else {
-    llegadaCard.style.display = 'none';
+    chegadaCard.style.display = 'none';
   }
 
   const localCard = document.getElementById('d-local-card');
@@ -1075,6 +1151,7 @@ function openDetail(id) {
       return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
     }).join('');
 
+    // Adicionar evento nas tags do detalhe
     tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -1193,7 +1270,7 @@ function updateStatus(status) {
   } else {
     c.status = status;
   }
-  
+
   c.atualizadoEm = new Date().toISOString();
   save();
   render();
@@ -1207,20 +1284,13 @@ document.getElementById('form-save').addEventListener('click', saveForm);
 document.getElementById('back-btn').addEventListener('click', closeDetail);
 document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
 document.getElementById('image-modal-img').addEventListener('click', toggleImage);
-
-// Cliques nos botões estáticos de controle
-document.getElementById('btn-view-frente').addEventListener('click', (e) => {
-  e.stopPropagation();
-  setSpecificImage(0);
-});
-document.getElementById('btn-view-verso').addEventListener('click', (e) => {
-  e.stopPropagation();
-  setSpecificImage(1);
-});
-
 document.getElementById('image-modal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('image-modal')) closeImageModal();
 });
+
+// Toggle interativo
+document.getElementById('face-toggle-track').addEventListener('click', toggleImage);
+document.getElementById('face-toggle-btn').addEventListener('click', toggleImage);
 
 document.getElementById('detail-edit-btn').addEventListener('click', () => {
   const id = viewingId;
