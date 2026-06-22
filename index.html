@@ -811,7 +811,7 @@ letter-spacing: 0.02em;
 <input type="date" id="f-data">
 </div>
 <div class="field">
-<label>Consulta</label>
+<label>Hora da consulta</label>
 <input type="time" id="f-hora">
 </div>
 </div>
@@ -833,13 +833,15 @@ letter-spacing: 0.02em;
 
 <div class="field">
 <label>Preparações necessárias</label>
+<div style="margin-bottom:0.6rem">
+<span class="chk-label checked" style="display:inline-flex;cursor:default">💳 Carteirinha Unimed <span style="font-size:0.7rem;margin-left:4px;opacity:0.6">(sempre)</span></span>
+</div>
 <div class="checkgroup" id="chk-group">
-<label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
 <label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento</label>
 <label class="chk-label" data-val="cpf"><input type="checkbox">📋 CPF</label>
-<label class="chk-label" data-val="carteirinha"><input type="checkbox">💳 Carteirinha Unimed</label>
-<label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
+<label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
 <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
+<label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
 </div>
 </div>
 
@@ -880,7 +882,7 @@ letter-spacing: 0.02em;
 <div class="detail-card-value" id="d-data"></div>
 </div>
 <div class="detail-card blue">
-<div class="detail-card-label">Consulta</div>
+<div class="detail-card-label">Hora da consulta</div>
 <div class="detail-card-value" id="d-hora"></div>
 </div>
 <div class="detail-card teal full" id="d-chegada-card" style="display:none">
@@ -1216,9 +1218,11 @@ document.getElementById('f-obs').value = c ? c.obs : '';
 
 const labels = document.querySelectorAll('.chk-label');
 labels.forEach(lbl => {
+const inp = lbl.querySelector('input');
+if (!inp) return; // badge fixo sem input
 const val = lbl.dataset.val;
 const checked = c && c.tags && c.tags.includes(val);
-lbl.querySelector('input').checked = checked;
+inp.checked = checked;
 lbl.classList.toggle('checked', checked);
 });
 
@@ -1234,9 +1238,9 @@ function saveForm() {
 const titulo = document.getElementById('f-titulo').value.trim();
 if (!titulo) { document.getElementById('f-titulo').focus(); return; }
 
-const tags = [];
+const tags = ['carteirinha'];
 document.querySelectorAll('.chk-label').forEach(lbl => {
-if (lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
+if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
 });
 
 const obj = {
