@@ -1267,11 +1267,26 @@ document.getElementById('f-hora').addEventListener('change', e => {
 load();
 
 if (consultas.length === 0) {
+  // Obtém a data atual no formato DD/MM/AAAA para exibição
+  const hoje = new Date();
+  const dia = String(hoje.getDate()).padStart(2, '0');
+  const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+  const ano = hoje.getFullYear();
+  const dataExibicao = `${dia}/${mes}/${ano}`;
+  
+  // Calcula a data de amanhã para armazenamento (formato YYYY-MM-DD)
+  const amanha = new Date(hoje);
+  amanha.setDate(amanha.getDate() + 1);
+  const anoAmanha = amanha.getFullYear();
+  const mesAmanha = String(amanha.getMonth() + 1).padStart(2, '0');
+  const diaAmanha = String(amanha.getDate()).padStart(2, '0');
+  const dataAmanha = `${anoAmanha}-${mesAmanha}-${diaAmanha}`;
+
   const preFill = {
     id: genId(),
     tipo: 'Consulta Pré Operatório com Dr. Brandão',
     atendente: 'Gabriela Nunes – CardioPrime',
-    data: '2025-06-25',
+    data: dataAmanha, // Armazena no formato YYYY-MM-DD
     hora: '10:40',
     chegada: '10:20',
     local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
