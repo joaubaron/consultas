@@ -510,6 +510,47 @@
   .confirm-box h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
   .confirm-box p { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 1.25rem; }
   .confirm-box .btn-row { margin-top: 0; }
+
+  /* Status toggle */
+  .status-toggle {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0 1.25rem 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .status-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--gray-100);
+    background: white;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--gray-600);
+  }
+
+  .status-btn.active-upcoming {
+    border-color: var(--blue-600);
+    background: var(--blue-50);
+    color: var(--blue-800);
+  }
+
+  .status-btn.active-today {
+    border-color: var(--teal-400);
+    background: var(--teal-50);
+    color: var(--teal-600);
+  }
+
+  .status-btn.active-past {
+    border-color: var(--gray-400);
+    background: var(--gray-50);
+    color: var(--gray-600);
+  }
+
+  .status-btn:active { transform: scale(0.95); }
 </style>
 </head>
 <body>
@@ -606,6 +647,13 @@
   <div class="detail-banner">
     <div class="detail-specialty" id="d-atendente"></div>
     <div class="detail-name" id="d-tipo"></div>
+  </div>
+
+  <!-- Status Toggle -->
+  <div class="status-toggle" id="status-toggle">
+    <button class="status-btn" data-status="upcoming">📅 Agendada</button>
+    <button class="status-btn" data-status="today">✅ Hoje</button>
+    <button class="status-btn" data-status="past">✔️ Realizada</button>
   </div>
 
   <div class="detail-grid">
@@ -708,7 +756,11 @@ function today() {
   return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
 }
 
-function cardStatus(dataStr) {
+function cardStatus(dataStr, manualStatus) {
+  // Se tiver status manual, usa ele
+  if (manualStatus) return manualStatus;
+  
+  // Caso contrário, calcula automaticamente
   const t = today();
   if (dataStr === t) return 'today';
   if (dataStr > t) return 'upcoming';
@@ -742,14 +794,17 @@ function render() {
   }
 
   empty.style.display = 'none';
-  const upcoming = sorted.filter(c => (c.data||'') >= today());
-  const past = sorted.filter(c => (c.data||'') < today());
+  const upcoming = sorted.filter(c => {
+    const status = cardStatus(c.data, c.status);
+    return status === 'upcoming' || status === 'today';
+  });
+  const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
   countLabel.textContent = `${upcoming.length} próxima${upcoming.length !== 1 ? 's' : ''} · ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
 
   let lastMonth = null;
 
   sorted.forEach(c => {
-    const status = cardStatus(c.data||'');
+    const status = cardStatus(c.data, c.status);
     const mn = monthLabel(c.data);
     if (mn !== lastMonth) {
       const ml = document.createElement('div');
@@ -765,7 +820,7 @@ function render() {
 
     const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
     const badgeClass = status === 'today' ? 'badge-today' : status === 'upcoming' ? 'badge-upcoming' : 'badge-past';
-    const badgeText = status === 'today' ? 'HOJE' : status === 'upcoming' ? 'PRÓXIMA' : 'REALIZADA';
+    const badgeText = status === 'today' ? 'HOJE' : status === 'upcoming' ? 'AGENDADA' : 'REALIZADA';
 
     const tags = (c.tags||[]).slice(0,3).map(t => {
       const info = TAG_LABELS[t];
@@ -848,6 +903,15 @@ function openDetail(id) {
     tagsSection.style.display = 'none';
   }
 
+  // Atualizar status toggle
+  const currentStatus = cardStatus(c.data, c.status);
+  document.querySelectorAll('.status-btn').forEach(btn => {
+    btn.className = 'status-btn';
+    if (btn.dataset.status === currentStatus) {
+      btn.classList.add(`active-${currentStatus}`);
+    }
+  });
+
   document.getElementById('detail-overlay').classList.add('open');
 }
 
@@ -910,6 +974,14 @@ function saveForm() {
     atualizadoEm: new Date().toISOString(),
   };
 
+  // Preservar status manual se existir
+  if (editingId) {
+    const existing = consultas.find(x => x.id === editingId);
+    if (existing && existing.status) {
+      obj.status = existing.status;
+    }
+  }
+
   if (editingId) {
     const idx = consultas.findIndex(x => x.id === editingId);
     if (idx >= 0) consultas[idx] = obj;
@@ -928,6 +1000,27 @@ function deleteConsulta(id) {
   save();
   render();
   closeDetail();
+}
+
+// Função para atualizar status manual
+function updateStatus(status) {
+  if (!viewingId) return;
+  const c = consultas.find(x => x.id === viewingId);
+  if (!c) return;
+
+  // Se o status for o mesmo que o calculado automaticamente, remove o manual
+  const autoStatus = cardStatus(c.data, null);
+  if (status === autoStatus) {
+    delete c.status; // Remove status manual
+  } else {
+    c.status = status;
+  }
+  
+  c.atualizadoEm = new Date().toISOString();
+  save();
+  render();
+  // Atualiza a view sem fechar
+  openDetail(viewingId);
 }
 
 // Events
@@ -967,6 +1060,13 @@ document.querySelectorAll('.chk-label').forEach(lbl => {
   });
 });
 
+// Eventos dos botões de status
+document.querySelectorAll('.status-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    updateStatus(btn.dataset.status);
+  });
+});
+
 // Auto-fill chegada 20min antes
 document.getElementById('f-hora').addEventListener('change', e => {
   const chegada = document.getElementById('f-chegada');
@@ -978,9 +1078,10 @@ document.getElementById('f-hora').addEventListener('change', e => {
   }
 });
 
-// Init — pre-populate with the consulta from the message
+// Init
 load();
 
+// Se não tiver consultas, adiciona a pré-preenchida com status correto
 if (consultas.length === 0) {
   const preFill = {
     id: genId(),
@@ -993,6 +1094,7 @@ if (consultas.length === 0) {
     maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
     obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
     tags: ['documento', 'cpf', 'carteirinha'],
+    status: 'upcoming', // Força status como "agendada"
     criadoEm: new Date().toISOString(),
     atualizadoEm: new Date().toISOString(),
   };
