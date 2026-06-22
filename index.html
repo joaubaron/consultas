@@ -136,13 +136,26 @@
   .card-body { padding: 1rem 1.1rem 0.9rem; }
 
   /* LINHA 1: Data + Status + Unimed */
-  .card-top-row {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 0.4rem;
-  }
+.card-top-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+ .card-top-row > * {
+  flex: 1;
+  min-width: 0; /* Para evitar overflow */
+  text-align: center;
+}
+
+ .card-top-row > :first-child {
+  text-align: left;
+}
+
+.card-top-row > :last-child {
+  text-align: right;
+}
 
   .card-data {
     font-size: 0.85rem;
@@ -1041,14 +1054,14 @@ function render() {
     const hasUnimed = (c.tags || []).includes('carteirinha');
     const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 
-    card.innerHTML = `
+ card.innerHTML = `
       <div class="card-stripe ${stripeClass}"></div>
       <div class="card-body">
-        <!-- LINHA 1: Data + Status + Unimed -->
+        <!-- LINHA 1: Data + Status + Unimed com tamanhos iguais -->
         <div class="card-top-row">
           <span class="card-data">${formatDate(c.data)}</span>
           <span class="card-status-badge ${status}">${statusLabels[status]}</span>
-          ${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); openImageModal();">💳 Unimed</span>` : ''}
+          ${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); openImageModal();">💳 Unimed</span>` : `<span class="card-btn-unimed" style="visibility:hidden;">💳 Unimed</span>`}
         </div>
         <!-- LINHA 2: Título -->
         <div class="card-title">${tituloDisplay}</div>
