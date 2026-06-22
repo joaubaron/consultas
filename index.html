@@ -38,168 +38,181 @@
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: #f0f4f8;
+    background: #eef2f7;
     color: #1a1a2e;
     min-height: 100dvh;
   }
 
+  /* ─── HEADER ─── */
   header {
-    background: var(--blue-600);
+    background: linear-gradient(135deg, var(--blue-800) 0%, var(--blue-600) 100%);
     color: white;
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 1.25rem 1rem;
     position: sticky;
     top: 0;
     z-index: 100;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 2px 12px rgba(12,68,124,0.25);
   }
 
   header h1 {
-    font-size: 1.1rem;
-    font-weight: 600;
+    font-size: 1.15rem;
+    font-weight: 700;
     letter-spacing: 0.01em;
   }
 
   header p {
-    font-size: 0.75rem;
-    opacity: 0.75;
-    margin-top: 2px;
+    font-size: 0.78rem;
+    opacity: 0.8;
+    margin-top: 3px;
+    font-weight: 500;
   }
 
+  /* ─── FAB ─── */
   .fab {
     position: fixed;
-    bottom: 1.5rem;
+    bottom: 1.75rem;
     right: 1.5rem;
-    width: 56px;
-    height: 56px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background: var(--blue-600);
     color: white;
     border: none;
-    font-size: 1.75rem;
+    font-size: 2rem;
     cursor: pointer;
     z-index: 200;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(24,95,165,0.4);
+    box-shadow: 0 4px 18px rgba(24,95,165,0.45), 0 2px 6px rgba(24,95,165,0.2);
     transition: transform 0.15s, box-shadow 0.15s;
     line-height: 1;
   }
 
-  .fab:active { transform: scale(0.95); }
+  .fab:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(24,95,165,0.35); }
 
+  /* ─── EMPTY STATE ─── */
   .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 5rem 2rem;
     color: var(--gray-400);
   }
 
   .empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; }
-  .empty-state h2 { font-size: 1rem; font-weight: 500; color: var(--gray-600); }
+  .empty-state h2 { font-size: 1rem; font-weight: 600; color: var(--gray-600); }
   .empty-state p { font-size: 0.85rem; margin-top: 0.4rem; }
 
-  .list { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; padding-bottom: 5rem; }
+  /* ─── LIST ─── */
+  .list { padding: 1rem 1rem 5rem; display: flex; flex-direction: column; gap: 0.75rem; }
 
   .month-label {
     font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--blue-600);
-    padding: 0.5rem 0 0.25rem;
+    padding: 0.75rem 0.25rem 0.2rem;
+    border-bottom: 2px solid var(--blue-100);
+    margin-bottom: 0.25rem;
   }
 
+  /* ─── CARD ─── */
   .card {
     background: white;
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
     cursor: pointer;
     transition: transform 0.12s, box-shadow 0.12s;
   }
 
-  .card:active { transform: scale(0.985); }
+  .card:active { transform: scale(0.985); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
 
-  .card-stripe {
-    height: 4px;
-  }
-
-  .upcoming { background: var(--blue-600); }
-  .today-stripe { background: var(--teal-400); }
+  .card-stripe { height: 5px; }
+  .upcoming { background: linear-gradient(90deg, var(--blue-600), var(--blue-400)); }
+  .today-stripe { background: linear-gradient(90deg, var(--teal-600), var(--teal-400)); }
   .past-stripe { background: var(--gray-100); }
 
-  .card-body { padding: 0.9rem 1rem; }
+  .card-body { padding: 1rem 1.1rem 0.9rem; }
 
   .card-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .card-title {
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.95rem;
+    font-weight: 700;
     color: #111;
-    line-height: 1.3;
+    line-height: 1.35;
     flex: 1;
   }
 
   .badge {
     font-size: 0.65rem;
-    font-weight: 600;
-    padding: 2px 8px;
+    font-weight: 700;
+    padding: 3px 10px;
     border-radius: 20px;
     white-space: nowrap;
     flex-shrink: 0;
+    letter-spacing: 0.04em;
   }
 
-  .badge-upcoming { background: var(--blue-50); color: var(--blue-800); }
-  .badge-today { background: var(--teal-50); color: var(--teal-600); }
-  .badge-past { background: var(--gray-50); color: var(--gray-600); }
+  .badge-upcoming { background: var(--blue-50); color: var(--blue-800); border: 1px solid var(--blue-100); }
+  .badge-today { background: var(--teal-50); color: var(--teal-600); border: 1px solid #9FE1CB; }
+  .badge-past { background: var(--gray-50); color: var(--gray-600); border: 1px solid var(--gray-100); }
+
+  .card-atendente {
+    font-size: 0.75rem;
+    color: var(--blue-600);
+    font-weight: 600;
+    margin-top: 3px;
+    opacity: 0.85;
+  }
 
   .card-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 0.6rem;
+    gap: 0.65rem;
+    margin-top: 0.65rem;
   }
 
   .meta-item {
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.78rem;
+    gap: 5px;
+    font-size: 0.8rem;
     color: var(--gray-600);
+    background: var(--gray-50);
+    padding: 3px 9px;
+    border-radius: 8px;
+    font-weight: 500;
   }
 
-  .meta-icon { font-size: 0.9rem; }
+  .meta-icon { font-size: 0.88rem; }
 
   .card-tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 0.65rem;
+    gap: 5px;
+    margin-top: 0.7rem;
   }
 
   .tag {
-    font-size: 0.68rem;
-    padding: 2px 8px;
+    font-size: 0.7rem;
+    padding: 3px 10px;
     border-radius: 20px;
-    background: var(--amber-50);
-    color: var(--amber-600);
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.1s;
+    border: 1px solid transparent;
   }
 
-  .tag:active { opacity: 0.7; }
+  .tag:active { opacity: 0.7; transform: scale(0.96); }
 
-  .tag-fast { background: #FFF3CD; color: #664D03; }
-  .tag-doc { background: var(--blue-50); color: var(--blue-800); }
-  .tag-roupa { background: var(--teal-50); color: var(--teal-600); }
-
-  /* Modal */
+  /* ─── OVERLAY / SHEET ─── */
   .overlay {
     display: none;
     position: fixed;
@@ -207,6 +220,7 @@
     background: rgba(0,0,0,0.5);
     z-index: 300;
     align-items: flex-end;
+    backdrop-filter: blur(2px);
   }
 
   .overlay.open { display: flex; }
@@ -214,11 +228,11 @@
   .sheet {
     background: white;
     width: 100%;
-    border-radius: 20px 20px 0 0;
-    padding: 1.5rem 1.25rem 2rem;
+    border-radius: 24px 24px 0 0;
+    padding: 1.5rem 1.25rem 2.5rem;
     max-height: 92dvh;
     overflow-y: auto;
-    animation: slideUp 0.25s ease;
+    animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);
   }
 
   @keyframes slideUp {
@@ -227,45 +241,45 @@
   }
 
   .sheet-handle {
-    width: 36px;
+    width: 40px;
     height: 4px;
     background: var(--gray-100);
     border-radius: 2px;
-    margin: 0 auto 1.25rem;
+    margin: 0 auto 1.35rem;
   }
 
   .sheet-title {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1.25rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 1.35rem;
     color: var(--blue-800);
   }
 
-  .field { margin-bottom: 1rem; }
+  .field { margin-bottom: 1.1rem; }
 
   .field label {
     display: block;
-    font-size: 0.75rem;
-    font-weight: 600;
+    font-size: 0.72rem;
+    font-weight: 700;
     color: var(--gray-600);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
   }
 
   .field input,
   .field textarea,
   .field select {
     width: 100%;
-    border: 1px solid var(--gray-100);
-    border-radius: 10px;
-    padding: 0.6rem 0.75rem;
-    font-size: 0.9rem;
+    border: 1.5px solid var(--gray-100);
+    border-radius: 12px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.95rem;
     color: #111;
     background: #fafafa;
     outline: none;
     font-family: inherit;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background 0.15s;
   }
 
   .field input:focus,
@@ -273,30 +287,28 @@
   .field select:focus {
     border-color: var(--blue-400);
     background: white;
+    box-shadow: 0 0 0 3px rgba(55,138,221,0.1);
   }
 
-  .field textarea { resize: vertical; min-height: 70px; }
+  .field textarea { resize: vertical; min-height: 80px; }
 
   .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
 
-  .checkgroup {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+  .checkgroup { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
   .chk-label {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 0.82rem;
+    font-size: 0.83rem;
     background: var(--gray-50);
-    border: 1px solid var(--gray-100);
-    padding: 5px 12px;
+    border: 1.5px solid var(--gray-100);
+    padding: 6px 14px;
     border-radius: 20px;
     cursor: pointer;
     user-select: none;
     transition: background 0.12s, border-color 0.12s;
+    font-weight: 500;
   }
 
   .chk-label input { display: none; }
@@ -305,37 +317,33 @@
     background: var(--blue-50);
     border-color: var(--blue-200);
     color: var(--blue-800);
-    font-weight: 500;
+    font-weight: 600;
   }
 
-  .btn-row {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-  }
+  .btn-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
 
   .btn {
     flex: 1;
-    padding: 0.75rem;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
+    padding: 0.85rem;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: opacity 0.15s, transform 0.1s;
   }
 
-  .btn:active { opacity: 0.8; }
-  .btn-primary { background: var(--blue-600); color: white; }
-  .btn-secondary { background: var(--gray-50); color: var(--gray-800); }
-  .btn-danger { background: var(--red-50); color: var(--red-600); }
+  .btn:active { opacity: 0.85; transform: scale(0.98); }
+  .btn-primary { background: var(--blue-600); color: white; box-shadow: 0 3px 10px rgba(24,95,165,0.3); }
+  .btn-secondary { background: var(--gray-50); color: var(--gray-800); border: 1.5px solid var(--gray-100); }
+  .btn-danger { background: var(--red-50); color: var(--red-600); border: 1.5px solid #F7C1C1; }
 
-  /* Detail view */
+  /* ─── DETAIL VIEW ─── */
   .detail-overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background: white;
+    background: #eef2f7;
     z-index: 400;
     overflow-y: auto;
     animation: fadeIn 0.2s ease;
@@ -344,7 +352,7 @@
   .detail-overlay.open { display: block; }
 
   @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
@@ -353,197 +361,83 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    border-bottom: 1px solid var(--gray-50);
+    background: white;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
     position: sticky;
     top: 0;
-    background: white;
     z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
 
   .btn-back {
-    background: none;
+    background: var(--blue-50);
     border: none;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     cursor: pointer;
     padding: 0;
     color: var(--blue-600);
     line-height: 1;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-weight: 700;
   }
 
-  .detail-header-title { font-size: 0.95rem; font-weight: 600; color: #111; }
+  .detail-header-title { font-size: 0.95rem; font-weight: 700; color: #111; }
 
+  /* Banner com gradiente */
   .detail-banner {
-    padding: 1.5rem 1.25rem 1.25rem;
+    background: linear-gradient(135deg, var(--blue-800) 0%, var(--blue-600) 100%);
+    padding: 1.5rem 1.25rem 1.35rem;
+    color: white;
   }
 
   .detail-specialty {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--blue-600);
-    font-weight: 600;
-    margin-bottom: 0.35rem;
+    letter-spacing: 0.1em;
+    color: rgba(255,255,255,0.75);
+    font-weight: 700;
+    margin-bottom: 0.4rem;
   }
 
   .detail-name {
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #111;
-    line-height: 1.2;
-  }
-
-  .detail-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    padding: 0 1.25rem 1.25rem;
-  }
-
-  .detail-card {
-    background: var(--gray-50);
-    border-radius: 12px;
-    padding: 0.85rem 1rem;
-  }
-
-  .detail-card.full { grid-column: 1 / -1; }
-  .detail-card.blue { background: var(--blue-50); }
-  .detail-card.amber { background: var(--amber-50); }
-  .detail-card.teal { background: var(--teal-50); }
-
-  .detail-card-label {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-weight: 600;
-    color: var(--gray-400);
-    margin-bottom: 0.35rem;
-  }
-
-  .detail-card.blue .detail-card-label { color: var(--blue-600); }
-  .detail-card.amber .detail-card-label { color: var(--amber-600); }
-  .detail-card.teal .detail-card-label { color: var(--teal-600); }
-
-  .detail-card-value {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #111;
-    line-height: 1.4;
-  }
-
-  .detail-card.blue .detail-card-value { color: var(--blue-800); }
-  .detail-card.amber .detail-card-value { color: var(--amber-600); }
-  .detail-card.teal .detail-card-value { color: var(--teal-600); }
-
-  .detail-card-sub {
-    font-size: 0.78rem;
-    color: var(--gray-400);
-    margin-top: 2px;
-  }
-
-  .detail-tags-section {
-    padding: 0 1.25rem 1.25rem;
-  }
-
-  .detail-tags-label {
-    font-size: 0.68rem;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-weight: 600;
-    color: var(--gray-400);
-    margin-bottom: 0.5rem;
-  }
-
-  .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; }
-
-  .detail-tag {
-    font-size: 0.8rem;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-
-  .detail-tag:active { opacity: 0.7; }
-
-  .maps-btn {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    background: var(--blue-600);
     color: white;
-    border: none;
-    padding: 0.65rem 1rem;
-    border-radius: 10px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    margin-top: 0.5rem;
-    text-decoration: none;
+    line-height: 1.25;
   }
-
-  .action-row {
-    display: flex;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    border-top: 1px solid var(--gray-50);
-    position: sticky;
-    bottom: 0;
-    background: white;
-  }
-
-  .action-row .btn { flex: 1; }
-
-  .confirm-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.55);
-    z-index: 500;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-  }
-
-  .confirm-overlay.open { display: flex; }
-
-  .confirm-box {
-    background: white;
-    border-radius: 16px;
-    padding: 1.5rem;
-    width: 100%;
-    max-width: 320px;
-  }
-
-  .confirm-box h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
-  .confirm-box p { font-size: 0.85rem; color: var(--gray-600); margin-bottom: 1.25rem; }
-  .confirm-box .btn-row { margin-top: 0; }
 
   /* Status toggle */
   .status-toggle {
     display: flex;
     gap: 0.5rem;
-    margin-top: 0.5rem;
-    padding: 0 1.25rem 0.75rem;
+    padding: 1rem 1.25rem 0.5rem;
     flex-wrap: wrap;
   }
 
   .status-btn {
-    padding: 6px 16px;
+    padding: 7px 18px;
     border-radius: 20px;
     border: 2px solid var(--gray-100);
     background: white;
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.82rem;
+    font-weight: 700;
     cursor: pointer;
     transition: all 0.15s;
     color: var(--gray-600);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
   }
 
   .status-btn.active-upcoming {
     border-color: var(--blue-600);
     background: var(--blue-50);
     color: var(--blue-800);
+    box-shadow: 0 2px 8px rgba(24,95,165,0.15);
   }
 
   .status-btn.active-today {
@@ -560,83 +454,188 @@
 
   .status-btn:active { transform: scale(0.95); }
 
-  /* Image Modal - Estilização Otimizada e Intuitiva */
+  /* Detail grid */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem 1rem;
+  }
+
+  .detail-card {
+    background: white;
+    border-radius: 14px;
+    padding: 0.9rem 1rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.04);
+  }
+
+  .detail-card.full { grid-column: 1 / -1; }
+  .detail-card.blue { background: var(--blue-50); border-color: var(--blue-100); }
+  .detail-card.amber { background: var(--amber-50); border-color: #FAC775; }
+  .detail-card.teal { background: var(--teal-50); border-color: #9FE1CB; }
+
+  .detail-card-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--gray-400);
+    margin-bottom: 0.4rem;
+  }
+
+  .detail-card.blue .detail-card-label { color: var(--blue-600); }
+  .detail-card.amber .detail-card-label { color: var(--amber-600); }
+  .detail-card.teal .detail-card-label { color: var(--teal-600); }
+
+  .detail-card-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111;
+    line-height: 1.4;
+  }
+
+  .detail-card.blue .detail-card-value { color: var(--blue-800); }
+  .detail-card.amber .detail-card-value { color: var(--amber-600); }
+  .detail-card.teal .detail-card-value { color: var(--teal-600); }
+
+  .detail-card-sub {
+    font-size: 0.78rem;
+    color: var(--gray-400);
+    margin-top: 3px;
+    font-weight: 500;
+  }
+
+  .detail-tags-section { padding: 0 1.25rem 1rem; }
+
+  .detail-tags-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--gray-400);
+    margin-bottom: 0.6rem;
+  }
+
+  .detail-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+
+  .detail-tag {
+    font-size: 0.82rem;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .detail-tag:active { opacity: 0.7; transform: scale(0.96); }
+
+  .maps-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--blue-600);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.1rem;
+    border-radius: 10px;
+    font-size: 0.87rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.6rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(24,95,165,0.25);
+  }
+
+  .action-row {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    background: white;
+    position: sticky;
+    bottom: 0;
+  }
+
+  .action-row .btn { flex: 1; }
+
+  /* ─── CONFIRM OVERLAY ─── */
+  .confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    backdrop-filter: blur(2px);
+  }
+
+  .confirm-overlay.open { display: flex; }
+
+  .confirm-box {
+    background: white;
+    border-radius: 20px;
+    padding: 1.75rem 1.5rem 1.5rem;
+    width: 100%;
+    max-width: 320px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+
+  .confirm-box h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; }
+  .confirm-box p { font-size: 0.88rem; color: var(--gray-600); margin-bottom: 1.25rem; line-height: 1.5; }
+  .confirm-box .btn-row { margin-top: 0; }
+
+  /* ─── IMAGE MODAL ─── */
   .image-modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(4,44,83,0.92);
     z-index: 600;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    padding: 1.5rem 1.25rem 2rem;
     flex-direction: column;
+    gap: 0;
+    backdrop-filter: blur(6px);
   }
 
   .image-modal.open { display: flex; }
 
-  .image-container-wrapper {
-    width: 100%;
-    max-width: 450px;
+  .image-modal-inner {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.25rem;
+    width: 100%;
+    max-width: 440px;
+    gap: 0;
   }
 
   .image-modal-content {
     width: 100%;
     height: auto;
     border-radius: 16px;
-    box-shadow: 0 12px 36px rgba(0,0,0,0.6);
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    display: block;
   }
 
-  .image-modal-content:active { transform: scale(0.98); }
-
-  /* Controles de Frente / Verso integrados */
-  .image-toggle-controls {
-    display: flex;
-    background: rgba(255, 255, 255, 0.15);
-    padding: 4px;
-    border-radius: 30px;
-    width: 100%;
-    max-width: 280px;
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .image-toggle-btn {
-    flex: 1;
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.7);
-    padding: 10px 16px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .image-toggle-btn.active {
-    background: #ffffff;
-    color: #000000;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  .image-modal-content.flipping {
+    opacity: 0;
+    transform: scale(0.95);
   }
 
   .image-modal-close {
     position: fixed;
     top: 1.25rem;
     right: 1.25rem;
-    background: rgba(255,255,255,0.2);
-    border: none;
+    background: rgba(255,255,255,0.15);
+    border: 1.5px solid rgba(255,255,255,0.2);
     color: white;
-    font-size: 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
     cursor: pointer;
     width: 44px;
     height: 44px;
@@ -647,19 +646,56 @@
     backdrop-filter: blur(4px);
     transition: background 0.15s;
     z-index: 601;
+    line-height: 1;
   }
 
-  .image-modal-close:active { background: rgba(255,255,255,0.35); }
+  .image-modal-close:active { background: rgba(255,255,255,0.28); }
+
+  /* Botões Frente / Verso */
+  .card-side-toggle {
+    display: flex;
+    gap: 0;
+    margin-top: 1rem;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid rgba(255,255,255,0.25);
+    width: 100%;
+    max-width: 260px;
+  }
+
+  .side-btn {
+    flex: 1;
+    padding: 0.65rem 0;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .side-btn:first-child {
+    border-right: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .side-btn.active {
+    background: white;
+    color: var(--blue-800);
+  }
+
+  .side-btn:active { opacity: 0.85; }
 
   .image-modal-hint {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.85rem;
-    font-weight: 500;
+    color: rgba(255,255,255,0.45);
+    font-size: 0.75rem;
     text-align: center;
-    background: rgba(0, 0, 0, 0.4);
-    padding: 6px 16px;
-    border-radius: 20px;
-    pointer-events: none;
+    margin-top: 0.75rem;
     letter-spacing: 0.02em;
   }
 </style>
@@ -760,7 +796,6 @@
     <div class="detail-name" id="d-tipo"></div>
   </div>
 
-  <!-- Status Toggle -->
   <div class="status-toggle" id="status-toggle">
     <button class="status-btn" data-status="upcoming">📅 Agendada</button>
     <button class="status-btn" data-status="today">✅ Hoje</button>
@@ -795,7 +830,7 @@
   </div>
 
   <div class="detail-tags-section" id="d-tags-section" style="display:none">
-    <div class="detail-tags-label">Trazer / Preparation</div>
+    <div class="detail-tags-label">Trazer / Preparação</div>
     <div class="detail-tags" id="d-tags"></div>
   </div>
 
@@ -817,18 +852,16 @@
   </div>
 </div>
 
-<!-- Image Modal Otimizado para Carteirinha -->
+<!-- Image Modal para Carteirinha -->
 <div class="image-modal" id="image-modal">
   <button class="image-modal-close" id="image-modal-close">✕</button>
-  <div class="image-container-wrapper">
+  <div class="image-modal-inner">
     <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
-    
-    <div class="image-modal-hint" id="image-modal-hint">Clique para ver verso</div>
-
-    <div class="image-toggle-controls">
-      <button class="image-toggle-btn active" id="btn-view-frente">Frente</button>
-      <button class="image-toggle-btn" id="btn-view-verso">Verso</button>
+    <div class="card-side-toggle">
+      <button class="side-btn active" id="btn-frente" onclick="showSide(0)">💳 Frente</button>
+      <button class="side-btn" id="btn-verso" onclick="showSide(1)">🔄 Verso</button>
     </div>
+    <div class="image-modal-hint">Toque nos botões para alternar</div>
   </div>
 </div>
 
@@ -872,11 +905,6 @@ function formatDate(str) {
   if (!str) return '';
   const [y,m,d] = str.split('-');
   return `${d}/${m}/${y}`;
-}
-
-function formatHora(str) {
-  if (!str) return '';
-  return str;
 }
 
 function today() {
@@ -949,14 +977,17 @@ function render() {
 
     const tags = (c.tags||[]).slice(0,3).map(t => {
       const info = TAG_LABELS[t];
-      return info ? `<span class="tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
+      return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
     }).join('');
 
     card.innerHTML = `
       <div class="card-stripe ${stripeClass}"></div>
       <div class="card-body">
         <div class="card-top">
-          <div class="card-title">${c.tipo || 'Consulta'}</div>
+          <div>
+            <div class="card-title">${c.tipo || 'Consulta'}</div>
+            ${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
+          </div>
           <span class="badge ${badgeClass}">${badgeText}</span>
         </div>
         <div class="card-meta">
@@ -981,47 +1012,32 @@ function render() {
   });
 }
 
+function showSide(index) {
+  const img = document.getElementById('image-modal-img');
+  if (currentImageIndex === index) return;
+  img.classList.add('flipping');
+  setTimeout(() => {
+    currentImageIndex = index;
+    img.src = IMAGES[index];
+    img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
+    img.classList.remove('flipping');
+  }, 200);
+  document.getElementById('btn-frente').classList.toggle('active', index === 0);
+  document.getElementById('btn-verso').classList.toggle('active', index === 1);
+}
+
 function openImageModal() {
   currentImageIndex = 0;
-  updateImageModalUI();
+  const img = document.getElementById('image-modal-img');
+  img.src = IMAGES[0];
+  img.alt = 'Carteirinha Unimed - Frente';
+  document.getElementById('btn-frente').classList.add('active');
+  document.getElementById('btn-verso').classList.remove('active');
   document.getElementById('image-modal').classList.add('open');
 }
 
 function closeImageModal() {
   document.getElementById('image-modal').classList.remove('open');
-}
-
-// Atualiza de forma centralizada o estado visual do Modal de Imagem
-function updateImageModalUI() {
-  const img = document.getElementById('image-modal-img');
-  const hint = document.getElementById('image-modal-hint');
-  const btnFrente = document.getElementById('btn-view-frente');
-  const btnVerso = document.getElementById('btn-view-verso');
-
-  img.src = IMAGES[currentImageIndex];
-  
-  if (currentImageIndex === 0) {
-    img.alt = 'Carteirinha Unimed - Frente';
-    hint.textContent = 'Clique para ver verso';
-    btnFrente.classList.add('active');
-    btnVerso.classList.remove('active');
-  } else {
-    img.alt = 'Carteirinha Unimed - Verso';
-    hint.textContent = 'Clique para ver frente';
-    btnFrente.classList.remove('active');
-    btnVerso.classList.add('active');
-  }
-}
-
-function toggleImage() {
-  currentImageIndex = (currentImageIndex + 1) % IMAGES.length;
-  updateImageModalUI();
-}
-
-function setSpecificImage(index) {
-  if (currentImageIndex === index) return;
-  currentImageIndex = index;
-  updateImageModalUI();
 }
 
 function openDetail(id) {
@@ -1035,12 +1051,12 @@ function openDetail(id) {
   document.getElementById('d-data').textContent = formatDate(c.data) || '—';
   document.getElementById('d-hora').textContent = c.hora || '—';
 
-  const llegadaCard = document.getElementById('d-chegada-card');
+  const chegadaCard = document.getElementById('d-chegada-card');
   if (c.chegada) {
-    llegadaCard.style.display = '';
+    chegadaCard.style.display = '';
     document.getElementById('d-chegada').textContent = c.chegada + 'h';
   } else {
-    llegadaCard.style.display = 'none';
+    chegadaCard.style.display = 'none';
   }
 
   const localCard = document.getElementById('d-local-card');
@@ -1157,9 +1173,7 @@ function saveForm() {
 
   if (editingId) {
     const existing = consultas.find(x => x.id === editingId);
-    if (existing && existing.status) {
-      obj.status = existing.status;
-    }
+    if (existing && existing.status) obj.status = existing.status;
   }
 
   if (editingId) {
@@ -1186,14 +1200,9 @@ function updateStatus(status) {
   if (!viewingId) return;
   const c = consultas.find(x => x.id === viewingId);
   if (!c) return;
-
   const autoStatus = cardStatus(c.data, null);
-  if (status === autoStatus) {
-    delete c.status;
-  } else {
-    c.status = status;
-  }
-  
+  if (status === autoStatus) delete c.status;
+  else c.status = status;
   c.atualizadoEm = new Date().toISOString();
   save();
   render();
@@ -1206,18 +1215,6 @@ document.getElementById('form-cancel').addEventListener('click', closeForm);
 document.getElementById('form-save').addEventListener('click', saveForm);
 document.getElementById('back-btn').addEventListener('click', closeDetail);
 document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
-document.getElementById('image-modal-img').addEventListener('click', toggleImage);
-
-// Cliques nos botões estáticos de controle
-document.getElementById('btn-view-frente').addEventListener('click', (e) => {
-  e.stopPropagation();
-  setSpecificImage(0);
-});
-document.getElementById('btn-view-verso').addEventListener('click', (e) => {
-  e.stopPropagation();
-  setSpecificImage(1);
-});
-
 document.getElementById('image-modal').addEventListener('click', (e) => {
   if (e.target === document.getElementById('image-modal')) closeImageModal();
 });
@@ -1254,9 +1251,7 @@ document.querySelectorAll('.chk-label').forEach(lbl => {
 });
 
 document.querySelectorAll('.status-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    updateStatus(btn.dataset.status);
-  });
+  btn.addEventListener('click', () => updateStatus(btn.dataset.status));
 });
 
 document.getElementById('f-hora').addEventListener('change', e => {
