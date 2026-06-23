@@ -684,13 +684,12 @@ width: 100%;
 height: auto;
 border-radius: 16px;
 box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-transition: opacity 0.2s ease, transform 0.2s ease;
+transition: opacity 0.35s ease;
 display: block;
 }
 
 .image-modal-content.flipping {
 opacity: 0;
-transform: scale(0.95);
 }
 
 .image-modal-close {
@@ -811,7 +810,7 @@ letter-spacing: 0.02em;
 <input type="date" id="f-data">
 </div>
 <div class="field">
-<label>Consulta</label>
+<label>Consulta às</label>
 <input type="time" id="f-hora">
 </div>
 </div>
@@ -836,11 +835,11 @@ letter-spacing: 0.02em;
 <div style="margin-bottom:0.6rem">
 </div>
 <div class="checkgroup" id="chk-group">
-<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento</label>
-<label class="chk-label" data-val="cpf"><input type="checkbox">📋 CPF</label>
-<label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
 <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
+<label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
+<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documentos</label>
 <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
+<label class="chk-label" data-val="receitas"><input type="checkbox">💊 Receitas / Pedidos</label>
 </div>
 </div>
 
@@ -946,11 +945,11 @@ let currentImageIndex = 0;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
-jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
-documento: { label: '🪪 Documento com foto', bg: '#E6F1FB', color: '#0C447C' },
-cpf: { label: '📋 CPF', bg: '#E6F1FB', color: '#0C447C' },
-roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
 exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
+jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
+documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
+roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
+receitas: { label: '💊 Receitas / Pedidos', bg: '#F3EEF8', color: '#6B3FA0' },
 };
 
 function load() {
@@ -1023,7 +1022,9 @@ const status = cardStatus(c.data, c.status);
 return status === 'upcoming' || status === 'today';
 });
 const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
-countLabel.textContent = `${upcoming.length} consulta próxima${upcoming.length !== 1 ? 's' : ''} e ${past.length} realizad${past.length !== 1 ? 'as' : 'a'}`;
+const uStr = upcoming.length === 1 ? '1 consulta próxima' : `${upcoming.length} consultas próximas`;
+const pStr = past.length === 1 ? '1 realizada' : `${past.length} realizadas`;
+countLabel.textContent = `${uStr} · ${pStr}`;
 
 let lastMonth = null;
 
@@ -1102,7 +1103,7 @@ currentImageIndex = index;
 img.src = IMAGES[index];
 img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
 img.classList.remove('flipping');
-}, 200);
+}, 350);
 document.getElementById('btn-frente').classList.toggle('active', index === 0);
 document.getElementById('btn-verso').classList.toggle('active', index === 1);
 }
