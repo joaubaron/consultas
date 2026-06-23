@@ -837,7 +837,7 @@ letter-spacing: 0.02em;
 <div class="checkgroup" id="chk-group">
 <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
 <label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
-<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento + CPF</label>
+<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documentos</label>
 <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
 <label class="chk-label" data-val="receitas"><input type="checkbox">💊 Receitas / Pedidos</label>
 </div>
@@ -947,7 +947,7 @@ const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 const TAG_LABELS = {
 exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
 jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
-documento: { label: '🪪 Documento + CPF', bg: '#E6F1FB', color: '#0C447C' },
+documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
 roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
 receitas: { label: '💊 Receitas / Pedidos', bg: '#F3EEF8', color: '#6B3FA0' },
 };
@@ -1064,10 +1064,8 @@ card.innerHTML = `
 <span class="card-status-badge ${status}">${statusLabels[status]}</span>
 ${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); openImageModal();">💳 Unimed</span>` : ''}
 </div>
-<!-- LINHA 2: Título -->
-<div class="card-title">${tituloDisplay}</div>
-<!-- ABAIXO: mantém tudo igual -->
-${c.medico ? `<div class="card-medico">👨‍⚕️ ${c.medico}</div>` : ''}
+<!-- LINHA 2: Título + Médico -->
+<div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
 ${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
 <div class="card-meta">
 ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
