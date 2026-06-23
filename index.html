@@ -224,7 +224,7 @@ font-weight: 600;
 margin-top: 2px;
 }
 
-.card-atendente {
+.card-especialista {
 font-size: var(--font-sm);
 color: var(--gray-600);
 font-weight: 500;
@@ -824,7 +824,7 @@ letter-spacing: 0.02em;
 
 <div class="field">
 <label>Clínica / Especialista</label>
-<input type="text" id="f-atendente" placeholder="Ex: Gabriela Nunes – CardioPrime">
+<input type="text" id="f-especialista" placeholder="Ex: Gabriela Nunes – CardioPrime">
 </div>
 
 <div class="row2">
@@ -891,7 +891,7 @@ letter-spacing: 0.02em;
 </div>
 
 <div class="detail-banner">
-<div class="detail-specialty" id="d-atendente"></div>
+<div class="detail-specialty" id="d-especialista"></div>
 <div class="detail-name" id="d-titulo"></div>
 <div class="detail-medico" id="d-medico"></div>
 </div>
@@ -1100,7 +1100,7 @@ ${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); o
 </div>
 <!-- LINHA 2: Título + Médico -->
 <div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
-${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
+${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
 <div class="card-meta">
 ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
 ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
@@ -1163,16 +1163,16 @@ viewingId = id;
 const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
 
-// Formata o atendente: primeira parte em maiúsculo, segunda parte com iniciais maiúsculas
-if (c.atendente && c.atendente.includes(' – ')) {
-const partes = c.atendente.split(' – ');
+// Formata o especialista: primeira parte em maiúsculo, segunda parte com iniciais maiúsculas
+if (c.especialista && c.especialista.includes(' – ')) {
+const partes = c.especialista.split(' – ');
 const primeiraParte = partes[0].toUpperCase();
 const segundaParte = partes[1].split(' ').map(palavra => 
 palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase()
 ).join(' ');
-document.getElementById('d-atendente').textContent = primeiraParte + ' – ' + segundaParte;
+document.getElementById('d-especialista').textContent = primeiraParte + ' – ' + segundaParte;
 } else {
-document.getElementById('d-atendente').textContent = c.atendente ? c.atendente.toUpperCase() : '';
+document.getElementById('d-especialista').textContent = c.especialista ? c.especialista.toUpperCase() : '';
 }
 
 document.getElementById('d-titulo').textContent = tituloDisplay;
@@ -1263,7 +1263,7 @@ document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'No
 const c = id ? consultas.find(x => x.id === id) : null;
 document.getElementById('f-titulo').value = c ? (c.titulo || c.tipo || '') : '';
 document.getElementById('f-medico').value = c ? (c.medico || '') : '';
-document.getElementById('f-atendente').value = c ? c.atendente : '';
+document.getElementById('f-especialista').value = c ? c.especialista : '';
 document.getElementById('f-data').value = c ? c.data : today();
 document.getElementById('f-hora').value = c ? c.hora : '';
 document.getElementById('f-chegada').value = c ? c.chegada : '';
@@ -1303,7 +1303,7 @@ const obj = {
 id: editingId || genId(),
 titulo: titulo,
 medico: document.getElementById('f-medico').value.trim(),
-atendente: document.getElementById('f-atendente').value.trim(),
+especialista: document.getElementById('f-especialista').value.trim(),
 data: document.getElementById('f-data').value,
 hora: document.getElementById('f-hora').value,
 chegada: document.getElementById('f-chegada').value,
@@ -1425,7 +1425,7 @@ const preFill = {
 id: genId(),
 titulo: 'Consulta Pré Operatório',
 medico: 'Dr. Brandão',
-atendente: 'Gabriela Nunes – CardioPrime',
+especialista: 'Gabriela Nunes – CardioPrime',
 data: dataAmanha,
 hora: '10:40',
 chegada: '10:20',
