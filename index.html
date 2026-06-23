@@ -1108,7 +1108,7 @@ ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar 
 </div>
 ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
 ${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
-${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.slice(0,3).map(t => {
+${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.filter(t => t !== 'carteirinha').map(t => {
 const info = TAG_LABELS[t];
 return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
 }).join('')}</div>` : ''}
