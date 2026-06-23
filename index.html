@@ -400,6 +400,7 @@ transition: opacity 0.15s, transform 0.1s;
 .btn-danger { background: var(--red-50); color: var(--red-600); border: 1.5px solid #F7C1C1; }
 .btn-success { background: var(--green-600); color: white; box-shadow: 0 3px 12px rgba(46,125,50,0.3); }
 .btn-export { background: var(--teal-600); color: white; box-shadow: 0 3px 12px rgba(15,110,86,0.3); }
+.btn-warning { background: var(--amber-400); color: white; box-shadow: 0 3px 12px rgba(186,117,23,0.3); }
 
 /* ─── DETAIL VIEW ─── */
 .detail-overlay {
@@ -880,7 +881,7 @@ line-height: 1.55;
 
 .toast-box .btn {
 flex: 1;
-min-width: 120px;
+min-width: 100px;
 }
 
 .toast-box .btn-row {
@@ -894,6 +895,77 @@ color: white;
 }
 .toast-box .btn-export {
 background: var(--teal-600);
+color: white;
+}
+.toast-box .btn-warning {
+background: var(--amber-400);
+color: white;
+}
+
+/* ─── CHOICE MODAL (Substituir vs Mesclar) ─── */
+.choice-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.55);
+z-index: 750;
+align-items: center;
+justify-content: center;
+padding: 1.5rem;
+backdrop-filter: blur(3px);
+}
+
+.choice-overlay.open { display: flex; }
+
+.choice-box {
+background: white;
+border-radius: 20px;
+padding: 2rem 1.75rem 1.75rem;
+width: 100%;
+max-width: 340px;
+box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+text-align: center;
+animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+.choice-box .toast-icon {
+font-size: 3rem;
+margin-bottom: 0.5rem;
+display: block;
+}
+
+.choice-box h3 {
+font-size: var(--font-lg);
+font-weight: 700;
+margin-bottom: 0.5rem;
+color: var(--gray-900);
+}
+
+.choice-box p {
+font-size: var(--font-sm);
+color: var(--gray-600);
+margin-bottom: 1.5rem;
+line-height: 1.6;
+}
+
+.choice-box .btn-row {
+margin-top: 0;
+gap: 0.75rem;
+}
+
+.choice-box .btn {
+flex: 1;
+min-width: 100px;
+}
+
+.choice-box .btn-danger {
+background: var(--red-50);
+color: var(--red-600);
+border: 1.5px solid #F7C1C1;
+}
+
+.choice-box .btn-primary {
+background: var(--blue-600);
 color: white;
 }
 
@@ -1080,6 +1152,19 @@ color: white;
 </div>
 </div>
 
+<!-- Choice Modal (Substituir vs Mesclar) -->
+<div class="choice-overlay" id="choice-overlay">
+<div class="choice-box">
+<span class="toast-icon">📥</span>
+<h3>Importar dados</h3>
+<p id="choice-msg">Encontradas 1 consultas no arquivo. Como deseja proceder?</p>
+<div class="btn-row">
+<button class="btn btn-danger" id="choice-merge">➕ Mesclar</button>
+<button class="btn btn-primary" id="choice-replace">🔄 Substituir</button>
+</div>
+</div>
+</div>
+
 <!-- Toast / Modal para Exportar -->
 <div class="toast-overlay" id="toast-export">
 <div class="toast-box">
@@ -1134,6 +1219,7 @@ let consultas = [];
 let editingId = null;
 let viewingId = null;
 let currentImageIndex = 0;
+let pendingImportData = null; // armazena dados para importação
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
@@ -1155,6 +1241,15 @@ el.classList.add('open');
 
 function hideToast(id) {
 document.getElementById(id).classList.remove('open');
+}
+
+function showChoice(msg) {
+document.getElementById('choice-msg').textContent = msg;
+document.getElementById('choice-overlay').classList.add('open');
+}
+
+function hideChoice() {
+document.getElementById('choice-overlay').classList.remove('open');
 }
 
 // ─── DATA FUNCTIONS ───
@@ -1578,41 +1673,40 @@ showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
 return;
 }
 
-// Substituir ou mesclar usando confirm nativo? Não, vamos usar um modal bonito!
-// Mas como o confirm é para escolha, vamos manter o confirm nativo pois é uma decisão binária simples.
-// Se quiser fazer modal bonito para isso também, seria mais complexo.
-const choice = confirm(
-`Encontradas ${imported.length} consultas no arquivo.\n\n` +
-`Clique em "OK" para SUBSTITUIR todos os dados atuais.\n` +
-`Clique em "Cancelar" para MESCLAR (adicionar) com os dados existentes.`
-);
+// Armazena os dados importados e mostra o modal de escolha
+pendingImportData = imported;
+showChoice(`Encontradas ${imported.length} consulta${imported.length > 1 ? 's' : ''} no arquivo. Como deseja proceder?`);
 
-if (choice) {
-// Substituir
-consultas = imported;
-} else {
-// Mesclar: evita duplicatas por ID, mantém as existentes se houver conflito
-const existingIds = new Set(consultas.map(c => c.id));
-const novos = imported.filter(c => !existingIds.has(c.id));
-consultas = [...consultas, ...novos];
-if (novos.length < imported.length) {
-showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
-} else {
-showToast('toast-import', `${consultas.length} consultas no total.`);
-}
-}
-
-save();
-render();
-if (!document.getElementById('toast-import').classList.contains('open')) {
-showToast('toast-import', `${consultas.length} consultas no total.`);
-}
 } catch (err) {
 showToast('toast-error', 'Erro ao ler o arquivo. Verifique se é um JSON válido.');
 console.error(err);
 }
 };
 reader.readAsText(file);
+}
+
+function processImport(choice) {
+const imported = pendingImportData;
+if (!imported) return;
+
+if (choice === 'replace') {
+consultas = imported;
+} else { // merge
+const existingIds = new Set(consultas.map(c => c.id));
+const novos = imported.filter(c => !existingIds.has(c.id));
+consultas = [...consultas, ...novos];
+if (novos.length < imported.length) {
+showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
+hideChoice();
+return;
+}
+}
+
+save();
+render();
+showToast('toast-import', `${consultas.length} consulta${consultas.length > 1 ? 's' : ''} no total.`);
+hideChoice();
+pendingImportData = null;
 }
 
 // ─── EVENTS ───
@@ -1682,6 +1776,18 @@ document.getElementById('file-input').addEventListener('change', (e) => {
 if (e.target.files.length > 0) {
 importData(e.target.files[0]);
 e.target.value = ''; // reset para permitir importar o mesmo arquivo novamente
+}
+});
+
+// ─── CHOICE EVENTS ───
+
+document.getElementById('choice-replace').addEventListener('click', () => processImport('replace'));
+document.getElementById('choice-merge').addEventListener('click', () => processImport('merge'));
+
+// Fechar choice clicando no overlay (opcional, mas pode ser confuso)
+document.getElementById('choice-overlay').addEventListener('click', (e) => {
+if (e.target === document.getElementById('choice-overlay')) {
+// Não fecha, obriga o usuário a escolher
 }
 });
 
