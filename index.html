@@ -1010,7 +1010,6 @@ color: white;
 <div class="header-content">
 <div class="header-left">
 <h1>🩺 Minhas Consultas</h1>
-<p id="count-label">Carregando...</p>
 </div>
 <button class="btn-unimed-header" onclick="openImageModal()">💳 Unimed</button>
 </div>
@@ -1375,9 +1374,6 @@ Object.values(monthCounts).forEach(m => {
 globalUpcoming += m.upcoming;
 globalPast += m.past;
 });
-const uStr = globalUpcoming === 1 ? '1 consulta próxima' : `${globalUpcoming} consultas próximas`;
-const pStr = globalPast === 1 ? '1 realizada' : `${globalPast} realizadas`;
-countLabel.textContent = `${uStr} · ${pStr}`;
 
 sorted.forEach(c => {
 const status = cardStatus(c.data, c.status);
