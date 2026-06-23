@@ -28,6 +28,8 @@
 --amber-600: #854F0B;
 --red-50: #FCEBEB;
 --red-600: #A32D2D;
+--green-50: #E8F5E9;
+--green-600: #2E7D32;
 --gray-50: #F4F3EE;
 --gray-100: #D3D1C7;
 --gray-400: #888780;
@@ -396,6 +398,8 @@ transition: opacity 0.15s, transform 0.1s;
 .btn-primary { background: var(--blue-600); color: white; box-shadow: 0 3px 12px rgba(24,95,165,0.3); }
 .btn-secondary { background: var(--gray-50); color: var(--gray-800); border: 1.5px solid var(--gray-100); }
 .btn-danger { background: var(--red-50); color: var(--red-600); border: 1.5px solid #F7C1C1; }
+.btn-success { background: var(--green-600); color: white; box-shadow: 0 3px 12px rgba(46,125,50,0.3); }
+.btn-export { background: var(--teal-600); color: white; box-shadow: 0 3px 12px rgba(15,110,86,0.3); }
 
 /* ─── DETAIL VIEW ─── */
 .detail-overlay {
@@ -827,6 +831,72 @@ white-space: nowrap;
 /* ─── FILE INPUT HIDDEN ─── */
 #file-input { display: none; }
 
+/* ─── TOAST / MODAL BONITO ─── */
+.toast-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.5);
+z-index: 700;
+align-items: center;
+justify-content: center;
+padding: 1.5rem;
+backdrop-filter: blur(3px);
+animation: fadeIn 0.2s ease;
+}
+
+.toast-overlay.open { display: flex; }
+
+.toast-box {
+background: white;
+border-radius: 20px;
+padding: 2rem 1.75rem 1.75rem;
+width: 100%;
+max-width: 340px;
+box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+text-align: center;
+animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+.toast-icon {
+font-size: 3.5rem;
+margin-bottom: 0.5rem;
+display: block;
+}
+
+.toast-box h3 {
+font-size: var(--font-lg);
+font-weight: 700;
+margin-bottom: 0.5rem;
+color: var(--gray-900);
+}
+
+.toast-box p {
+font-size: var(--font-sm);
+color: var(--gray-600);
+margin-bottom: 1.5rem;
+line-height: 1.55;
+}
+
+.toast-box .btn {
+flex: 1;
+min-width: 120px;
+}
+
+.toast-box .btn-row {
+margin-top: 0;
+justify-content: center;
+}
+
+.toast-box .btn-success {
+background: var(--green-600);
+color: white;
+}
+.toast-box .btn-export {
+background: var(--teal-600);
+color: white;
+}
+
 @media (max-width: 420px) {
 .backup-bar { bottom: 4.5rem; padding: 0.4rem 0.6rem; }
 .backup-btn { font-size: 0.65rem; padding: 0.4rem 0.7rem; }
@@ -1010,6 +1080,42 @@ white-space: nowrap;
 </div>
 </div>
 
+<!-- Toast / Modal para Exportar -->
+<div class="toast-overlay" id="toast-export">
+<div class="toast-box">
+<span class="toast-icon">📤</span>
+<h3>Exportado com sucesso!</h3>
+<p id="toast-export-msg">Arquivo salvo na sua pasta de downloads.</p>
+<div class="btn-row">
+<button class="btn btn-export" id="toast-export-close">OK</button>
+</div>
+</div>
+</div>
+
+<!-- Toast / Modal para Importar -->
+<div class="toast-overlay" id="toast-import">
+<div class="toast-box">
+<span class="toast-icon">✅</span>
+<h3>Importação concluída!</h3>
+<p id="toast-import-msg">1 consulta importada com sucesso.</p>
+<div class="btn-row">
+<button class="btn btn-success" id="toast-import-close">OK</button>
+</div>
+</div>
+</div>
+
+<!-- Toast / Modal para Erro -->
+<div class="toast-overlay" id="toast-error">
+<div class="toast-box">
+<span class="toast-icon">❌</span>
+<h3>Erro</h3>
+<p id="toast-error-msg">Ocorreu um erro ao processar o arquivo.</p>
+<div class="btn-row">
+<button class="btn btn-danger" id="toast-error-close">OK</button>
+</div>
+</div>
+</div>
+
 <!-- Image Modal para Carteirinha -->
 <div class="image-modal" id="image-modal">
 <button class="image-modal-close" id="image-modal-close">✕</button>
@@ -1037,6 +1143,21 @@ documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
 roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
 receitas: { label: '💊 Receitas / Pedidos', bg: '#F3EEF8', color: '#6B3FA0' },
 };
+
+// ─── TOAST HELPERS ───
+
+function showToast(id, msg) {
+const el = document.getElementById(id);
+const msgEl = el.querySelector('p');
+if (msgEl) msgEl.textContent = msg;
+el.classList.add('open');
+}
+
+function hideToast(id) {
+document.getElementById(id).classList.remove('open');
+}
+
+// ─── DATA FUNCTIONS ───
 
 function load() {
 try {
@@ -1407,9 +1528,10 @@ openDetail(viewingId);
 }
 
 // ─── BACKUP FUNCTIONS ───
+
 function exportData() {
 if (consultas.length === 0) {
-alert('Nenhuma consulta para exportar.');
+showToast('toast-error', 'Nenhuma consulta para exportar.');
 return;
 }
 
@@ -1424,13 +1546,14 @@ const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json
 const url = URL.createObjectURL(blob);
 const a = document.createElement('a');
 a.href = url;
-// ALTERADO AQUI: removido "backup_" do nome do arquivo
 const filename = `consultas_${new Date().toISOString().slice(0,10)}.json`;
 a.download = filename;
 document.body.appendChild(a);
 a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
+
+showToast('toast-export', `Arquivo salvo como ${filename}`);
 }
 
 function importData(file) {
@@ -1446,16 +1569,18 @@ imported = data;
 } else if (data.consultas && Array.isArray(data.consultas)) {
 imported = data.consultas;
 } else {
-alert('Formato de arquivo inválido. Certifique-se de que é um arquivo de backup válido.');
+showToast('toast-error', 'Formato de arquivo inválido.');
 return;
 }
 
 if (imported.length === 0) {
-alert('Nenhuma consulta encontrada no arquivo.');
+showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
 return;
 }
 
-// Pergunta se quer substituir ou mesclar
+// Substituir ou mesclar usando confirm nativo? Não, vamos usar um modal bonito!
+// Mas como o confirm é para escolha, vamos manter o confirm nativo pois é uma decisão binária simples.
+// Se quiser fazer modal bonito para isso também, seria mais complexo.
 const choice = confirm(
 `Encontradas ${imported.length} consultas no arquivo.\n\n` +
 `Clique em "OK" para SUBSTITUIR todos os dados atuais.\n` +
@@ -1471,15 +1596,19 @@ const existingIds = new Set(consultas.map(c => c.id));
 const novos = imported.filter(c => !existingIds.has(c.id));
 consultas = [...consultas, ...novos];
 if (novos.length < imported.length) {
-alert(`${imported.length - novos.length} consultas duplicadas foram ignoradas.`);
+showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
+} else {
+showToast('toast-import', `${consultas.length} consultas no total.`);
 }
 }
 
 save();
 render();
-alert(`✅ Importação concluída! ${consultas.length} consultas no total.`);
+if (!document.getElementById('toast-import').classList.contains('open')) {
+showToast('toast-import', `${consultas.length} consultas no total.`);
+}
 } catch (err) {
-alert('❌ Erro ao ler o arquivo. Verifique se é um JSON válido.');
+showToast('toast-error', 'Erro ao ler o arquivo. Verifique se é um JSON válido.');
 console.error(err);
 }
 };
@@ -1554,6 +1683,23 @@ if (e.target.files.length > 0) {
 importData(e.target.files[0]);
 e.target.value = ''; // reset para permitir importar o mesmo arquivo novamente
 }
+});
+
+// ─── TOAST CLOSE EVENTS ───
+
+document.getElementById('toast-export-close').addEventListener('click', () => hideToast('toast-export'));
+document.getElementById('toast-import-close').addEventListener('click', () => hideToast('toast-import'));
+document.getElementById('toast-error-close').addEventListener('click', () => hideToast('toast-error'));
+
+// Fechar toasts clicando no overlay
+document.getElementById('toast-export').addEventListener('click', (e) => {
+if (e.target === document.getElementById('toast-export')) hideToast('toast-export');
+});
+document.getElementById('toast-import').addEventListener('click', (e) => {
+if (e.target === document.getElementById('toast-import')) hideToast('toast-import');
+});
+document.getElementById('toast-error').addEventListener('click', (e) => {
+if (e.target === document.getElementById('toast-error')) hideToast('toast-error');
 });
 
 // Init
