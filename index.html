@@ -159,6 +159,20 @@ color: var(--blue-600);
 padding: 0.8rem 0.25rem 0.35rem;
 border-bottom: 2px solid var(--blue-100);
 margin-bottom: 0.1rem;
+display: flex;
+justify-content: space-between;
+align-items: baseline;
+}
+
+.month-label .month-count {
+font-size: 0.65rem;
+font-weight: 600;
+letter-spacing: 0.05em;
+color: var(--gray-600);
+background: var(--gray-50);
+padding: 2px 10px;
+border-radius: var(--radius-pill);
+white-space: nowrap;
 }
 
 /* ─── CARD ─── */
@@ -1319,6 +1333,18 @@ const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','A
 return `${months[parseInt(m)-1]} ${y}`;
 }
 
+function getMonthCounts() {
+const counts = {};
+consultas.forEach(c => {
+const month = monthLabel(c.data);
+if (!counts[month]) counts[month] = { upcoming: 0, past: 0 };
+const status = cardStatus(c.data, c.status);
+if (status === 'upcoming' || status === 'today') counts[month].upcoming++;
+else if (status === 'past') counts[month].past++;
+});
+return counts;
+}
+
 function render() {
 const list = document.getElementById('list');
 const empty = document.getElementById('empty');
@@ -1339,16 +1365,19 @@ return;
 }
 
 empty.style.display = 'none';
-const upcoming = sorted.filter(c => {
-const status = cardStatus(c.data, c.status);
-return status === 'upcoming' || status === 'today';
-});
-const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
-const uStr = upcoming.length === 1 ? '1 consulta próxima' : `${upcoming.length} consultas próximas`;
-const pStr = past.length === 1 ? '1 realizada' : `${past.length} realizadas`;
-countLabel.textContent = `${uStr} · ${pStr}`;
-
+const monthCounts = getMonthCounts();
 let lastMonth = null;
+
+// Get global counts for header
+let globalUpcoming = 0;
+let globalPast = 0;
+Object.values(monthCounts).forEach(m => {
+globalUpcoming += m.upcoming;
+globalPast += m.past;
+});
+const uStr = globalUpcoming === 1 ? '1 consulta próxima' : `${globalUpcoming} consultas próximas`;
+const pStr = globalPast === 1 ? '1 realizada' : `${globalPast} realizadas`;
+countLabel.textContent = `${uStr} · ${pStr}`;
 
 sorted.forEach(c => {
 const status = cardStatus(c.data, c.status);
@@ -1356,7 +1385,10 @@ const mn = monthLabel(c.data);
 if (mn !== lastMonth) {
 const ml = document.createElement('div');
 ml.className = 'month-label';
-ml.textContent = mn || 'Sem data';
+const monthCountsForMonth = monthCounts[mn] || { upcoming: 0, past: 0 };
+const upcomingText = monthCountsForMonth.upcoming === 1 ? '1 consulta agendada' : `${monthCountsForMonth.upcoming} consultas agendadas`;
+const pastText = monthCountsForMonth.past === 1 ? '1 realizada' : `${monthCountsForMonth.past} realizadas`;
+ml.innerHTML = `<span>${mn}</span><span class="month-count">${upcomingText} · ${pastText}</span>`;
 list.appendChild(ml);
 lastMonth = mn;
 }
