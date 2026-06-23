@@ -1163,7 +1163,19 @@ viewingId = id;
 
 const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
-document.getElementById('d-atendente').textContent = c.atendente || '';
+
+// Formata o atendente: primeira parte em maiúsculo, segunda parte com iniciais maiúsculas
+if (c.atendente && c.atendente.includes(' – ')) {
+const partes = c.atendente.split(' – ');
+const primeiraParte = partes[0].toUpperCase();
+const segundaParte = partes[1].split(' ').map(palavra => 
+palavra.charAt(0).toUpperCase() + palavra.slice(1).toLowerCase()
+).join(' ');
+document.getElementById('d-atendente').textContent = primeiraParte + ' – ' + segundaParte;
+} else {
+document.getElementById('d-atendente').textContent = c.atendente ? c.atendente.toUpperCase() : '';
+}
+
 document.getElementById('d-titulo').textContent = tituloDisplay;
 document.getElementById('d-medico').textContent = c.medico ? '👨‍⚕️ ' + c.medico : '';
 document.getElementById('d-data').textContent = formatDate(c.data) || '—';
