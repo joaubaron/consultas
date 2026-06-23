@@ -572,6 +572,13 @@ margin-top: 4px;
 font-weight: 500;
 }
 
+.detail-card-chegada-row {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+margin-bottom: 4px;
+}
+
 .detail-tags-section { padding: 0 1.25rem 1rem; }
 
 .detail-tags-label {
@@ -595,6 +602,21 @@ transition: opacity 0.15s, transform 0.1s;
 }
 
 .detail-tag:active { opacity: 0.7; transform: scale(0.96); }
+
+.card-contato-link {
+color: var(--blue-600);
+text-decoration: none;
+font-weight: 600;
+}
+.card-contato-link:active { opacity: 0.7; }
+
+.detail-contato-link {
+color: var(--blue-600);
+text-decoration: none;
+font-weight: 700;
+font-size: var(--font-base);
+}
+.detail-contato-link:active { opacity: 0.7; }
 
 .maps-btn {
 display: inline-flex;
@@ -831,6 +853,11 @@ letter-spacing: 0.02em;
 </div>
 
 <div class="field">
+<label>📞 Contato</label>
+<input type="tel" id="f-contato" placeholder="Ex: (47) 3231-0200">
+</div>
+
+<div class="field">
 <label>Preparações necessárias</label>
 <div style="margin-bottom:0.6rem">
 </div>
@@ -880,12 +907,14 @@ letter-spacing: 0.02em;
 <div class="detail-card-value" id="d-data"></div>
 </div>
 <div class="detail-card blue">
-<div class="detail-card-label">Consulta</div>
+<div class="detail-card-label">Consulta às</div>
 <div class="detail-card-value" id="d-hora"></div>
 </div>
 <div class="detail-card teal full" id="d-chegada-card" style="display:none">
-<div class="detail-card-label">⏱️ Chegar às</div>
-<div class="detail-card-value" id="d-chegada"></div>
+<div class="detail-card-chegada-row">
+<span class="detail-card-label" style="margin-bottom:0">⏱️ Chegar às</span>
+<span class="detail-card-value" id="d-chegada"></span>
+</div>
 <div class="detail-card-sub">Chegue com antecedência</div>
 </div>
 <div class="detail-card full" id="d-local-card" style="display:none">
@@ -894,6 +923,10 @@ letter-spacing: 0.02em;
 <a class="maps-btn" id="d-maps-link" href="#" target="_blank" rel="noopener" style="display:none">
 🗺️ Abrir no Maps
 </a>
+</div>
+<div class="detail-card full" id="d-contato-card" style="display:none">
+<div class="detail-card-label">📞 Contato</div>
+<a class="detail-card-value detail-contato-link" id="d-contato" href="#"></a>
 </div>
 <div class="detail-card amber full" id="d-obs-card" style="display:none">
 <div class="detail-card-label">📝 Observações</div>
@@ -1072,6 +1105,7 @@ ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta 
 ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
 </div>
 ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
+${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
 ${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.slice(0,3).map(t => {
 const info = TAG_LABELS[t];
 return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
@@ -1156,6 +1190,16 @@ mapsLink.style.display = 'none';
 localCard.style.display = 'none';
 }
 
+const contatoCard = document.getElementById('d-contato-card');
+if (c.contato) {
+contatoCard.style.display = '';
+const contatoLink = document.getElementById('d-contato');
+contatoLink.textContent = c.contato;
+contatoLink.href = 'tel:' + c.contato.replace(/\D/g,'');
+} else {
+contatoCard.style.display = 'none';
+}
+
 const obsCard = document.getElementById('d-obs-card');
 if (c.obs) {
 obsCard.style.display = '';
@@ -1212,6 +1256,7 @@ document.getElementById('f-hora').value = c ? c.hora : '';
 document.getElementById('f-chegada').value = c ? c.chegada : '';
 document.getElementById('f-local').value = c ? c.local : '';
 document.getElementById('f-maps').value = c ? c.maps : '';
+document.getElementById('f-contato').value = c ? (c.contato || '') : '';
 document.getElementById('f-obs').value = c ? c.obs : '';
 
 const labels = document.querySelectorAll('.chk-label');
@@ -1251,6 +1296,7 @@ hora: document.getElementById('f-hora').value,
 chegada: document.getElementById('f-chegada').value,
 local: document.getElementById('f-local').value.trim(),
 maps: document.getElementById('f-maps').value.trim(),
+contato: document.getElementById('f-contato').value.trim(),
 obs: document.getElementById('f-obs').value.trim(),
 tags,
 criadoEm: editingId ? (consultas.find(x=>x.id===editingId)||{}).criadoEm : new Date().toISOString(),
