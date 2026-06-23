@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#185FA5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Consultas">
+<title>Consultas Médicas</title>
+<link rel="manifest" href="manifest.json">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+--blue-50: #E6F1FB;
+--blue-100: #B5D4F4;
+--blue-200: #85B7EB;
+--blue-400: #378ADD;
+--blue-600: #185FA5;
+--blue-800: #0C447C;
+--blue-900: #042C53;
+--teal-50: #E1F5EE;
+--teal-400: #1D9E75;
+--teal-600: #0F6E56;
+--amber-50: #FAEEDA;
+--amber-400: #BA7517;
+--amber-600: #854F0B;
+--red-50: #FCEBEB;
+--red-600: #A32D2D;
+--gray-50: #F4F3EE;
+--gray-100: #D3D1C7;
+--gray-400: #888780;
+--gray-600: #5F5E5A;
+--gray-800: #444441;
+--gray-900: #2C2C2A;
+
+/* Design tokens */
+--radius-sm: 10px;
+--radius-md: 14px;
+--radius-lg: 18px;
+--radius-pill: 100px;
+--font-xs: 0.75rem;
+--font-sm: 0.875rem;
+--font-base: 1rem;
+--font-md: 1.0625rem;
+--font-lg: 1.25rem;
+--font-xl: 1.5rem;
+}
+
+body {
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+background: #eaeff6;
+color: var(--gray-900);
+min-height: 100dvh;
+-webkit-font-smoothing: antialiased;
+}
+
+/* ─── HEADER ─── */
+header {
+background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-600) 100%);
+color: white;
+padding: 1.25rem 1.25rem 1.1rem;
+position: sticky;
+top: 0;
+z-index: 100;
+box-shadow: 0 2px 16px rgba(12,68,124,0.3);
+}
+
+header h1 {
+font-size: var(--font-lg);
+font-weight: 700;
+letter-spacing: -0.01em;
+}
+
+header p {
+font-size: var(--font-sm);
+opacity: 0.75;
+margin-top: 4px;
+font-weight: 500;
+}
+
+/* ─── FAB ─── */
+.fab {
+position: fixed;
+bottom: 1.75rem;
+right: 1.25rem;
+width: 58px;
+height: 58px;
+border-radius: 50%;
+background: var(--blue-600);
+color: white;
+border: none;
+font-size: 1.9rem;
+cursor: pointer;
+z-index: 200;
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 4px 20px rgba(24,95,165,0.5), 0 2px 6px rgba(24,95,165,0.25);
+transition: transform 0.15s, box-shadow 0.15s;
+line-height: 1;
+}
+
+.fab:active { transform: scale(0.93); box-shadow: 0 2px 8px rgba(24,95,165,0.35); }
+
+/* ─── EMPTY STATE ─── */
+.empty-state {
+text-align: center;
+padding: 5rem 2rem;
+color: var(--gray-400);
+}
+
+.empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; }
+.empty-state h2 { font-size: var(--font-md); font-weight: 600; color: var(--gray-600); }
+.empty-state p { font-size: var(--font-sm); margin-top: 0.5rem; }
+
+/* ─── LIST ─── */
+.list { padding: 1.1rem 1rem 5.5rem; display: flex; flex-direction: column; gap: 0.8rem; }
+
+.month-label {
+font-size: var(--font-xs);
+font-weight: 700;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+color: var(--blue-600);
+padding: 0.8rem 0.25rem 0.35rem;
+border-bottom: 2px solid var(--blue-100);
+margin-bottom: 0.1rem;
+}
+
+/* ─── CARD ─── */
+.card {
+background: white;
+border-radius: var(--radius-lg);
+overflow: hidden;
+box-shadow: 0 2px 10px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+cursor: pointer;
+transition: transform 0.12s, box-shadow 0.12s;
+}
+
+.card:active { transform: scale(0.985); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+
+.card-stripe { height: 5px; }
+.upcoming { background: linear-gradient(90deg, var(--blue-800), var(--blue-400)); }
+.today-stripe { background: linear-gradient(90deg, var(--teal-600), var(--teal-400)); }
+.past-stripe { background: var(--gray-100); }
+
+.card-body { padding: 1rem 1.15rem 1rem; }
+
+/* LINHA 1: Data + Status + Unimed */
+.card-top-row {
+display: flex;
+align-items: center;
+gap: 0.45rem;
+flex-wrap: wrap;
+margin-bottom: 0.55rem;
+}
+
+.card-data {
+font-size: var(--font-sm);
+font-weight: 700;
+color: var(--blue-800);
+background: var(--blue-50);
+padding: 3px 11px;
+border-radius: var(--radius-sm);
+white-space: nowrap;
+}
+
+.card-status-badge {
+font-size: var(--font-xs);
+font-weight: 700;
+padding: 3px 10px;
+border-radius: var(--radius-pill);
+white-space: nowrap;
+letter-spacing: 0.03em;
+border: 1.5px solid transparent;
+}
+
+.card-status-badge.upcoming {
+background: var(--blue-50);
+color: var(--blue-800);
+border-color: var(--blue-100);
+}
+.card-status-badge.today {
+background: var(--teal-50);
+color: var(--teal-600);
+border-color: #9FE1CB;
+}
+.card-status-badge.past {
+background: var(--gray-50);
+color: var(--gray-600);
+border-color: var(--gray-100);
+}
+
+.card-btn-unimed {
+font-size: var(--font-xs);
+font-weight: 700;
+padding: 3px 12px;
+border-radius: var(--radius-pill);
+background: var(--teal-50);
+color: var(--teal-600);
+border: 1.5px solid #9FE1CB;
+cursor: pointer;
+white-space: nowrap;
+transition: opacity 0.15s;
+}
+
+.card-btn-unimed:active { opacity: 0.6; }
+
+/* LINHA 2: Título */
+.card-title {
+font-size: var(--font-md);
+font-weight: 700;
+color: var(--gray-900);
+line-height: 1.3;
+margin-bottom: 0.2rem;
+}
+
+.card-medico {
+font-size: var(--font-sm);
+color: var(--blue-600);
+font-weight: 600;
+margin-top: 2px;
+}
+
+.card-atendente {
+font-size: var(--font-sm);
+color: var(--gray-600);
+font-weight: 500;
+margin-top: 3px;
+}
+
+.card-meta {
+display: flex;
+flex-wrap: wrap;
+gap: 0.5rem;
+margin-top: 0.7rem;
+}
+
+.meta-item {
+display: flex;
+align-items: center;
+gap: 5px;
+font-size: 0.8rem;
+color: var(--gray-600);
+background: var(--gray-50);
+padding: 4px 10px;
+border-radius: var(--radius-sm);
+font-weight: 500;
+}
+
+.meta-icon { font-size: 0.9rem; }
+
+.card-tags {
+display: flex;
+flex-wrap: wrap;
+gap: 5px;
+margin-top: 0.7rem;
+}
+
+.tag {
+font-size: var(--font-xs);
+padding: 4px 11px;
+border-radius: var(--radius-pill);
+font-weight: 600;
+cursor: pointer;
+transition: opacity 0.15s, transform 0.1s;
+border: 1.5px solid transparent;
+}
+
+.tag:active { opacity: 0.7; transform: scale(0.96); }
+
+/* ─── OVERLAY / SHEET ─── */
+.overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.5);
+z-index: 300;
+align-items: flex-end;
+backdrop-filter: blur(3px);
+}
+
+.overlay.open { display: flex; }
+
+.sheet {
+background: white;
+width: 100%;
+border-radius: 24px 24px 0 0;
+padding: 1.35rem 1.25rem 2.75rem;
+max-height: 92dvh;
+overflow-y: auto;
+animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);
+}
+
+@keyframes slideUp {
+from { transform: translateY(100%); }
+to { transform: translateY(0); }
+}
+
+.sheet-handle {
+width: 44px;
+height: 4px;
+background: var(--gray-100);
+border-radius: 2px;
+margin: 0 auto 1.4rem;
+}
+
+.sheet-title {
+font-size: var(--font-lg);
+font-weight: 700;
+margin-bottom: 1.4rem;
+color: var(--blue-800);
+}
+
+.field { margin-bottom: 1.15rem; }
+
+.field label {
+display: block;
+font-size: var(--font-xs);
+font-weight: 700;
+color: var(--gray-600);
+letter-spacing: 0.07em;
+text-transform: uppercase;
+margin-bottom: 0.45rem;
+}
+
+.field input,
+.field textarea,
+.field select {
+width: 100%;
+border: 1.5px solid var(--gray-100);
+border-radius: var(--radius-md);
+padding: 0.75rem 1rem;
+font-size: var(--font-base);
+color: var(--gray-900);
+background: var(--gray-50);
+outline: none;
+font-family: inherit;
+transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+border-color: var(--blue-400);
+background: white;
+box-shadow: 0 0 0 3px rgba(55,138,221,0.12);
+}
+
+.field textarea { resize: vertical; min-height: 88px; line-height: 1.5; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+.checkgroup { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.chk-label {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: var(--font-sm);
+background: var(--gray-50);
+border: 1.5px solid var(--gray-100);
+padding: 7px 14px;
+border-radius: var(--radius-pill);
+cursor: pointer;
+user-select: none;
+transition: background 0.12s, border-color 0.12s;
+font-weight: 500;
+}
+
+.chk-label input { display: none; }
+
+.chk-label.checked {
+background: var(--blue-50);
+border-color: var(--blue-200);
+color: var(--blue-800);
+font-weight: 600;
+}
+
+.btn-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+.btn {
+flex: 1;
+padding: 0.9rem;
+border-radius: var(--radius-md);
+font-size: var(--font-base);
+font-weight: 700;
+border: none;
+cursor: pointer;
+transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn:active { opacity: 0.85; transform: scale(0.98); }
+.btn-primary { background: var(--blue-600); color: white; box-shadow: 0 3px 12px rgba(24,95,165,0.3); }
+.btn-secondary { background: var(--gray-50); color: var(--gray-800); border: 1.5px solid var(--gray-100); }
+.btn-danger { background: var(--red-50); color: var(--red-600); border: 1.5px solid #F7C1C1; }
+
+/* ─── DETAIL VIEW ─── */
+.detail-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: #eaeff6;
+z-index: 400;
+overflow-y: auto;
+animation: fadeIn 0.2s ease;
+}
+
+.detail-overlay.open { display: block; }
+
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(10px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.detail-header {
+padding: 1rem 1.25rem;
+display: flex;
+align-items: center;
+gap: 0.75rem;
+background: white;
+border-bottom: 1px solid rgba(0,0,0,0.06);
+position: sticky;
+top: 0;
+z-index: 10;
+box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.btn-back {
+background: var(--blue-50);
+border: none;
+font-size: 1.4rem;
+cursor: pointer;
+padding: 0;
+color: var(--blue-600);
+line-height: 1;
+width: 38px;
+height: 38px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+flex-shrink: 0;
+font-weight: 700;
+}
+
+.detail-header-title { font-size: var(--font-base); font-weight: 700; color: var(--gray-900); }
+
+/* Banner com gradiente */
+.detail-banner {
+background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-600) 100%);
+padding: 1.6rem 1.25rem 1.5rem;
+color: white;
+}
+
+.detail-specialty {
+font-size: var(--font-xs);
+text-transform: uppercase;
+letter-spacing: 0.1em;
+color: rgba(255,255,255,0.7);
+font-weight: 700;
+margin-bottom: 0.4rem;
+}
+
+.detail-name {
+font-size: var(--font-xl);
+font-weight: 700;
+color: white;
+line-height: 1.25;
+}
+
+.detail-medico {
+font-size: var(--font-sm);
+color: rgba(255,255,255,0.8);
+margin-top: 5px;
+font-weight: 500;
+}
+
+/* Status toggle */
+.status-toggle {
+display: flex;
+gap: 0.5rem;
+padding: 1rem 1.25rem 0.5rem;
+flex-wrap: wrap;
+}
+
+.status-btn {
+padding: 8px 18px;
+border-radius: var(--radius-pill);
+border: 2px solid var(--gray-100);
+background: white;
+font-size: var(--font-sm);
+font-weight: 700;
+cursor: pointer;
+transition: all 0.15s;
+color: var(--gray-600);
+box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.status-btn.active-upcoming {
+border-color: var(--blue-600);
+background: var(--blue-50);
+color: var(--blue-800);
+box-shadow: 0 2px 8px rgba(24,95,165,0.15);
+}
+
+.status-btn.active-today {
+border-color: var(--teal-400);
+background: var(--teal-50);
+color: var(--teal-600);
+}
+
+.status-btn.active-past {
+border-color: var(--gray-400);
+background: var(--gray-50);
+color: var(--gray-600);
+}
+
+.status-btn:active { transform: scale(0.95); }
+
+/* Detail grid */
+.detail-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.75rem;
+padding: 0.75rem 1.25rem 1rem;
+}
+
+.detail-card {
+background: white;
+border-radius: var(--radius-md);
+padding: 0.9rem 1rem;
+box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+border: 1px solid rgba(0,0,0,0.04);
+}
+
+.detail-card.full { grid-column: 1 / -1; }
+.detail-card.blue { background: var(--blue-50); border-color: var(--blue-100); }
+.detail-card.amber { background: var(--amber-50); border-color: #FAC775; }
+.detail-card.teal { background: var(--teal-50); border-color: #9FE1CB; }
+
+.detail-card-label {
+font-size: var(--font-xs);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+font-weight: 700;
+color: var(--gray-400);
+margin-bottom: 0.4rem;
+}
+
+.detail-card.blue .detail-card-label { color: var(--blue-600); }
+.detail-card.amber .detail-card-label { color: var(--amber-600); }
+.detail-card.teal .detail-card-label { color: var(--teal-600); }
+
+.detail-card-value {
+font-size: var(--font-base);
+font-weight: 700;
+color: var(--gray-900);
+line-height: 1.4;
+}
+
+.detail-card.blue .detail-card-value { color: var(--blue-800); }
+.detail-card.amber .detail-card-value { color: var(--amber-600); }
+.detail-card.teal .detail-card-value { color: var(--teal-600); }
+
+.detail-card-sub {
+font-size: var(--font-xs);
+color: var(--gray-400);
+margin-top: 4px;
+font-weight: 500;
+}
+
+.detail-card-chegada-row {
+display: flex;
+align-items: center;
+gap: 0.5rem;
+margin-bottom: 4px;
+}
+
+.detail-tags-section { padding: 0 1.25rem 1rem; }
+
+.detail-tags-label {
+font-size: var(--font-xs);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+font-weight: 700;
+color: var(--gray-400);
+margin-bottom: 0.65rem;
+}
+
+.detail-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.detail-tag {
+font-size: var(--font-sm);
+padding: 7px 15px;
+border-radius: var(--radius-pill);
+font-weight: 600;
+cursor: pointer;
+transition: opacity 0.15s, transform 0.1s;
+}
+
+.detail-tag:active { opacity: 0.7; transform: scale(0.96); }
+
+.card-contato-link {
+color: var(--blue-600);
+text-decoration: none;
+font-weight: 600;
+}
+.card-contato-link:active { opacity: 0.7; }
+
+.detail-contato-link {
+color: var(--blue-600);
+text-decoration: none;
+font-weight: 700;
+font-size: var(--font-base);
+}
+.detail-contato-link:active { opacity: 0.7; }
+
+.maps-btn {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+background: var(--blue-600);
+color: white;
+border: none;
+padding: 0.65rem 1.15rem;
+border-radius: var(--radius-sm);
+font-size: var(--font-sm);
+font-weight: 700;
+cursor: pointer;
+margin-top: 0.65rem;
+text-decoration: none;
+box-shadow: 0 2px 8px rgba(24,95,165,0.25);
+}
+
+.action-row {
+display: flex;
+gap: 0.75rem;
+padding: 1rem 1.25rem 1.5rem;
+border-top: 1px solid rgba(0,0,0,0.06);
+background: white;
+position: sticky;
+bottom: 0;
+}
+
+.action-row .btn { flex: 1; }
+
+/* ─── CONFIRM OVERLAY ─── */
+.confirm-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.55);
+z-index: 500;
+align-items: center;
+justify-content: center;
+padding: 1.5rem;
+backdrop-filter: blur(3px);
+}
+
+.confirm-overlay.open { display: flex; }
+
+.confirm-box {
+background: white;
+border-radius: 20px;
+padding: 1.75rem 1.5rem 1.5rem;
+width: 100%;
+max-width: 320px;
+box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.confirm-box h3 { font-size: var(--font-md); font-weight: 700; margin-bottom: 0.5rem; }
+.confirm-box p { font-size: var(--font-sm); color: var(--gray-600); margin-bottom: 1.25rem; line-height: 1.55; }
+.confirm-box .btn-row { margin-top: 0; }
+
+/* ─── IMAGE MODAL ─── */
+.image-modal {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(4,44,83,0.92);
+z-index: 600;
+align-items: center;
+justify-content: center;
+padding: 1.5rem 1.25rem 2rem;
+flex-direction: column;
+gap: 0;
+backdrop-filter: blur(6px);
+}
+
+.image-modal.open { display: flex; }
+
+.image-modal-inner {
+display: flex;
+flex-direction: column;
+align-items: center;
+width: 100%;
+max-width: 440px;
+gap: 0;
+}
+
+.image-modal-content {
+width: 100%;
+height: auto;
+border-radius: 16px;
+box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+transition: opacity 0.35s ease;
+display: block;
+}
+
+.image-modal-content.flipping {
+opacity: 0;
+}
+
+.image-modal-close {
+position: fixed;
+top: 1.25rem;
+right: 1.25rem;
+background: rgba(255,255,255,0.15);
+border: 1.5px solid rgba(255,255,255,0.2);
+color: white;
+font-size: 1.1rem;
+font-weight: 700;
+cursor: pointer;
+width: 44px;
+height: 44px;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+backdrop-filter: blur(4px);
+transition: background 0.15s;
+z-index: 601;
+line-height: 1;
+}
+
+.image-modal-close:active { background: rgba(255,255,255,0.28); }
+
+/* Botões Frente / Verso */
+.card-side-toggle {
+display: flex;
+gap: 0;
+margin-top: 1rem;
+border-radius: 12px;
+overflow: hidden;
+border: 1.5px solid rgba(255,255,255,0.25);
+width: 100%;
+max-width: 260px;
+}
+
+.side-btn {
+flex: 1;
+padding: 0.7rem 0;
+background: rgba(255,255,255,0.08);
+border: none;
+color: rgba(255,255,255,0.65);
+font-size: var(--font-sm);
+font-weight: 600;
+cursor: pointer;
+transition: background 0.15s, color 0.15s;
+font-family: inherit;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+}
+
+.side-btn:first-child {
+border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.side-btn.active {
+background: white;
+color: var(--blue-800);
+}
+
+.side-btn:active { opacity: 0.85; }
+
+.image-modal-hint {
+color: rgba(255,255,255,0.45);
+font-size: var(--font-xs);
+text-align: center;
+margin-top: 0.75rem;
+letter-spacing: 0.02em;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🩺 Minhas Consultas</h1>
+<p id="count-label">Carregando...</p>
+</header>
+
+<div id="list-view">
+<div id="list" class="list"></div>
+<div id="empty" class="empty-state" style="display:none">
+<div class="icon">📅</div>
+<h2>Nenhuma consulta cadastrada</h2>
+<p>Toque em + para adicionar uma consulta</p>
+</div>
+</div>
+
+<button class="fab" id="fab-btn" aria-label="Nova consulta">+</button>
+
+<!-- Form Sheet -->
+<div class="overlay" id="form-overlay">
+<div class="sheet" id="form-sheet">
+<div class="sheet-handle"></div>
+<div class="sheet-title" id="form-title">Nova consulta</div>
+
+<div class="field">
+<label>📌 Título da consulta</label>
+<input type="text" id="f-titulo" placeholder="Ex: Consulta Pré Operatório">
+</div>
+
+<div class="field">
+<label>👨‍⚕️ Médico / Especialista</label>
+<input type="text" id="f-medico" placeholder="Ex: Dr. Brandão">
+</div>
+
+<div class="field">
+<label>Atendente / Clínica</label>
+<input type="text" id="f-atendente" placeholder="Ex: Gabriela Nunes – CardioPrime">
+</div>
+
+<div class="row2">
+<div class="field">
+<label>Data</label>
+<input type="date" id="f-data">
+</div>
+<div class="field">
+<label>Consulta às</label>
+<input type="time" id="f-hora">
+</div>
+</div>
+
+<div class="field">
+<label>Chegar às</label>
+<input type="time" id="f-chegada">
+</div>
+
+<div class="field">
+<label>Local / Endereço</label>
+<input type="text" id="f-local" placeholder="Ex: Shopping Park Europeu – 2º piso, Lj 2051/2053">
+</div>
+
+<div class="field">
+<label>Link Google Maps</label>
+<input type="url" id="f-maps" placeholder="https://goo.gl/maps/...">
+</div>
+
+<div class="field">
+<label>📞 Contato</label>
+<input type="tel" id="f-contato" placeholder="Ex: (47) 3231-0200">
+</div>
+
+<div class="field">
+<label>Preparações necessárias</label>
+<div style="margin-bottom:0.6rem">
+</div>
+<div class="checkgroup" id="chk-group">
+<label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
+<label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
+<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documentos</label>
+<label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
+<label class="chk-label" data-val="receitas"><input type="checkbox">💊 Receitas / Pedidos</label>
+</div>
+</div>
+
+<div class="field">
+<label>Observações / Detalhes</label>
+<textarea id="f-obs" placeholder="Informações adicionais, preparo específico, etc."></textarea>
+</div>
+
+<div class="btn-row">
+<button class="btn btn-secondary" id="form-cancel">Cancelar</button>
+<button class="btn btn-primary" id="form-save">Salvar</button>
+</div>
+</div>
+</div>
+
+<!-- Detail View -->
+<div class="detail-overlay" id="detail-overlay">
+<div class="detail-header">
+<button class="btn-back" id="back-btn">‹</button>
+<div class="detail-header-title" id="detail-header-title"></div>
+</div>
+
+<div class="detail-banner">
+<div class="detail-specialty" id="d-atendente"></div>
+<div class="detail-name" id="d-titulo"></div>
+<div class="detail-medico" id="d-medico"></div>
+</div>
+
+<div class="status-toggle" id="status-toggle">
+<button class="status-btn" data-status="upcoming">📅 Agendada</button>
+<button class="status-btn" data-status="today">✅ Hoje</button>
+<button class="status-btn" data-status="past">✔️ Realizada</button>
+</div>
+
+<div class="detail-grid">
+<div class="detail-card blue">
+<div class="detail-card-label">Data</div>
+<div class="detail-card-value" id="d-data"></div>
+</div>
+<div class="detail-card blue">
+<div class="detail-card-label">Consulta às</div>
+<div class="detail-card-value" id="d-hora"></div>
+</div>
+<div class="detail-card teal full" id="d-chegada-card" style="display:none">
+<div class="detail-card-chegada-row">
+<span class="detail-card-label" style="margin-bottom:0">⏱️ Chegar às</span>
+<span class="detail-card-value" id="d-chegada"></span>
+</div>
+<div class="detail-card-sub">Chegue com antecedência</div>
+</div>
+<div class="detail-card full" id="d-local-card" style="display:none">
+<div class="detail-card-label">📍 Local</div>
+<div class="detail-card-value" id="d-local"></div>
+<a class="maps-btn" id="d-maps-link" href="#" target="_blank" rel="noopener" style="display:none">
+🗺️ Abrir no Maps
+</a>
+</div>
+<div class="detail-card full" id="d-contato-card" style="display:none">
+<div class="detail-card-label">📞 Contato</div>
+<a class="detail-card-value detail-contato-link" id="d-contato" href="#"></a>
+</div>
+<div class="detail-card amber full" id="d-obs-card" style="display:none">
+<div class="detail-card-label">📝 Observações</div>
+<div class="detail-card-value" id="d-obs"></div>
+</div>
+</div>
+
+<div class="detail-tags-section" id="d-tags-section" style="display:none">
+<div class="detail-tags-label">Trazer / Preparação</div>
+<div class="detail-tags" id="d-tags"></div>
+</div>
+
+<div class="action-row">
+<button class="btn btn-secondary" id="detail-edit-btn">✏️ Editar</button>
+<button class="btn btn-danger" id="detail-delete-btn">🗑️ Excluir</button>
+</div>
+</div>
+
+<!-- Confirm Delete -->
+<div class="confirm-overlay" id="confirm-overlay">
+<div class="confirm-box">
+<h3>Excluir consulta?</h3>
+<p>Esta ação não pode ser desfeita.</p>
+<div class="btn-row">
+<button class="btn btn-secondary" id="confirm-cancel">Cancelar</button>
+<button class="btn btn-danger" id="confirm-ok">Excluir</button>
+</div>
+</div>
+</div>
+
+<!-- Image Modal para Carteirinha -->
+<div class="image-modal" id="image-modal">
+<button class="image-modal-close" id="image-modal-close">✕</button>
+<div class="image-modal-inner">
+<img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
+<div class="card-side-toggle">
+<button class="side-btn active" id="btn-frente" onclick="showSide(0)">🪪 Frente</button>
+<button class="side-btn" id="btn-verso" onclick="showSide(1)">💳 Verso</button>
+</div>
+</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'consultas_v1';
+let consultas = [];
+let editingId = null;
+let viewingId = null;
+let currentImageIndex = 0;
+const IMAGES = ['unimed1.webp', 'unimed2.webp'];
+
+const TAG_LABELS = {
+exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
+jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
+documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
+roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
+receitas: { label: '💊 Receitas / Pedidos', bg: '#F3EEF8', color: '#6B3FA0' },
+};
+
+function load() {
+try {
+const raw = localStorage.getItem(STORAGE_KEY);
+consultas = raw ? JSON.parse(raw) : [];
+} catch(e) { consultas = []; }
+}
+
+function save() {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas));
+}
+
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+function parseDate(str) {
+if (!str) return null;
+const [y,m,d] = str.split('-').map(Number);
+return new Date(y, m-1, d);
+}
+
+function formatDate(str) {
+if (!str) return '';
+const [y,m,d] = str.split('-');
+return `${d}/${m}/${y}`;
+}
+
+function today() {
+const t = new Date();
+return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+}
+
+function cardStatus(dataStr, manualStatus) {
+if (manualStatus) return manualStatus;
+const t = today();
+if (dataStr === t) return 'today';
+if (dataStr > t) return 'upcoming';
+return 'past';
+}
+
+function monthLabel(str) {
+if (!str) return '';
+const [y,m] = str.split('-');
+const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+return `${months[parseInt(m)-1]} ${y}`;
+}
+
+function render() {
+const list = document.getElementById('list');
+const empty = document.getElementById('empty');
+const countLabel = document.getElementById('count-label');
+
+const sorted = [...consultas].sort((a,b) => {
+const da = (a.data||'') + (a.hora||'');
+const db = (b.data||'') + (b.hora||'');
+return da.localeCompare(db);
+});
+
+list.innerHTML = '';
+
+if (sorted.length === 0) {
+empty.style.display = 'block';
+countLabel.textContent = 'Nenhuma consulta';
+return;
+}
+
+empty.style.display = 'none';
+const upcoming = sorted.filter(c => {
+const status = cardStatus(c.data, c.status);
+return status === 'upcoming' || status === 'today';
+});
+const past = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
+const uStr = upcoming.length === 1 ? '1 consulta próxima' : `${upcoming.length} consultas próximas`;
+const pStr = past.length === 1 ? '1 realizada' : `${past.length} realizadas`;
+countLabel.textContent = `${uStr} · ${pStr}`;
+
+let lastMonth = null;
+
+sorted.forEach(c => {
+const status = cardStatus(c.data, c.status);
+const mn = monthLabel(c.data);
+if (mn !== lastMonth) {
+const ml = document.createElement('div');
+ml.className = 'month-label';
+ml.textContent = mn || 'Sem data';
+list.appendChild(ml);
+lastMonth = mn;
+}
+
+const card = document.createElement('div');
+card.className = 'card';
+card.dataset.id = c.id;
+
+const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
+
+// Labels para status
+const statusLabels = {
+upcoming: '📅 Agendada',
+today: '✅ Hoje',
+past: '✔️ Realizada'
+};
+
+const hasUnimed = (c.tags || []).includes('carteirinha');
+const tituloDisplay = c.titulo || c.tipo || 'Consulta';
+
+card.innerHTML = `
+<div class="card-stripe ${stripeClass}"></div>
+<div class="card-body">
+<!-- LINHA 1: Data + Status + Unimed -->
+<div class="card-top-row">
+<span class="card-data">${formatDate(c.data)}</span>
+<span class="card-status-badge ${status}">${statusLabels[status]}</span>
+${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); openImageModal();">💳 Unimed</span>` : ''}
+</div>
+<!-- LINHA 2: Título + Médico -->
+<div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
+${c.atendente ? `<div class="card-atendente">${c.atendente}</div>` : ''}
+<div class="card-meta">
+${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
+${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
+</div>
+${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
+${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
+${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.slice(0,3).map(t => {
+const info = TAG_LABELS[t];
+return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
+}).join('')}</div>` : ''}
+</div>
+`;
+
+card.addEventListener('click', () => openDetail(c.id));
+list.appendChild(card);
+});
+
+// Eventos para tags com carteirinha
+document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
+el.addEventListener('click', (e) => {
+e.stopPropagation();
+openImageModal();
+});
+});
+}
+
+function showSide(index) {
+const img = document.getElementById('image-modal-img');
+if (currentImageIndex === index) return;
+img.classList.add('flipping');
+setTimeout(() => {
+currentImageIndex = index;
+img.src = IMAGES[index];
+img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
+img.classList.remove('flipping');
+}, 350);
+document.getElementById('btn-frente').classList.toggle('active', index === 0);
+document.getElementById('btn-verso').classList.toggle('active', index === 1);
+}
+
+function openImageModal() {
+currentImageIndex = 0;
+const img = document.getElementById('image-modal-img');
+img.src = IMAGES[0];
+img.alt = 'Carteirinha Unimed - Frente';
+document.getElementById('btn-frente').classList.add('active');
+document.getElementById('btn-verso').classList.remove('active');
+document.getElementById('image-modal').classList.add('open');
+}
+
+function closeImageModal() {
+document.getElementById('image-modal').classList.remove('open');
+}
+
+function openDetail(id) {
+const c = consultas.find(x => x.id === id);
+if (!c) return;
+viewingId = id;
+
+const tituloDisplay = c.titulo || c.tipo || 'Consulta';
+document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
+document.getElementById('d-atendente').textContent = c.atendente || '';
+document.getElementById('d-titulo').textContent = tituloDisplay;
+document.getElementById('d-medico').textContent = c.medico ? '👨‍⚕️ ' + c.medico : '';
+document.getElementById('d-data').textContent = formatDate(c.data) || '—';
+document.getElementById('d-hora').textContent = c.hora || '—';
+
+const chegadaCard = document.getElementById('d-chegada-card');
+if (c.chegada) {
+chegadaCard.style.display = '';
+document.getElementById('d-chegada').textContent = c.chegada + 'h';
+} else {
+chegadaCard.style.display = 'none';
+}
+
+const localCard = document.getElementById('d-local-card');
+if (c.local) {
+localCard.style.display = '';
+document.getElementById('d-local').textContent = c.local;
+const mapsLink = document.getElementById('d-maps-link');
+if (c.maps) {
+mapsLink.style.display = 'flex';
+mapsLink.href = c.maps;
+} else {
+mapsLink.style.display = 'none';
+}
+} else {
+localCard.style.display = 'none';
+}
+
+const contatoCard = document.getElementById('d-contato-card');
+if (c.contato) {
+contatoCard.style.display = '';
+const contatoLink = document.getElementById('d-contato');
+contatoLink.textContent = c.contato;
+contatoLink.href = 'tel:' + c.contato.replace(/\D/g,'');
+} else {
+contatoCard.style.display = 'none';
+}
+
+const obsCard = document.getElementById('d-obs-card');
+if (c.obs) {
+obsCard.style.display = '';
+document.getElementById('d-obs').textContent = c.obs;
+} else {
+obsCard.style.display = 'none';
+}
+
+const tagsSection = document.getElementById('d-tags-section');
+const tagsDiv = document.getElementById('d-tags');
+if (c.tags && c.tags.length) {
+tagsSection.style.display = '';
+tagsDiv.innerHTML = c.tags.map(t => {
+const info = TAG_LABELS[t];
+return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
+}).join('');
+
+tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
+el.addEventListener('click', (e) => {
+e.stopPropagation();
+openImageModal();
+});
+});
+} else {
+tagsSection.style.display = 'none';
+}
+
+const currentStatus = cardStatus(c.data, c.status);
+document.querySelectorAll('.status-btn').forEach(btn => {
+btn.className = 'status-btn';
+if (btn.dataset.status === currentStatus) {
+btn.classList.add(`active-${currentStatus}`);
+}
+});
+
+document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail() {
+document.getElementById('detail-overlay').classList.remove('open');
+viewingId = null;
+}
+
+function openForm(id) {
+editingId = id || null;
+document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
+
+const c = id ? consultas.find(x => x.id === id) : null;
+document.getElementById('f-titulo').value = c ? (c.titulo || c.tipo || '') : '';
+document.getElementById('f-medico').value = c ? (c.medico || '') : '';
+document.getElementById('f-atendente').value = c ? c.atendente : '';
+document.getElementById('f-data').value = c ? c.data : today();
+document.getElementById('f-hora').value = c ? c.hora : '';
+document.getElementById('f-chegada').value = c ? c.chegada : '';
+document.getElementById('f-local').value = c ? c.local : '';
+document.getElementById('f-maps').value = c ? c.maps : '';
+document.getElementById('f-contato').value = c ? (c.contato || '') : '';
+document.getElementById('f-obs').value = c ? c.obs : '';
+
+const labels = document.querySelectorAll('.chk-label');
+labels.forEach(lbl => {
+const inp = lbl.querySelector('input');
+if (!inp) return; // badge fixo sem input
+const val = lbl.dataset.val;
+const checked = c && c.tags && c.tags.includes(val);
+inp.checked = checked;
+lbl.classList.toggle('checked', checked);
+});
+
+document.getElementById('form-overlay').classList.add('open');
+}
+
+function closeForm() {
+document.getElementById('form-overlay').classList.remove('open');
+editingId = null;
+}
+
+function saveForm() {
+const titulo = document.getElementById('f-titulo').value.trim();
+if (!titulo) { document.getElementById('f-titulo').focus(); return; }
+
+const tags = ['carteirinha'];
+document.querySelectorAll('.chk-label').forEach(lbl => {
+if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
+});
+
+const obj = {
+id: editingId || genId(),
+titulo: titulo,
+medico: document.getElementById('f-medico').value.trim(),
+atendente: document.getElementById('f-atendente').value.trim(),
+data: document.getElementById('f-data').value,
+hora: document.getElementById('f-hora').value,
+chegada: document.getElementById('f-chegada').value,
+local: document.getElementById('f-local').value.trim(),
+maps: document.getElementById('f-maps').value.trim(),
+contato: document.getElementById('f-contato').value.trim(),
+obs: document.getElementById('f-obs').value.trim(),
+tags,
+criadoEm: editingId ? (consultas.find(x=>x.id===editingId)||{}).criadoEm : new Date().toISOString(),
+atualizadoEm: new Date().toISOString(),
+};
+
+if (editingId) {
+const existing = consultas.find(x => x.id === editingId);
+if (existing && existing.status) obj.status = existing.status;
+}
+
+if (editingId) {
+const idx = consultas.findIndex(x => x.id === editingId);
+if (idx >= 0) consultas[idx] = obj;
+} else {
+consultas.push(obj);
+}
+
+save();
+render();
+closeForm();
+if (editingId) openDetail(obj.id);
+}
+
+function deleteConsulta(id) {
+consultas = consultas.filter(x => x.id !== id);
+save();
+render();
+closeDetail();
+}
+
+function updateStatus(status) {
+if (!viewingId) return;
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+const autoStatus = cardStatus(c.data, null);
+if (status === autoStatus) delete c.status;
+else c.status = status;
+c.atualizadoEm = new Date().toISOString();
+save();
+render();
+openDetail(viewingId);
+}
+
+// Events
+document.getElementById('fab-btn').addEventListener('click', () => openForm());
+document.getElementById('form-cancel').addEventListener('click', closeForm);
+document.getElementById('form-save').addEventListener('click', saveForm);
+document.getElementById('back-btn').addEventListener('click', closeDetail);
+document.getElementById('image-modal-close').addEventListener('click', closeImageModal);
+document.getElementById('image-modal').addEventListener('click', (e) => {
+if (e.target === document.getElementById('image-modal')) closeImageModal();
+});
+
+document.getElementById('detail-edit-btn').addEventListener('click', () => {
+const id = viewingId;
+closeDetail();
+openForm(id);
+});
+
+document.getElementById('detail-delete-btn').addEventListener('click', () => {
+document.getElementById('confirm-overlay').classList.add('open');
+});
+
+document.getElementById('confirm-cancel').addEventListener('click', () => {
+document.getElementById('confirm-overlay').classList.remove('open');
+});
+
+document.getElementById('confirm-ok').addEventListener('click', () => {
+document.getElementById('confirm-overlay').classList.remove('open');
+deleteConsulta(viewingId);
+});
+
+document.getElementById('form-overlay').addEventListener('click', e => {
+if (e.target === document.getElementById('form-overlay')) closeForm();
+});
+
+document.querySelectorAll('.chk-label').forEach(lbl => {
+lbl.addEventListener('click', () => {
+const inp = lbl.querySelector('input');
+inp.checked = !inp.checked;
+lbl.classList.toggle('checked', inp.checked);
+});
+});
+
+document.querySelectorAll('.status-btn').forEach(btn => {
+btn.addEventListener('click', () => updateStatus(btn.dataset.status));
+});
+
+document.getElementById('f-hora').addEventListener('change', e => {
+const chegada = document.getElementById('f-chegada');
+if (chegada.value) return;
+const [h,m] = e.target.value.split(':').map(Number);
+const total = h * 60 + m - 20;
+if (total >= 0) {
+chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+}
+});
+
+// Init
+load();
+
+if (consultas.length === 0) {
+const hoje = new Date();
+const amanha = new Date(hoje);
+amanha.setDate(amanha.getDate() + 1);
+const anoAmanha = amanha.getFullYear();
+const mesAmanha = String(amanha.getMonth() + 1).padStart(2, '0');
+const diaAmanha = String(amanha.getDate()).padStart(2, '0');
+const dataAmanha = `${anoAmanha}-${mesAmanha}-${diaAmanha}`;
+
+const preFill = {
+id: genId(),
+titulo: 'Consulta Pré Operatório',
+medico: 'Dr. Brandão',
+atendente: 'Gabriela Nunes – CardioPrime',
+data: dataAmanha,
+hora: '10:40',
+chegada: '10:20',
+local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
+maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
+obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
+tags: ['carteirinha', 'documento', 'exames'],
+status: 'upcoming',
+criadoEm: new Date().toISOString(),
+atualizadoEm: new Date().toISOString(),
+};
+consultas.push(preFill);
+save();
+}
+
+render();
+
+if ('serviceWorker' in navigator) {
+navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
