@@ -810,7 +810,7 @@ letter-spacing: 0.02em;
 <input type="date" id="f-data">
 </div>
 <div class="field">
-<label>Consulta às</label>
+<label>Consulta</label>
 <input type="time" id="f-hora">
 </div>
 </div>
@@ -837,7 +837,7 @@ letter-spacing: 0.02em;
 <div class="checkgroup" id="chk-group">
 <label class="chk-label" data-val="exames"><input type="checkbox">📄 Exames anteriores</label>
 <label class="chk-label" data-val="jejum"><input type="checkbox">🚫 Jejum</label>
-<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documentos</label>
+<label class="chk-label" data-val="documento"><input type="checkbox">🪪 Documento + CPF</label>
 <label class="chk-label" data-val="roupa"><input type="checkbox">👕 Roupa adequada</label>
 <label class="chk-label" data-val="receitas"><input type="checkbox">💊 Receitas / Pedidos</label>
 </div>
@@ -947,7 +947,7 @@ const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 const TAG_LABELS = {
 exames: { label: '📄 Exames anteriores', bg: '#F1EFE8', color: '#5F5E5A' },
 jejum: { label: '🚫 Jejum', bg: '#FFF3CD', color: '#664D03' },
-documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
+documento: { label: '🪪 Documento + CPF', bg: '#E6F1FB', color: '#0C447C' },
 roupa: { label: '👕 Roupa adequada', bg: '#E1F5EE', color: '#0F6E56' },
 receitas: { label: '💊 Receitas / Pedidos', bg: '#F3EEF8', color: '#6B3FA0' },
 };
@@ -1375,7 +1375,7 @@ chegada: '10:20',
 local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
 maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
 obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
-tags: ['documento', 'cpf', 'carteirinha'],
+tags: ['carteirinha', 'documento', 'exames'],
 status: 'upcoming',
 criadoEm: new Date().toISOString(),
 atualizadoEm: new Date().toISOString(),
