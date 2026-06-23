@@ -69,17 +69,47 @@ z-index: 100;
 box-shadow: 0 2px 16px rgba(12,68,124,0.3);
 }
 
-header h1 {
+.header-content {
+display: flex;
+justify-content: space-between;
+align-items: center;
+gap: 0.75rem;
+}
+
+.header-left h1 {
 font-size: var(--font-lg);
 font-weight: 700;
 letter-spacing: -0.01em;
 }
 
-header p {
+.header-left p {
 font-size: var(--font-sm);
 opacity: 0.75;
 margin-top: 4px;
 font-weight: 500;
+}
+
+.btn-unimed-header {
+background: rgba(255,255,255,0.15);
+border: 1.5px solid rgba(255,255,255,0.25);
+color: white;
+padding: 8px 16px;
+border-radius: var(--radius-pill);
+font-weight: 700;
+font-size: var(--font-sm);
+cursor: pointer;
+backdrop-filter: blur(4px);
+transition: background 0.15s, transform 0.1s;
+white-space: nowrap;
+display: flex;
+align-items: center;
+gap: 6px;
+flex-shrink: 0;
+}
+
+.btn-unimed-header:active {
+background: rgba(255,255,255,0.28);
+transform: scale(0.95);
 }
 
 /* ─── FAB ─── */
@@ -150,7 +180,7 @@ transition: transform 0.12s, box-shadow 0.12s;
 
 .card-body { padding: 1rem 1.15rem 1rem; }
 
-/* LINHA 1: Data + Status + Unimed */
+/* LINHA 1: Data + Status */
 .card-top-row {
 display: flex;
 align-items: center;
@@ -194,21 +224,6 @@ background: var(--gray-50);
 color: var(--gray-600);
 border-color: var(--gray-100);
 }
-
-.card-btn-unimed {
-font-size: var(--font-xs);
-font-weight: 700;
-padding: 3px 12px;
-border-radius: var(--radius-pill);
-background: var(--teal-50);
-color: var(--teal-600);
-border: 1.5px solid #9FE1CB;
-cursor: pointer;
-white-space: nowrap;
-transition: opacity 0.15s;
-}
-
-.card-btn-unimed:active { opacity: 0.6; }
 
 /* LINHA 2: Título */
 .card-title {
@@ -978,8 +993,13 @@ color: white;
 <body>
 
 <header>
+<div class="header-content">
+<div class="header-left">
 <h1>🩺 Minhas Consultas</h1>
 <p id="count-label">Carregando...</p>
+</div>
+<button class="btn-unimed-header" onclick="openImageModal()">💳 Unimed</button>
+</div>
 </header>
 
 <div id="list-view">
@@ -1219,7 +1239,7 @@ let consultas = [];
 let editingId = null;
 let viewingId = null;
 let currentImageIndex = 0;
-let pendingImportData = null; // armazena dados para importação
+let pendingImportData = null;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
@@ -1347,26 +1367,21 @@ card.dataset.id = c.id;
 
 const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
 
-// Labels para status
 const statusLabels = {
 upcoming: '📅 Agendada',
 today: '✅ Hoje',
 past: '✔️ Realizada'
 };
 
-const hasUnimed = (c.tags || []).includes('carteirinha');
 const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 
 card.innerHTML = `
 <div class="card-stripe ${stripeClass}"></div>
 <div class="card-body">
-<!-- LINHA 1: Data + Status + Unimed -->
 <div class="card-top-row">
 <span class="card-data">${formatDate(c.data)}</span>
 <span class="card-status-badge ${status}">${statusLabels[status]}</span>
-${hasUnimed ? `<span class="card-btn-unimed" onclick="event.stopPropagation(); openImageModal();">💳 Unimed</span>` : ''}
 </div>
-<!-- LINHA 2: Título + Médico -->
 <div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
 ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
 <div class="card-meta">
@@ -1375,7 +1390,7 @@ ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar 
 </div>
 ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
 ${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
-${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.filter(t => t !== 'carteirinha').map(t => {
+${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.map(t => {
 const info = TAG_LABELS[t];
 return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
 }).join('')}</div>` : ''}
@@ -1384,14 +1399,6 @@ return info ? `<span class="tag" style="background:${info.bg};color:${info.color
 
 card.addEventListener('click', () => openDetail(c.id));
 list.appendChild(card);
-});
-
-// Eventos para tags com carteirinha
-document.querySelectorAll('.tag[data-tag="carteirinha"]').forEach(el => {
-el.addEventListener('click', (e) => {
-e.stopPropagation();
-openImageModal();
-});
 });
 }
 
@@ -1431,7 +1438,6 @@ viewingId = id;
 const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
 
-// Formata o especialista: primeira parte em maiúsculo, segunda parte com iniciais maiúsculas
 if (c.especialista && c.especialista.includes(' – ')) {
 const partes = c.especialista.split(' – ');
 const primeiraParte = partes[0].toUpperCase();
@@ -1497,13 +1503,6 @@ tagsDiv.innerHTML = c.tags.map(t => {
 const info = TAG_LABELS[t];
 return info ? `<span class="detail-tag" style="background:${info.bg};color:${info.color}" data-tag="${t}">${info.label}</span>` : '';
 }).join('');
-
-tagsDiv.querySelectorAll('[data-tag="carteirinha"]').forEach(el => {
-el.addEventListener('click', (e) => {
-e.stopPropagation();
-openImageModal();
-});
-});
 } else {
 tagsSection.style.display = 'none';
 }
@@ -1543,7 +1542,7 @@ document.getElementById('f-obs').value = c ? c.obs : '';
 const labels = document.querySelectorAll('.chk-label');
 labels.forEach(lbl => {
 const inp = lbl.querySelector('input');
-if (!inp) return; // badge fixo sem input
+if (!inp) return;
 const val = lbl.dataset.val;
 const checked = c && c.tags && c.tags.includes(val);
 inp.checked = checked;
@@ -1562,7 +1561,6 @@ function saveForm() {
 const titulo = document.getElementById('f-titulo').value.trim();
 if (!titulo) { document.getElementById('f-titulo').focus(); return; }
 
-// 🔴 CORREÇÃO: tags começa vazia, sem 'carteirinha' fixo
 const tags = [];
 document.querySelectorAll('.chk-label').forEach(lbl => {
 if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
@@ -1659,7 +1657,6 @@ try {
 const data = JSON.parse(e.target.result);
 let imported = [];
 
-// Suporta dois formatos: array direto ou objeto com campo consultas
 if (Array.isArray(data)) {
 imported = data;
 } else if (data.consultas && Array.isArray(data.consultas)) {
@@ -1674,7 +1671,6 @@ showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
 return;
 }
 
-// Armazena os dados importados e mostra o modal de escolha
 pendingImportData = imported;
 showChoice(`Encontradas ${imported.length} consulta${imported.length > 1 ? 's' : ''} no arquivo. Como deseja proceder?`);
 
@@ -1692,13 +1688,12 @@ if (!imported) return;
 
 if (choice === 'replace') {
 consultas = imported;
-} else { // merge
+} else {
 const existingIds = new Set(consultas.map(c => c.id));
 const novos = imported.filter(c => !existingIds.has(c.id));
 consultas = [...consultas, ...novos];
 if (novos.length < imported.length) {
 showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
-// 🟡 CORREÇÃO: limpa pendingImportData mesmo no caminho de duplicatas
 pendingImportData = null;
 hideChoice();
 return;
@@ -1709,7 +1704,6 @@ save();
 render();
 showToast('toast-import', `${consultas.length} consulta${consultas.length > 1 ? 's' : ''} no total.`);
 hideChoice();
-// 🟡 CORREÇÃO: limpa pendingImportData
 pendingImportData = null;
 }
 
@@ -1779,7 +1773,7 @@ document.getElementById('file-input').click();
 document.getElementById('file-input').addEventListener('change', (e) => {
 if (e.target.files.length > 0) {
 importData(e.target.files[0]);
-e.target.value = ''; // reset para permitir importar o mesmo arquivo novamente
+e.target.value = '';
 }
 });
 
@@ -1788,7 +1782,6 @@ e.target.value = ''; // reset para permitir importar o mesmo arquivo novamente
 document.getElementById('choice-replace').addEventListener('click', () => processImport('replace'));
 document.getElementById('choice-merge').addEventListener('click', () => processImport('merge'));
 
-// Fechar choice clicando no overlay (opcional, mas pode ser confuso)
 document.getElementById('choice-overlay').addEventListener('click', (e) => {
 if (e.target === document.getElementById('choice-overlay')) {
 // Não fecha, obriga o usuário a escolher
@@ -1801,7 +1794,6 @@ document.getElementById('toast-export-close').addEventListener('click', () => hi
 document.getElementById('toast-import-close').addEventListener('click', () => hideToast('toast-import'));
 document.getElementById('toast-error-close').addEventListener('click', () => hideToast('toast-error'));
 
-// Fechar toasts clicando no overlay
 document.getElementById('toast-export').addEventListener('click', (e) => {
 if (e.target === document.getElementById('toast-export')) hideToast('toast-export');
 });
@@ -1835,7 +1827,7 @@ chegada: '10:20',
 local: 'Shopping Park Europeu – 2º piso, Lj 2051/2053\nVia Expressa – Rod. Paul Fritz Kuehnrich, 1600',
 maps: 'https://goo.gl/maps/sQhsMcTsDTL2nyQDA',
 obs: 'Avisar com 48h de antecedência em caso de cancelamento.',
-tags: ['carteirinha', 'documento', 'exames'],
+tags: ['documento', 'exames'],
 status: 'upcoming',
 criadoEm: new Date().toISOString(),
 atualizadoEm: new Date().toISOString(),
