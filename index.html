@@ -1562,7 +1562,8 @@ function saveForm() {
 const titulo = document.getElementById('f-titulo').value.trim();
 if (!titulo) { document.getElementById('f-titulo').focus(); return; }
 
-const tags = ['carteirinha'];
+// 🔴 CORREÇÃO: tags começa vazia, sem 'carteirinha' fixo
+const tags = [];
 document.querySelectorAll('.chk-label').forEach(lbl => {
 if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val);
 });
@@ -1697,6 +1698,8 @@ const novos = imported.filter(c => !existingIds.has(c.id));
 consultas = [...consultas, ...novos];
 if (novos.length < imported.length) {
 showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
+// 🟡 CORREÇÃO: limpa pendingImportData mesmo no caminho de duplicatas
+pendingImportData = null;
 hideChoice();
 return;
 }
@@ -1706,6 +1709,7 @@ save();
 render();
 showToast('toast-import', `${consultas.length} consulta${consultas.length > 1 ? 's' : ''} no total.`);
 hideChoice();
+// 🟡 CORREÇÃO: limpa pendingImportData
 pendingImportData = null;
 }
 
