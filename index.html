@@ -1809,25 +1809,30 @@ pendingImportData = null;
 }
 
 // ─── COMPARTILHAR ───
-
 function shareConsulta() {
 const c = consultas.find(x => x.id === viewingId);
 if (!c) return;
 
 const titulo = c.titulo || c.tipo || 'Consulta';
-const linhas = [titulo.toUpperCase()];
+const linhas = [titulo];
 
 if (c.medico) linhas.push(c.medico);
-if (c.especialista) linhas.push(c.especialista);
-linhas.push('');
-if (c.data) linhas.push(formatDate(c.data) + (c.hora ? ' às ' + c.hora : ''));
+
+const clinica = c.especialista ? c.especialista.split(' – ').pop().trim() : '';
+const dataHora = c.data ? formatDate(c.data) + (c.hora ? ' às ' + c.hora : '') : '';
+if (clinica && dataHora) linhas.push(clinica + ': ' + dataHora);
+else if (dataHora) linhas.push(dataHora);
+
 if (c.chegada) linhas.push('Chegar às ' + c.chegada);
+
+if (c.local || c.maps) {
+linhas.push('...');
 if (c.local) linhas.push(c.local);
 if (c.maps) linhas.push(c.maps);
-if (c.contato) linhas.push(c.contato);
+}
 
 if (c.tags && c.tags.length) {
-linhas.push('');
+linhas.push('...');
 linhas.push('Levar / Preparar:');
 c.tags.forEach(t => {
 const info = TAG_LABELS[t];
@@ -1836,9 +1841,11 @@ if (info) linhas.push('- ' + info.label.replace(/^\S+\s/, ''));
 }
 
 if (c.obs) {
-linhas.push('');
+linhas.push('...');
 linhas.push(c.obs);
 }
+
+if (c.contato) linhas.push('...\nContato: ' + c.contato);
 
 const texto = linhas.join('\n');
 
@@ -1854,7 +1861,6 @@ showToast('toast-error', 'Não foi possível compartilhar.');
 }
 
 // ─── LEMBRETES ───
-
 function getProximasConsultas(dias) {
 const t = today();
 const limite = new Date();
