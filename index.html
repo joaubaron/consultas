@@ -1887,12 +1887,20 @@ title.textContent = primeira.titulo || 'Consulta';
 title.textContent = `${proximas.length} consultas`;
 }
 
-// Texto: data e médico
+// Texto: Hoje/Amanhã + data + hora + médico
 let descricao = '';
+const hoje = new Date();
+const dataConsulta = parseDate(primeira.data);
+
 if (primeira.data === t) {
-descricao = `Hoje às ${primeira.hora || '--:--'}`;
+descricao = `Hoje - ${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+} else {
+const diff = Math.round((dataConsulta - hoje) / 86400000);
+if (diff === 1) {
+descricao = `Amanhã - ${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
 } else {
 descricao = `${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+}
 }
 
 if (primeira.medico) {
