@@ -991,6 +991,67 @@ background: var(--blue-600);
 color: white;
 }
 
+/* ─── LEMBRETE BANNER ─── */
+.reminder-banner {
+display: none;
+margin: 0.75rem 1rem 0;
+background: linear-gradient(135deg, #FFF8E1, #FFF3CD);
+border: 1.5px solid #FFD54F;
+border-radius: var(--radius-lg);
+padding: 0.9rem 1rem;
+gap: 0.75rem;
+align-items: flex-start;
+box-shadow: 0 2px 8px rgba(186,117,23,0.12);
+}
+
+.reminder-banner.visible { display: flex; }
+
+.reminder-banner-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; }
+
+.reminder-banner-body { flex: 1; min-width: 0; }
+
+.reminder-banner-title {
+font-size: var(--font-sm);
+font-weight: 700;
+color: var(--amber-600);
+margin-bottom: 0.25rem;
+}
+
+.reminder-banner-text {
+font-size: var(--font-xs);
+color: var(--amber-400);
+line-height: 1.45;
+}
+
+.reminder-banner-btn {
+background: var(--amber-400);
+color: white;
+border: none;
+border-radius: var(--radius-sm);
+padding: 6px 14px;
+font-size: var(--font-xs);
+font-weight: 700;
+cursor: pointer;
+white-space: nowrap;
+flex-shrink: 0;
+margin-top: 2px;
+font-family: inherit;
+transition: opacity 0.15s;
+}
+
+.reminder-banner-btn:active { opacity: 0.8; }
+.reminder-banner-close {
+background: none;
+border: none;
+color: var(--amber-400);
+font-size: 1rem;
+cursor: pointer;
+padding: 0 0 0 4px;
+flex-shrink: 0;
+line-height: 1;
+align-self: flex-start;
+}
+
 @media (max-width: 420px) {
 .backup-bar { bottom: 4.5rem; padding: 0.4rem 0.6rem; }
 .backup-btn { font-size: 0.65rem; padding: 0.4rem 0.7rem; }
@@ -1009,6 +1070,17 @@ color: white;
 </header>
 
 <div id="list-view">
+<!-- LEMBRETE BANNER -->
+<div class="reminder-banner" id="reminder-banner">
+<div class="reminder-banner-icon">🔔</div>
+<div class="reminder-banner-body">
+<div class="reminder-banner-title" id="reminder-banner-title">Consulta em breve</div>
+<div class="reminder-banner-text" id="reminder-banner-text"></div>
+</div>
+<button class="reminder-banner-btn" id="reminder-banner-btn">Ativar avisos</button>
+<button class="reminder-banner-close" id="reminder-banner-close" aria-label="Fechar">✕</button>
+</div>
+
 <div id="list" class="list"></div>
 <div id="empty" class="empty-state" style="display:none">
 <div class="icon">📅</div>
@@ -1162,6 +1234,7 @@ color: white;
 
 <div class="action-row">
 <button class="btn btn-secondary" id="detail-edit-btn">✏️ Editar</button>
+<button class="btn btn-primary" id="detail-share-btn">📤 Compartilhar</button>
 <button class="btn btn-danger" id="detail-delete-btn">🗑️ Excluir</button>
 </div>
 </div>
@@ -1718,6 +1791,169 @@ hideChoice();
 pendingImportData = null;
 }
 
+// ─── COMPARTILHAR ───
+
+function shareConsulta() {
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+
+const titulo = c.titulo || c.tipo || 'Consulta';
+const linhas = [`🩺 *${titulo}*`];
+
+if (c.medico) linhas.push(`👨‍⚕️ ${c.medico}`);
+if (c.especialista) linhas.push(`🏥 ${c.especialista}`);
+linhas.push('');
+if (c.data) linhas.push(`📅 ${formatDate(c.data)}${c.hora ? ' às ' + c.hora : ''}`);
+if (c.chegada) linhas.push(`⏰ Chegar às ${c.chegada}`);
+if (c.local) linhas.push(`📍 ${c.local}`);
+if (c.maps) linhas.push(`🗺️ ${c.maps}`);
+if (c.contato) linhas.push(`📞 ${c.contato}`);
+
+if (c.tags && c.tags.length) {
+linhas.push('');
+linhas.push('📋 Levar / Preparar:');
+c.tags.forEach(t => {
+const info = TAG_LABELS[t];
+if (info) linhas.push(`  ${info.label}`);
+});
+}
+
+if (c.obs) {
+linhas.push('');
+linhas.push(`📝 ${c.obs}`);
+}
+
+const texto = linhas.join('\n');
+
+if (navigator.share) {
+navigator.share({ title: titulo, text: texto }).catch(() => {});
+} else {
+navigator.clipboard.writeText(texto).then(() => {
+showToast('toast-export', 'Texto copiado para a área de transferência!');
+}).catch(() => {
+showToast('toast-error', 'Não foi possível compartilhar.');
+});
+}
+}
+
+// ─── LEMBRETES ───
+
+function getProximasConsultas(dias) {
+const t = today();
+const limite = new Date();
+limite.setDate(limite.getDate() + dias);
+const limiteStr = limite.toISOString().slice(0, 10);
+
+return consultas.filter(c => {
+const status = cardStatus(c.data, c.status);
+return (status === 'upcoming' || status === 'today') && c.data >= t && c.data <= limiteStr;
+}).sort((a, b) => (a.data + (a.hora || '')).localeCompare(b.data + (b.hora || '')));
+}
+
+function checkReminder() {
+const proximas = getProximasConsultas(3);
+if (proximas.length === 0) return;
+
+const banner = document.getElementById('reminder-banner');
+const title = document.getElementById('reminder-banner-title');
+const text = document.getElementById('reminder-banner-text');
+const btn = document.getElementById('reminder-banner-btn');
+
+const primeira = proximas[0];
+const t = today();
+let descricao;
+
+if (primeira.data === t) {
+descricao = `Hoje às ${primeira.hora || '?'}`;
+} else {
+const diff = Math.round((parseDate(primeira.data) - parseDate(t)) / 86400000);
+descricao = `Em ${diff} dia${diff > 1 ? 's' : ''}, ${formatDate(primeira.data)}${primeira.hora ? ' às ' + primeira.hora : ''}`;
+}
+
+title.textContent = `${proximas.length > 1 ? proximas.length + ' consultas' : (primeira.titulo || 'Consulta')} em breve`;
+text.textContent = `${proximas.length > 1 ? 'Próxima: ' : ''}${descricao}${primeira.medico ? ' · ' + primeira.medico : ''}`;
+
+// Verifica se notificações já estão ativas
+const permissao = ('Notification' in window) ? Notification.permission : 'denied';
+
+if (permissao === 'granted') {
+btn.textContent = '✅ Avisos ativos';
+btn.style.background = 'var(--teal-600)';
+btn.onclick = null;
+} else if (permissao === 'denied') {
+btn.style.display = 'none';
+} else {
+btn.textContent = 'Ativar avisos';
+btn.onclick = requestNotificationPermission;
+}
+
+banner.classList.add('visible');
+}
+
+async function requestNotificationPermission() {
+if (!('Notification' in window)) return;
+
+const result = await Notification.requestPermission();
+if (result === 'granted') {
+scheduleNotifications();
+checkReminder(); // atualiza o banner
+showToast('toast-import', 'Avisos ativados! Você será lembrado antes das consultas.');
+} else {
+showToast('toast-error', 'Permissão negada. Ative nas configurações do navegador.');
+}
+}
+
+function scheduleNotifications() {
+if (!('Notification' in window) || Notification.permission !== 'granted') return;
+if (!('serviceWorker' in navigator)) return;
+
+// Agenda notificações via SW para cada consulta futura
+const proximas = getProximasConsultas(30);
+const t = today();
+
+proximas.forEach(c => {
+if (!c.hora) return;
+
+const [h, m] = c.hora.split(':').map(Number);
+const dataConsulta = parseDate(c.data);
+
+// Lembrete véspera: 20h do dia anterior
+const vespera = new Date(dataConsulta);
+vespera.setDate(vespera.getDate() - 1);
+vespera.setHours(20, 0, 0, 0);
+
+// Lembrete 2h antes
+const antecipado = new Date(dataConsulta);
+antecipado.setHours(h - 2, m, 0, 0);
+
+const agora = new Date();
+
+// Dispara lembrete de véspera se ainda não passou
+if (vespera > agora) {
+const delay = vespera - agora;
+setTimeout(() => {
+new Notification('🩺 Consulta amanhã!', {
+body: `${c.titulo || 'Consulta'} com ${c.medico || 'médico'} às ${c.hora}`,
+icon: 'icons/icon-192.png',
+tag: `consulta-vespera-${c.id}`,
+});
+}, delay);
+}
+
+// Dispara lembrete 2h antes se ainda não passou
+if (antecipado > agora) {
+const delay = antecipado - agora;
+setTimeout(() => {
+new Notification('⏰ Consulta em 2 horas!', {
+body: `${c.titulo || 'Consulta'} com ${c.medico || 'médico'} às ${c.hora}`,
+icon: 'icons/icon-192.png',
+tag: `consulta-2h-${c.id}`,
+});
+}, delay);
+}
+});
+}
+
 // ─── EVENTS ───
 
 document.getElementById('fab-btn').addEventListener('click', () => openForm());
@@ -1734,6 +1970,8 @@ const id = viewingId;
 closeDetail();
 openForm(id);
 });
+
+document.getElementById('detail-share-btn').addEventListener('click', shareConsulta);
 
 document.getElementById('detail-delete-btn').addEventListener('click', () => {
 document.getElementById('confirm-overlay').classList.add('open');
@@ -1772,6 +2010,11 @@ const total = h * 60 + m - 30;
 if (total >= 0) {
 chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
 }
+});
+
+// Fechar banner de lembrete
+document.getElementById('reminder-banner-close').addEventListener('click', () => {
+document.getElementById('reminder-banner').classList.remove('visible');
 });
 
 // ─── BACKUP EVENTS ───
@@ -1848,6 +2091,12 @@ save();
 }
 
 render();
+checkReminder();
+
+// Se permissão já concedida anteriormente, reativa os timers
+if ('Notification' in window && Notification.permission === 'granted') {
+scheduleNotifications();
+}
 
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('sw.js').catch(()=>{});
