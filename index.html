@@ -1887,19 +1887,29 @@ title.textContent = primeira.titulo || 'Consulta';
 title.textContent = `${proximas.length} consultas`;
 }
 
+// Função para formatar data com ano 2 dígitos
+function formatDateShort(str) {
+if (!str) return '';
+const partes = str.split('-');
+const dia = partes[2];
+const mes = partes[1];
+const ano = partes[0].slice(2); // pega só os 2 últimos dígitos
+return `${dia}/${mes}/${ano}`;
+}
+
 // Texto: Hoje/Amanhã + data + hora + médico
 let descricao = '';
 const hoje = new Date();
 const dataConsulta = parseDate(primeira.data);
 
 if (primeira.data === t) {
-descricao = `Hoje - ${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+descricao = `Hoje - ${formatDateShort(primeira.data)} às ${primeira.hora || '--:--'}`;
 } else {
 const diff = Math.round((dataConsulta - hoje) / 86400000);
 if (diff === 1) {
-descricao = `Amanhã - ${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+descricao = `Amanhã - ${formatDateShort(primeira.data)} às ${primeira.hora || '--:--'}`;
 } else {
-descricao = `${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+descricao = `${formatDateShort(primeira.data)} às ${primeira.hora || '--:--'}`;
 }
 }
 
