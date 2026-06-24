@@ -1879,36 +1879,44 @@ const btn = document.getElementById('reminder-banner-btn');
 
 const primeira = proximas[0];
 const t = today();
-let descricao;
 
-if (primeira.data === t) {
-descricao = `Hoje ${primeira.hora ? 'às ' + primeira.hora : ''}`;
-} else {
-const diff = Math.round((parseDate(primeira.data) - parseDate(t)) / 86400000);
-descricao = `${formatDate(primeira.data)}${primeira.hora ? ' ' + primeira.hora : ''}`;
-}
-
-// Título mais objetivo
+// Título: nome da consulta
 if (proximas.length === 1) {
 title.textContent = primeira.titulo || 'Consulta';
 } else {
 title.textContent = `${proximas.length} consultas`;
 }
 
-// Texto mais resumido
+// Texto: data e médico
+let descricao = '';
+if (primeira.data === t) {
+descricao = `Hoje às ${primeira.hora || '--:--'}`;
+} else {
+descricao = `${formatDate(primeira.data)} às ${primeira.hora || '--:--'}`;
+}
+
+if (primeira.medico) {
+descricao += ` com ${primeira.medico}`;
+}
+
 text.textContent = descricao;
 
-// Verifica se notificações já estão ativas
+// Verifica permissão de notificação
 const permissao = ('Notification' in window) ? Notification.permission : 'denied';
 
 if (permissao === 'granted') {
-btn.textContent = '✅ Ativo';
-btn.style.background = 'var(--teal-600)';
+btn.textContent = 'Ativo';
+btn.style.background = 'var(--blue-600)';
+btn.style.color = 'white';
+btn.style.border = 'none';
 btn.onclick = null;
 } else if (permissao === 'denied') {
 btn.style.display = 'none';
 } else {
 btn.textContent = 'Ativar';
+btn.style.background = 'var(--blue-600)';
+btn.style.color = 'white';
+btn.style.border = 'none';
 btn.onclick = requestNotificationPermission;
 }
 
