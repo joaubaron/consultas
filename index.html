@@ -1840,11 +1840,6 @@ if (info) linhas.push('- ' + info.label.replace(/^\S+\s/, ''));
 });
 }
 
-if (c.obs) {
-linhas.push('...');
-linhas.push(c.obs);
-}
-
 if (c.contato) linhas.push('...\nContato: ' + c.contato);
 
 const texto = linhas.join('\n');
