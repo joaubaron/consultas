@@ -951,12 +951,6 @@ text-align: center;
 animation: slideUp 0.28s cubic-bezier(0.34,1.2,0.64,1);
 }
 
-.choice-box .toast-icon {
-font-size: 3rem;
-margin-bottom: 0.5rem;
-display: block;
-}
-
 .choice-box h3 {
 font-size: var(--font-lg);
 font-weight: 700;
@@ -1262,12 +1256,11 @@ padding-left: 0.1rem;
 <!-- Choice Modal (Substituir vs Mesclar) -->
 <div class="choice-overlay" id="choice-overlay">
 <div class="choice-box">
-<span class="toast-icon">📥</span>
 <h3>Importar dados</h3>
 <p id="choice-msg">Encontradas 1 consultas no arquivo. Como deseja proceder?</p>
 <div class="btn-row">
-<button class="btn btn-danger" id="choice-merge">➕ Mesclar</button>
-<button class="btn btn-primary" id="choice-replace">🔄 Substituir</button>
+<button class="btn btn-danger" id="choice-merge">Mesclar</button>
+<button class="btn btn-primary" id="choice-replace">Substituir</button>
 </div>
 </div>
 </div>
@@ -1275,8 +1268,7 @@ padding-left: 0.1rem;
 <!-- Toast / Modal para Exportar -->
 <div class="toast-overlay" id="toast-export">
 <div class="toast-box">
-<span class="toast-icon">📤</span>
-<h3>Exportado com sucesso!</h3>
+<h3>Exportado</h3>
 <p id="toast-export-msg">Salvo na sua pasta de downloads.</p>
 <div class="btn-row">
 <button class="btn btn-export" id="toast-export-close">OK</button>
@@ -1287,8 +1279,7 @@ padding-left: 0.1rem;
 <!-- Toast / Modal para Importar -->
 <div class="toast-overlay" id="toast-import">
 <div class="toast-box">
-<span class="toast-icon">✅</span>
-<h3>Importação concluída!</h3>
+<h3>Importação concluída</h3>
 <p id="toast-import-msg">1 consulta importada com sucesso.</p>
 <div class="btn-row">
 <button class="btn btn-success" id="toast-import-close">OK</button>
@@ -1299,7 +1290,6 @@ padding-left: 0.1rem;
 <!-- Toast / Modal para Erro -->
 <div class="toast-overlay" id="toast-error">
 <div class="toast-box">
-<span class="toast-icon">❌</span>
 <h3>Erro</h3>
 <p id="toast-error-msg">Ocorreu um erro ao processar o arquivo.</p>
 <div class="btn-row">
