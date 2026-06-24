@@ -1277,7 +1277,7 @@ padding-left: 0.1rem;
 <div class="toast-box">
 <span class="toast-icon">📤</span>
 <h3>Exportado com sucesso!</h3>
-<p id="toast-export-msg">Arquivo salvo na sua pasta de downloads.</p>
+<p id="toast-export-msg">Salvo na sua pasta de downloads.</p>
 <div class="btn-row">
 <button class="btn btn-export" id="toast-export-close">OK</button>
 </div>
@@ -1753,7 +1753,7 @@ a.click();
 document.body.removeChild(a);
 URL.revokeObjectURL(url);
 
-showToast('toast-export', `Arquivo salvo como ${filename}`);
+showToast('toast-export', `Salvo como ${filename}`);
 }
 
 function importData(file) {
