@@ -1894,7 +1894,7 @@ text.textContent = `${proximas.length > 1 ? 'Próxima: ' : ''}${descricao}${prim
 const permissao = ('Notification' in window) ? Notification.permission : 'denied';
 
 if (permissao === 'granted') {
-btn.textContent = '✅ Avisos ativos';
+btn.textContent = 'Avisos ativos';
 btn.style.background = 'var(--teal-600)';
 btn.onclick = null;
 } else if (permissao === 'denied') {
