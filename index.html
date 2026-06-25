@@ -1055,6 +1055,117 @@ color: var(--amber-400);
 line-height: 1.45;
 padding-left: 0.1rem;
 }
+
+/* ─── REALIZADAS TAB BUTTON ─── */
+.backup-inline-btn.realizadas {
+background: var(--amber-50);
+color: var(--amber-600);
+border-color: #FAC775;
+position: relative;
+}
+
+.realizadas-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+background: var(--amber-400);
+color: white;
+font-size: 0.65rem;
+font-weight: 700;
+min-width: 18px;
+height: 18px;
+border-radius: 100px;
+padding: 0 5px;
+margin-left: 2px;
+}
+
+/* ─── REALIZADAS VIEW ─── */
+#realizadas-view {
+display: none;
+}
+
+#realizadas-view.active {
+display: block;
+}
+
+.realizadas-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 1rem 1rem 0.5rem;
+}
+
+.realizadas-header-title {
+font-size: var(--font-sm);
+font-weight: 700;
+color: var(--gray-600);
+letter-spacing: 0.05em;
+text-transform: uppercase;
+}
+
+.btn-clear-realizadas {
+background: var(--red-50);
+color: var(--red-600);
+border: 1.5px solid #F7C1C1;
+border-radius: var(--radius-pill);
+font-size: var(--font-xs);
+font-weight: 700;
+padding: 6px 14px;
+cursor: pointer;
+font-family: inherit;
+transition: opacity 0.15s, transform 0.1s;
+}
+
+.btn-clear-realizadas:active { opacity: 0.75; transform: scale(0.95); }
+
+.btn-voltar-lista {
+background: var(--blue-50);
+color: var(--blue-800);
+border: 1.5px solid var(--blue-100);
+border-radius: var(--radius-pill);
+font-size: var(--font-xs);
+font-weight: 700;
+padding: 6px 14px;
+cursor: pointer;
+font-family: inherit;
+transition: opacity 0.15s, transform 0.1s;
+display: flex;
+align-items: center;
+gap: 5px;
+}
+
+.btn-voltar-lista:active { opacity: 0.75; transform: scale(0.95); }
+
+.realizadas-actions {
+display: flex;
+gap: 0.5rem;
+align-items: center;
+}
+
+.realizadas-empty {
+text-align: center;
+padding: 3.5rem 2rem;
+color: var(--gray-400);
+}
+
+.realizadas-empty .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+.realizadas-empty h2 { font-size: var(--font-md); font-weight: 600; color: var(--gray-600); }
+.realizadas-empty p { font-size: var(--font-sm); margin-top: 0.4rem; }
+
+/* ─── CONFIRM REALIZADAS OVERLAY ─── */
+#confirm-realizadas-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.55);
+z-index: 500;
+align-items: center;
+justify-content: center;
+padding: 1.5rem;
+backdrop-filter: blur(3px);
+}
+
+#confirm-realizadas-overlay.open { display: flex; }
 </style>
 </head>
 <body>
@@ -1087,6 +1198,23 @@ padding-left: 0.1rem;
 <div class="icon">📅</div>
 <h2>Nenhuma consulta cadastrada</h2>
 <p>Toque em + para adicionar uma consulta</p>
+</div>
+</div>
+
+<!-- Realizadas View -->
+<div id="realizadas-view">
+<div class="realizadas-header">
+<span class="realizadas-header-title">🩺 Realizadas</span>
+<div class="realizadas-actions">
+<button class="btn-voltar-lista" id="btn-voltar-lista">‹ Voltar</button>
+<button class="btn-clear-realizadas" id="btn-clear-realizadas">Apagar todas</button>
+</div>
+</div>
+<div id="realizadas-list" class="list" style="padding-top:0.25rem"></div>
+<div id="realizadas-empty" class="realizadas-empty" style="display:none">
+<div class="icon">✅</div>
+<h2>Nenhuma consulta realizada</h2>
+<p>Consultas marcadas como realizadas aparecerão aqui</p>
 </div>
 </div>
 
@@ -1304,6 +1432,18 @@ padding-left: 0.1rem;
 </div>
 </div>
 
+<!-- Confirm Apagar Realizadas -->
+<div id="confirm-realizadas-overlay">
+<div class="confirm-box">
+<h3>Apagar realizadas?</h3>
+<p>Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.</p>
+<div class="btn-row">
+<button class="btn btn-secondary" id="confirm-realizadas-cancel">Cancelar</button>
+<button class="btn btn-danger" id="confirm-realizadas-ok">Apagar</button>
+</div>
+</div>
+</div>
+
 <script>
 const STORAGE_KEY = 'consultas_v1';
 let consultas = [];
@@ -1311,6 +1451,7 @@ let editingId = null;
 let viewingId = null;
 let currentImageIndex = 0;
 let pendingImportData = null;
+let realizadasOpen = false;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
@@ -1390,21 +1531,11 @@ const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','A
 return `${months[parseInt(m)-1]} ${y}`;
 }
 
-function getMonthCounts() {
-const counts = {};
-consultas.forEach(c => {
-const month = monthLabel(c.data);
-if (!counts[month]) counts[month] = { upcoming: 0, past: 0 };
-const status = cardStatus(c.data, c.status);
-if (status === 'upcoming' || status === 'today') counts[month].upcoming++;
-else if (status === 'past') counts[month].past++;
-});
-return counts;
-}
-
 function render() {
 const list = document.getElementById('list');
 const empty = document.getElementById('empty');
+const realizadasList = document.getElementById('realizadas-list');
+const realizadasEmpty = document.getElementById('realizadas-empty');
 
 const sorted = [...consultas].sort((a,b) => {
 const da = (a.data||'') + (a.hora||'');
@@ -1412,31 +1543,75 @@ const db = (b.data||'') + (b.hora||'');
 return da.localeCompare(db);
 });
 
+// Split: realizadas (status === 'past') go to realizadas tab; rest stay in main list
+const ativas = sorted.filter(c => cardStatus(c.data, c.status) !== 'past');
+const realizadas = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
+
+// ─── Render lista principal (ativas) ───
 list.innerHTML = '';
 
-if (sorted.length === 0) {
+if (ativas.length === 0) {
 empty.style.display = 'block';
-return;
-}
-
+} else {
 empty.style.display = 'none';
-const monthCounts = getMonthCounts();
 let lastMonth = null;
 
-sorted.forEach(c => {
+ativas.forEach(c => {
 const status = cardStatus(c.data, c.status);
 const mn = monthLabel(c.data);
 if (mn !== lastMonth) {
 const ml = document.createElement('div');
 ml.className = 'month-label';
-const monthCountsForMonth = monthCounts[mn] || { upcoming: 0, past: 0 };
-const upcomingText = monthCountsForMonth.upcoming === 1 ? '1 consulta agendada' : `${monthCountsForMonth.upcoming} consultas agendadas`;
-const pastText = monthCountsForMonth.past === 1 ? '1 realizada' : `${monthCountsForMonth.past} realizadas`;
-ml.innerHTML = `<span>${mn}</span><span class="month-count">${upcomingText} · ${pastText}</span>`;
+const upcomingCount = ativas.filter(x => monthLabel(x.data) === mn).length;
+const upcomingText = upcomingCount === 1 ? '1 consulta' : `${upcomingCount} consultas`;
+ml.innerHTML = `<span>${mn}</span><span class="month-count">${upcomingText}</span>`;
 list.appendChild(ml);
 lastMonth = mn;
 }
+list.appendChild(buildCard(c, status));
+});
+}
 
+// ─── Botões exportar/importar/realizadas ao final da lista ───
+const backupRow = document.createElement('div');
+backupRow.className = 'backup-inline-row';
+const realizadasCount = realizadas.length;
+backupRow.innerHTML = `
+<button class="backup-inline-btn export" id="export-btn">➡️ Exportar</button>
+<button class="backup-inline-btn import" id="import-btn">⬅️ Importar</button>
+<button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Realizadas${realizadasCount > 0 ? ` <span class="realizadas-badge">${realizadasCount}</span>` : ''}</button>
+`;
+list.appendChild(backupRow);
+
+backupRow.querySelector('#export-btn').addEventListener('click', exportData);
+backupRow.querySelector('#import-btn').addEventListener('click', () => {
+document.getElementById('file-input').click();
+});
+backupRow.querySelector('#realizadas-btn').addEventListener('click', openRealizadas);
+
+// ─── Render lista realizadas ───
+realizadasList.innerHTML = '';
+if (realizadas.length === 0) {
+realizadasEmpty.style.display = 'block';
+} else {
+realizadasEmpty.style.display = 'none';
+let lastMonth = null;
+realizadas.forEach(c => {
+const mn = monthLabel(c.data);
+if (mn !== lastMonth) {
+const ml = document.createElement('div');
+ml.className = 'month-label';
+const count = realizadas.filter(x => monthLabel(x.data) === mn).length;
+ml.innerHTML = `<span>${mn}</span><span class="month-count">${count === 1 ? '1 realizada' : `${count} realizadas`}</span>`;
+realizadasList.appendChild(ml);
+lastMonth = mn;
+}
+realizadasList.appendChild(buildCard(c, 'past'));
+});
+}
+}
+
+function buildCard(c, status) {
 const card = document.createElement('div');
 card.className = 'card';
 card.dataset.id = c.id;
@@ -1474,22 +1649,21 @@ return info ? `<span class="tag" style="background:${info.bg};color:${info.color
 `;
 
 card.addEventListener('click', () => openDetail(c.id));
-list.appendChild(card);
-});
+return card;
+}
 
-// ─── Botões exportar/importar ao final da lista ───
-const backupRow = document.createElement('div');
-backupRow.className = 'backup-inline-row';
-backupRow.innerHTML = `
-<button class="backup-inline-btn export" id="export-btn">➡️ Exportar</button>
-<button class="backup-inline-btn import" id="import-btn">⬅️ Importar</button>
-`;
-list.appendChild(backupRow);
+function openRealizadas() {
+realizadasOpen = true;
+document.getElementById('list-view').style.display = 'none';
+document.getElementById('realizadas-view').classList.add('active');
+document.getElementById('fab-btn').style.display = 'none';
+}
 
-backupRow.querySelector('#export-btn').addEventListener('click', exportData);
-backupRow.querySelector('#import-btn').addEventListener('click', () => {
-document.getElementById('file-input').click();
-});
+function closeRealizadas() {
+realizadasOpen = false;
+document.getElementById('list-view').style.display = '';
+document.getElementById('realizadas-view').classList.remove('active');
+document.getElementById('fab-btn').style.display = '';
 }
 
 function showSide(index) {
@@ -1611,6 +1785,12 @@ document.getElementById('detail-overlay').classList.add('open');
 function closeDetail() {
 document.getElementById('detail-overlay').classList.remove('open');
 viewingId = null;
+// If came from realizadas, re-open it
+if (realizadasOpen) {
+document.getElementById('list-view').style.display = 'none';
+document.getElementById('realizadas-view').classList.add('active');
+document.getElementById('fab-btn').style.display = 'none';
+}
 }
 
 function openForm(id) {
@@ -1708,6 +1888,15 @@ else c.status = status;
 c.atualizadoEm = new Date().toISOString();
 save();
 render();
+// If was in realizadas view and status changed to non-past, close realizadas
+if (realizadasOpen && cardStatus(c.data, c.status) !== 'past') {
+realizadasOpen = false;
+}
+// If not in realizadas and status is now past, close detail (card moved away)
+if (!realizadasOpen && cardStatus(c.data, c.status) === 'past') {
+closeDetail();
+return;
+}
 openDetail(viewingId);
 }
 
@@ -2057,6 +2246,26 @@ chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%
 // Fechar banner de lembrete
 document.getElementById('reminder-banner-close').addEventListener('click', () => {
 document.getElementById('reminder-banner').classList.remove('visible');
+});
+
+// ─── REALIZADAS EVENTS ───
+
+document.getElementById('btn-voltar-lista').addEventListener('click', closeRealizadas);
+
+document.getElementById('btn-clear-realizadas').addEventListener('click', () => {
+document.getElementById('confirm-realizadas-overlay').classList.add('open');
+});
+
+document.getElementById('confirm-realizadas-cancel').addEventListener('click', () => {
+document.getElementById('confirm-realizadas-overlay').classList.remove('open');
+});
+
+document.getElementById('confirm-realizadas-ok').addEventListener('click', () => {
+document.getElementById('confirm-realizadas-overlay').classList.remove('open');
+consultas = consultas.filter(c => cardStatus(c.data, c.status) !== 'past');
+save();
+render();
+closeRealizadas();
 });
 
 // ─── CHOICE EVENTS ───
