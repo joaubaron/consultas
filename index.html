@@ -1508,7 +1508,7 @@ return new Date(y, m-1, d);
 function formatDate(str) {
 if (!str) return '';
 const [y,m,d] = str.split('-');
-return `${d}/${m}/${y}`;
+return `${d}/${m}/${y.slice(2)}`;
 }
 
 function today() {
@@ -1517,11 +1517,11 @@ return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.
 }
 
 function cardStatus(dataStr, manualStatus) {
-if (manualStatus) return manualStatus;
 const t = today();
+if (dataStr < t) return 'past';
+if (manualStatus) return manualStatus;
 if (dataStr === t) return 'today';
-if (dataStr > t) return 'upcoming';
-return 'past';
+return 'upcoming';
 }
 
 function monthLabel(str) {
