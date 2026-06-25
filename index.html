@@ -1626,11 +1626,26 @@ past: '🩺 Realizada'
 
 const tituloDisplay = c.titulo || c.tipo || 'Consulta';
 
+function diasRestantes(dataStr) {
+if (!dataStr) return '';
+const [y,m,d] = dataStr.split('-').map(Number);
+const alvo = new Date(y, m-1, d);
+const hoje = new Date();
+hoje.setHours(0,0,0,0);
+const diff = Math.round((alvo - hoje) / 86400000);
+if (diff === 0) return '';
+if (diff === 1) return ' · amanhã';
+if (diff > 1) return ` · em ${diff} dias`;
+return '';
+}
+
+const diasLabel = status !== 'past' ? diasRestantes(c.data) : '';
+
 card.innerHTML = `
 <div class="card-stripe ${stripeClass}"></div>
 <div class="card-body">
 <div class="card-top-row">
-<span class="card-data">${formatDate(c.data)}</span>
+<span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
 <span class="card-status-badge ${status}">${statusLabels[status]}</span>
 </div>
 <div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
@@ -1639,7 +1654,7 @@ ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''
 ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
 ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
 </div>
-${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
+${c.local ? `<div class="card-meta">${c.maps ? `<a class="meta-item card-contato-link" href="${c.maps}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="meta-icon">📍</span>${c.local}</a>` : `<span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span>`}</div>` : ''}
 ${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
 ${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.map(t => {
 const info = TAG_LABELS[t];
