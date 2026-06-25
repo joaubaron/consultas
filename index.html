@@ -767,17 +767,28 @@ max-width: 440px;
 gap: 0;
 }
 
+.image-modal-img-wrap {
+width: 100%;
+perspective: 900px;
+}
+
 .image-modal-content {
 width: 100%;
 height: auto;
 border-radius: 16px;
 box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-transition: opacity 0.35s ease;
 display: block;
+transition: transform 0.45s cubic-bezier(0.4,0,0.2,1);
+transform-style: preserve-3d;
+backface-visibility: hidden;
 }
 
-.image-modal-content.flipping {
-opacity: 0;
+.image-modal-content.flip-out {
+transform: rotateY(-90deg);
+}
+
+.image-modal-content.flip-in {
+transform: rotateY(0deg);
 }
 
 .image-modal-close {
@@ -804,45 +815,56 @@ line-height: 1;
 
 .image-modal-close:active { background: rgba(255,255,255,0.28); }
 
-/* Botões Frente / Verso */
+/* Toggle Frente / Verso estilo pill */
 .card-side-toggle {
-display: flex;
-gap: 0;
-margin-top: 1rem;
-border-radius: 12px;
-overflow: hidden;
-border: 1.5px solid rgba(255,255,255,0.25);
-width: 100%;
-max-width: 260px;
-}
-
-.side-btn {
-flex: 1;
-padding: 0.7rem 0;
-background: rgba(255,255,255,0.08);
-border: none;
-color: rgba(255,255,255,0.65);
-font-size: var(--font-sm);
-font-weight: 600;
-cursor: pointer;
-transition: background 0.15s, color 0.15s;
-font-family: inherit;
 display: flex;
 align-items: center;
 justify-content: center;
-gap: 6px;
+gap: 0.75rem;
+margin-top: 1rem;
 }
 
-.side-btn:first-child {
-border-right: 1px solid rgba(255,255,255,0.2);
+.side-label {
+font-size: var(--font-sm);
+font-weight: 700;
+color: rgba(255,255,255,0.55);
+cursor: pointer;
+transition: color 0.2s;
+user-select: none;
+letter-spacing: 0.02em;
 }
 
-.side-btn.active {
-background: white;
-color: var(--blue-800);
+.side-label.active {
+color: white;
 }
 
-.side-btn:active { opacity: 0.85; }
+.side-pill {
+width: 52px;
+height: 28px;
+border-radius: 100px;
+border: 2px solid rgba(255,255,255,0.35);
+background: rgba(255,255,255,0.1);
+cursor: pointer;
+position: relative;
+transition: background 0.2s, border-color 0.2s;
+flex-shrink: 0;
+}
+
+.side-pill-dot {
+width: 20px;
+height: 20px;
+border-radius: 50%;
+background: #4CAF50;
+position: absolute;
+top: 2px;
+left: 2px;
+transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), background 0.2s;
+box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.side-pill.verso .side-pill-dot {
+transform: translateX(24px);
+}
 
 .image-modal-hint {
 color: rgba(255,255,255,0.45);
@@ -1424,10 +1446,15 @@ backdrop-filter: blur(3px);
 <div class="image-modal" id="image-modal">
 <button class="image-modal-close" id="image-modal-close">✕</button>
 <div class="image-modal-inner">
+<div class="image-modal-img-wrap">
 <img class="image-modal-content" id="image-modal-img" src="unimed1.webp" alt="Carteirinha Unimed - Frente">
+</div>
 <div class="card-side-toggle">
-<button class="side-btn active" id="btn-frente" onclick="showSide(0)">🪪 Frente</button>
-<button class="side-btn" id="btn-verso" onclick="showSide(1)">💳 Verso</button>
+<span class="side-label active" id="label-frente" onclick="showSide(0)">FRENTE</span>
+<div class="side-pill" id="side-pill" onclick="showSide(currentImageIndex === 0 ? 1 : 0)">
+<div class="side-pill-dot"></div>
+</div>
+<span class="side-label" id="label-verso" onclick="showSide(1)">VERSO</span>
 </div>
 </div>
 </div>
@@ -1684,15 +1711,31 @@ document.getElementById('fab-btn').style.display = '';
 function showSide(index) {
 const img = document.getElementById('image-modal-img');
 if (currentImageIndex === index) return;
-img.classList.add('flipping');
+
+const pill = document.getElementById('side-pill');
+const labelFrente = document.getElementById('label-frente');
+const labelVerso = document.getElementById('label-verso');
+
+// flip out
+img.classList.add('flip-out');
 setTimeout(() => {
 currentImageIndex = index;
 img.src = IMAGES[index];
 img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
-img.classList.remove('flipping');
-}, 350);
-document.getElementById('btn-frente').classList.toggle('active', index === 0);
-document.getElementById('btn-verso').classList.toggle('active', index === 1);
+// flip in from opposite side
+img.style.transform = 'rotateY(90deg)';
+img.classList.remove('flip-out');
+requestAnimationFrame(() => {
+requestAnimationFrame(() => {
+img.style.transform = '';
+});
+});
+}, 225);
+
+// atualiza pill e labels
+pill.classList.toggle('verso', index === 1);
+labelFrente.classList.toggle('active', index === 0);
+labelVerso.classList.toggle('active', index === 1);
 }
 
 function openImageModal() {
@@ -1700,8 +1743,10 @@ currentImageIndex = 0;
 const img = document.getElementById('image-modal-img');
 img.src = IMAGES[0];
 img.alt = 'Carteirinha Unimed - Frente';
-document.getElementById('btn-frente').classList.add('active');
-document.getElementById('btn-verso').classList.remove('active');
+img.style.transform = '';
+document.getElementById('side-pill').classList.remove('verso');
+document.getElementById('label-frente').classList.add('active');
+document.getElementById('label-verso').classList.remove('active');
 document.getElementById('image-modal').classList.add('open');
 }
 
