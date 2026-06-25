@@ -306,17 +306,17 @@ justify-content: flex-start;
 .backup-inline-btn {
 display: flex;
 align-items: center;
-gap: 4px;
-padding: 4px 10px;      /* <--- diminui de 7px 16px */
+gap: 5px;
+padding: 5px 13px;
 border-radius: var(--radius-pill);
-font-size: 0.7rem;      /* <--- diminui de var(--font-xs) */
+font-size: 0.78rem;
 font-weight: 700;
 border: 1.5px solid transparent;
 cursor: pointer;
 font-family: inherit;
 transition: opacity 0.15s, transform 0.1s;
 white-space: nowrap;
-letter-spacing: 0.02em;  /* <--- opcional: diminui o espaçamento */
+letter-spacing: 0.025em;
 }
 
 .backup-inline-btn:active { opacity: 0.75; transform: scale(0.95); }
@@ -1579,7 +1579,7 @@ const realizadasCount = realizadas.length;
 backupRow.innerHTML = `
 <button class="backup-inline-btn export" id="export-btn">➡️ Exportar</button>
 <button class="backup-inline-btn import" id="import-btn">⬅️ Importar</button>
-<button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Concluídas${realizadasCount > 0 ? ` <span class="realizadas-badge">${realizadasCount}</span>` : ''}</button>
+<button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Realizadas${realizadasCount > 0 ? ` <span class="realizadas-badge">${realizadasCount}</span>` : ''}</button>
 `;
 list.appendChild(backupRow);
 
