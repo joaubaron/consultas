@@ -306,17 +306,17 @@ justify-content: flex-start;
 .backup-inline-btn {
 display: flex;
 align-items: center;
-gap: 6px;
-padding: 7px 16px;
+gap: 4px;
+padding: 4px 10px;      /* <--- diminui de 7px 16px */
 border-radius: var(--radius-pill);
-font-size: var(--font-xs);
+font-size: 0.7rem;      /* <--- diminui de var(--font-xs) */
 font-weight: 700;
 border: 1.5px solid transparent;
 cursor: pointer;
 font-family: inherit;
 transition: opacity 0.15s, transform 0.1s;
 white-space: nowrap;
-letter-spacing: 0.03em;
+letter-spacing: 0.02em;  /* <--- opcional: diminui o espaçamento */
 }
 
 .backup-inline-btn:active { opacity: 0.75; transform: scale(0.95); }
