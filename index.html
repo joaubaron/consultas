@@ -1636,8 +1636,8 @@ card.innerHTML = `
 <div class="card-title">${tituloDisplay}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
 ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
 <div class="card-meta">
-${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
 ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
+${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
 </div>
 ${c.local ? `<div class="card-meta"><span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span></div>` : ''}
 ${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
