@@ -2042,60 +2042,94 @@ function exportData() {
 
 function importData(file) {
     const reader = new FileReader();
+    
     reader.onload = (e) => {
         try {
-            const data = JSON.parse(e.target.result);
-            let imported = [];
-
-            if (Array.isArray(data)) {
-                imported = data;
-            } else if (data.consultas && Array.isArray(data.consultas)) {
-                imported = data.consultas;
+            console.log('📥 Iniciando importação...');
+            let rawData = JSON.parse(e.target.result);
+            console.log('📄 Dados brutos:', rawData);
+            
+            let dadosImportados = [];
+            
+            if (Array.isArray(rawData)) {
+                dadosImportados = rawData;
+            } else if (rawData.consultas && Array.isArray(rawData.consultas)) {
+                dadosImportados = rawData.consultas;
+            } else if (rawData.data && Array.isArray(rawData.data)) {
+                dadosImportados = rawData.data;
             } else {
-                showToast('toast-error', 'Formato de arquivo inválido.');
-                return;
+                if (rawData.id && rawData.data) {
+                    dadosImportados = [rawData];
+                } else {
+                    showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.');
+                    return;
+                }
             }
-
-            if (imported.length === 0) {
+            
+            console.log(`📊 Encontrados ${dadosImportados.length} registros`);
+            
+            if (dadosImportados.length === 0) {
                 showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
                 return;
             }
-
-            // Valida e normaliza os dados importados
-            const validImported = imported.filter(c => c.id && c.data);
-            if (validImported.length === 0) {
+            
+            const consultasImportadas = dadosImportados
+                .filter(c => c && typeof c === 'object' && c.id && c.data)
+                .map(c => {
+                    let status = c.status || null;
+                    if (!status) {
+                        status = cardStatus(c.data, null);
+                    }
+                    
+                    return {
+                        id: c.id || 'import_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                        titulo: c.titulo || c.tipo || c.nome || 'Consulta',
+                        medico: c.medico || c.medico_nome || '',
+                        especialista: c.especialista || c.clinica || c.especialidade || '',
+                        data: c.data || '',
+                        hora: c.hora || c.horario || '',
+                        chegada: c.chegada || c.chegar_em || c.chegar || '',
+                        local: c.local || c.endereco || '',
+                        maps: c.maps || c.link_maps || '',
+                        contato: c.contato || c.telefone || c.tel || '',
+                        obs: c.obs || c.observacoes || c.detalhes || '',
+                        tags: Array.isArray(c.tags) ? c.tags : (c.preparacoes || []),
+                        status: status,
+                        criadoEm: c.criadoEm || c.data_criacao || new Date().toISOString(),
+                        atualizadoEm: new Date().toISOString(),
+                        tipo: c.tipo || c.titulo || ''
+                    };
+                })
+                .filter(c => c.data);
+            
+            console.log(`✅ ${consultasImportadas.length} consultas válidas importadas:`, consultasImportadas);
+            
+            if (consultasImportadas.length === 0) {
                 showToast('toast-error', 'Nenhuma consulta válida encontrada.');
                 return;
             }
-
-            // Normaliza campos obrigatórios sem tocar no status salvo
-            validImported.forEach(c => {
-                // Garante que campos obrigatórios existam
-                c.titulo = c.titulo || c.tipo || 'Consulta';
-                c.tags = c.tags || [];
-                // status: preserva exatamente o que veio do JSON
-                // (undefined → null, para não disparar lógica errada em cardStatus)
-                if (c.status === undefined) c.status = null;
-            });
-
-            pendingImportData = validImported;
             
-            // Mostra quantas consultas serão importadas
-            const totalConsultas = validImported.length;
-            const realizadasCount = validImported.filter(c => c.status === 'past').length;
-            const agendadasCount = totalConsultas - realizadasCount;
+            const realizadasCount = consultasImportadas.filter(c => c.status === 'past').length;
+            const ativasCount = consultasImportadas.length - realizadasCount;
+            
+            pendingImportData = consultasImportadas;
             
             showChoice(
-                `Encontradas ${totalConsultas} consulta${totalConsultas > 1 ? 's' : ''} ` +
-                `(${agendadasCount} agendada${agendadasCount > 1 ? 's' : ''}, ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}). ` +
+                `Encontradas ${consultasImportadas.length} consulta${consultasImportadas.length > 1 ? 's' : ''}\n` +
+                `📅 ${ativasCount} agendada${ativasCount > 1 ? 's' : ''} | 🩺 ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}\n\n` +
                 `Como deseja proceder?`
             );
-
+            
         } catch (err) {
-            showToast('toast-error', 'Erro ao ler o arquivo. Verifique se é um JSON válido.');
-            console.error(err);
+            console.error('❌ Erro ao importar:', err);
+            showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message);
         }
     };
+    
+    reader.onerror = () => {
+        showToast('toast-error', 'Erro ao ler o arquivo.');
+    };
+    
     reader.readAsText(file);
 }
 
