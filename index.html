@@ -188,6 +188,25 @@ transition: transform 0.12s, box-shadow 0.12s;
 .card-body { padding: 1rem 1.15rem 1rem; }
 
 /* LINHA 1: Data + Status */
+
+.btn-delete-realizada {
+margin-left: auto;
+background: none;
+border: none;
+color: var(--gray-400);
+font-size: 0.85rem;
+font-weight: 700;
+cursor: pointer;
+padding: 2px 6px;
+border-radius: var(--radius-sm);
+line-height: 1;
+transition: color 0.15s, background 0.15s;
+flex-shrink: 0;
+}
+.btn-delete-realizada:active {
+color: var(--red-600);
+background: var(--red-50);
+}
 .card-top-row {
 display: flex;
 align-items: center;
@@ -1466,8 +1485,8 @@ backdrop-filter: blur(3px);
 <!-- Confirm Apagar Realizadas -->
 <div id="confirm-realizadas-overlay">
 <div class="confirm-box">
-<h3>Apagar realizadas?</h3>
-<p>Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.</p>
+<h3 id="confirm-realizadas-titulo">Apagar realizadas?</h3>
+<p id="confirm-realizadas-msg">Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.</p>
 <div class="btn-row">
 <button class="btn btn-secondary" id="confirm-realizadas-cancel">Cancelar</button>
 <button class="btn btn-danger" id="confirm-realizadas-ok">Apagar</button>
@@ -1483,6 +1502,7 @@ let viewingId = null;
 let currentImageIndex = 0;
 let pendingImportData = null;
 let realizadasOpen = false;
+let deletingRealizadaId = null;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
@@ -1637,7 +1657,23 @@ ml.innerHTML = `<span>${mn}</span><span class="month-count">${count === 1 ? '1 r
 realizadasList.appendChild(ml);
 lastMonth = mn;
 }
-realizadasList.appendChild(buildCard(c, 'past'));
+const card = buildCard(c, 'past');
+const topRow = card.querySelector('.card-top-row');
+if (topRow) {
+const btnX = document.createElement('button');
+btnX.className = 'btn-delete-realizada';
+btnX.textContent = '\u2715';
+btnX.title = 'Apagar esta consulta';
+btnX.addEventListener('click', e => {
+e.stopPropagation();
+deletingRealizadaId = c.id;
+document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar consulta?';
+document.getElementById('confirm-realizadas-msg').textContent = 'Esta consulta será excluída. Esta ação não pode ser desfeita.';
+document.getElementById('confirm-realizadas-overlay').classList.add('open');
+});
+topRow.appendChild(btnX);
+}
+realizadasList.appendChild(card);
 });
 }
 }
@@ -2317,6 +2353,9 @@ document.getElementById('reminder-banner').classList.remove('visible');
 document.getElementById('btn-voltar-lista').addEventListener('click', closeRealizadas);
 
 document.getElementById('btn-clear-realizadas').addEventListener('click', () => {
+deletingRealizadaId = null;
+document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar realizadas?';
+document.getElementById('confirm-realizadas-msg').textContent = 'Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.';
 document.getElementById('confirm-realizadas-overlay').classList.add('open');
 });
 
@@ -2326,10 +2365,17 @@ document.getElementById('confirm-realizadas-overlay').classList.remove('open');
 
 document.getElementById('confirm-realizadas-ok').addEventListener('click', () => {
 document.getElementById('confirm-realizadas-overlay').classList.remove('open');
+if (deletingRealizadaId) {
+consultas = consultas.filter(x => x.id !== deletingRealizadaId);
+deletingRealizadaId = null;
+save();
+render();
+} else {
 consultas = consultas.filter(c => cardStatus(c.data, c.status) !== 'past');
 save();
 render();
 closeRealizadas();
+}
 });
 
 // ─── CHOICE EVENTS ───
