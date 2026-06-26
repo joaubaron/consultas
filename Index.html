@@ -15,7 +15,7 @@
 :root {
 --blue-50: #E6F1FB;
 --blue-100: #B5D4F4;
---blue-200: #85B7EB;
+--blue-200: #85B7EB; se
 --blue-400: #378ADD;
 --blue-600: #185FA5;
 --blue-800: #0C447C;
@@ -82,22 +82,28 @@ font-weight: 700;
 letter-spacing: -0.01em;
 }
 
+.btn-unimed-header {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  overflow: hidden;
+}
+
 .btn-unimed-header img {
-  height: 14px !important;
-  width: 14px !important;
-  max-width: 14px !important;
-  max-height: 14px !important;
-  object-fit: contain !important;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
 }
 
 .btn-unimed-header:active {
   background: transparent !important;
   transform: none !important;
-}
-
-.btn-unimed-header {
-  font-size: 0 !important;
-  line-height: 0 !important;
 }
   
 /* ─── FAB ─── */
@@ -1217,7 +1223,7 @@ backdrop-filter: blur(3px);
 <h1>🩺 Agenda Médica</h1>
 </div>
 <button class="btn-unimed-header" onclick="openImageModal()">
-<img src="unimed-1024.png" alt="Unimed" style="height:14px;width:auto;display:block;">
+<img src="unimed-1024.png" alt="Unimed">
 </button>
   
 </div>
