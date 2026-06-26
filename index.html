@@ -2001,93 +2001,159 @@ openDetail(viewingId);
 }
 
 // ─── BACKUP FUNCTIONS ───
-
 function exportData() {
-if (consultas.length === 0) {
-showToast('toast-error', 'Nenhuma consulta para exportar.');
-return;
-}
+    if (consultas.length === 0) {
+        showToast('toast-error', 'Nenhuma consulta para exportar.');
+        return;
+    }
 
-const data = {
-exportadoEm: new Date().toISOString(),
-versao: '1.0',
-total: consultas.length,
-consultas: consultas
-};
+    // Exporta TODAS as consultas com seus status intactos
+    const data = {
+        exportadoEm: new Date().toISOString(),
+        versao: '1.0',
+        total: consultas.length,
+        consultas: consultas.map(c => ({
+            ...c,
+            // Garante que o status seja preservado
+            status: c.status || null
+        }))
+    };
 
-const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-const d = new Date();
-const dd = String(d.getDate()).padStart(2,'0');
-const mm = String(d.getMonth()+1).padStart(2,'0');
-const aa = String(d.getFullYear()).slice(2);
-const filename = `consultas${dd}${mm}${aa}.json`;
-a.download = filename;
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const d = new Date();
+    const dd = String(d.getDate()).padStart(2,'0');
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const aa = String(d.getFullYear()).slice(2);
+    const filename = `consultas_${dd}${mm}${aa}.json`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-showToast('toast-export', `Salvo como ${filename}`);
+    showToast('toast-export', `Exportadas ${consultas.length} consultas como ${filename}`);
 }
 
 function importData(file) {
-const reader = new FileReader();
-reader.onload = (e) => {
-try {
-const data = JSON.parse(e.target.result);
-let imported = [];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const data = JSON.parse(e.target.result);
+            let imported = [];
 
-if (Array.isArray(data)) {
-imported = data;
-} else if (data.consultas && Array.isArray(data.consultas)) {
-imported = data.consultas;
-} else {
-showToast('toast-error', 'Formato de arquivo inválido.');
-return;
-}
+            if (Array.isArray(data)) {
+                imported = data;
+            } else if (data.consultas && Array.isArray(data.consultas)) {
+                imported = data.consultas;
+            } else {
+                showToast('toast-error', 'Formato de arquivo inválido.');
+                return;
+            }
 
-if (imported.length === 0) {
-showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
-return;
-}
+            if (imported.length === 0) {
+                showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
+                return;
+            }
 
-pendingImportData = imported;
-showChoice(`Encontradas ${imported.length} consulta${imported.length > 1 ? 's' : ''} no arquivo. Como deseja proceder?`);
+            // Valida e normaliza os dados importados
+            const validImported = imported.filter(c => c.id && c.data);
+            if (validImported.length === 0) {
+                showToast('toast-error', 'Nenhuma consulta válida encontrada.');
+                return;
+            }
 
-} catch (err) {
-showToast('toast-error', 'Erro ao ler o arquivo. Verifique se é um JSON válido.');
-console.error(err);
-}
-};
-reader.readAsText(file);
+            // Verifica se todas as consultas têm status definido
+            // Se não tiver, calcula baseado na data
+            validImported.forEach(c => {
+                if (!c.status) {
+                    const hoje = new Date().toISOString().slice(0, 10);
+                    if (c.data < hoje) {
+                        c.status = 'past';
+                    } else if (c.data === hoje) {
+                        c.status = 'today';
+                    } else {
+                        c.status = 'upcoming';
+                    }
+                }
+                // Garante que campos obrigatórios existam
+                c.titulo = c.titulo || c.tipo || 'Consulta';
+                c.tags = c.tags || [];
+            });
+
+            pendingImportData = validImported;
+            
+            // Mostra quantas consultas serão importadas
+            const totalConsultas = validImported.length;
+            const realizadasCount = validImported.filter(c => c.status === 'past').length;
+            const agendadasCount = totalConsultas - realizadasCount;
+            
+            showChoice(
+                `Encontradas ${totalConsultas} consulta${totalConsultas > 1 ? 's' : ''} ` +
+                `(${agendadasCount} agendada${agendadasCount > 1 ? 's' : ''}, ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}). ` +
+                `Como deseja proceder?`
+            );
+
+        } catch (err) {
+            showToast('toast-error', 'Erro ao ler o arquivo. Verifique se é um JSON válido.');
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
 }
 
 function processImport(choice) {
-const imported = pendingImportData;
-if (!imported) return;
+    const imported = pendingImportData;
+    if (!imported) return;
 
-if (choice === 'replace') {
-consultas = imported;
-} else {
-const existingIds = new Set(consultas.map(c => c.id));
-const novos = imported.filter(c => !existingIds.has(c.id));
-consultas = [...consultas, ...novos];
-if (novos.length < imported.length) {
-showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
-pendingImportData = null;
-hideChoice();
-return;
-}
-}
+    let resultado = '';
+    
+    if (choice === 'replace') {
+        // Substitui completamente
+        consultas = imported;
+        resultado = `Substituídas por ${consultas.length} consultas.`;
+    } else {
+        // Mescla: mantém IDs únicos
+        const existingIds = new Set(consultas.map(c => c.id));
+        
+        // Filtra apenas as novas (que não existem)
+        const novos = imported.filter(c => !existingIds.has(c.id));
+        
+        // Atualiza consultas existentes que têm mesmo ID mas dados diferentes
+        // (opcional: atualiza dados de consultas existentes)
+        imported.forEach(c => {
+            const idx = consultas.findIndex(ex => ex.id === c.id);
+            if (idx !== -1) {
+                // Atualiza a consulta existente com os dados do arquivo
+                consultas[idx] = {
+                    ...consultas[idx],
+                    ...c,
+                    // Mantém o criadoEm original
+                    criadoEm: consultas[idx].criadoEm || c.criadoEm
+                };
+            }
+        });
+        
+        // Adiciona as novas
+        consultas = [...consultas, ...novos];
+        
+        resultado = `${novos.length} nova${novos.length > 1 ? 's' : ''} consulta${novos.length > 1 ? 's' : ''} importada${novos.length > 1 ? 's' : ''}. ` +
+                    `Total: ${consultas.length} consultas.`;
+    }
 
-save();
-render();
-showToast('toast-import', `${consultas.length} consulta${consultas.length > 1 ? 's' : ''} no total.`);
-hideChoice();
-pendingImportData = null;
+    save();
+    render();
+    
+    // Fecha a view de realizadas se estiver aberta
+    if (realizadasOpen) {
+        closeRealizadas();
+    }
+    
+    showToast('toast-import', resultado);
+    hideChoice();
+    pendingImportData = null;
 }
 
 // ─── COMPARTILHAR ───
