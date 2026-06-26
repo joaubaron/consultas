@@ -2066,21 +2066,37 @@ reader.readAsText(file);
 }
 
 function processImport(choice) {
-const imported = pendingImportData;
-if (!imported) return;
+    const imported = pendingImportData;
+    if (!imported) return;
 
-if (choice === 'replace') {
-consultas = imported;
-} else {
-const existingIds = new Set(consultas.map(c => c.id));
-const novos = imported.filter(c => !existingIds.has(c.id));
-consultas = [...consultas, ...novos];
-if (novos.length < imported.length) {
-showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
-pendingImportData = null;
-hideChoice();
-return;
-}
+    if (choice === 'replace') {
+        consultas = imported;
+    } else {
+        const existingIds = new Set(consultas.map(c => c.id));
+        const novos = imported.filter(c => !existingIds.has(c.id));
+        consultas = [...consultas, ...novos];
+        if (novos.length < imported.length) {
+            showToast('toast-import', `${imported.length - novos.length} duplicadas ignoradas. ${consultas.length} consultas no total.`);
+            pendingImportData = null;
+            hideChoice();
+            return;
+        }
+    }
+
+    save();
+    render();
+    
+    // Verifica se há consultas realizadas e abre a aba automaticamente
+    const temRealizadas = consultas.some(c => cardStatus(c.data, c.status) === 'past');
+    if (temRealizadas) {
+        // Fecha qualquer aba de realizadas aberta e reabre com os novos dados
+        closeRealizadas();
+        openRealizadas();
+    }
+    
+    showToast('toast-import', `${consultas.length} consulta${consultas.length > 1 ? 's' : ''} no total.`);
+    hideChoice();
+    pendingImportData = null;
 }
 
 save();
