@@ -1424,7 +1424,7 @@ backdrop-filter: blur(3px);
 <div class="choice-overlay" id="choice-overlay">
 <div class="choice-box">
 <h3>Importar dados</h3>
-<p id="choice-msg">Encontradas 1 consultas no arquivo. Como deseja proceder?</p>
+<p id="choice-msg">Encontradas consultas no arquivo. Como deseja proceder?</p>
 <div class="btn-row">
 <button class="btn btn-danger" id="choice-merge">Mesclar</button>
 <button class="btn btn-primary" id="choice-replace">Substituir</button>
@@ -1447,7 +1447,7 @@ backdrop-filter: blur(3px);
 <div class="toast-overlay" id="toast-import">
 <div class="toast-box">
 <h3>Importação concluída</h3>
-<p id="toast-import-msg">1 consulta importada com sucesso.</p>
+<p id="toast-import-msg">Consultas importadas com sucesso.</p>
 <div class="btn-row">
 <button class="btn btn-success" id="toast-import-close">OK</button>
 </div>
@@ -1568,10 +1568,13 @@ return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.
 }
 
 function cardStatus(dataStr, manualStatus) {
-const t = today();
+// Se tem status manual, usa ele (prioridade)
 if (manualStatus === 'past') return 'past';
 if (manualStatus === 'upcoming') return 'upcoming';
 if (manualStatus === 'today') return 'today';
+// Se não tem status manual, calcula pela data
+if (!dataStr) return 'upcoming';
+const t = today();
 if (dataStr < t) return 'past';
 if (dataStr === t) return 'today';
 return 'upcoming';
@@ -1630,15 +1633,16 @@ const backupRow = document.createElement('div');
 backupRow.className = 'backup-inline-row';
 const realizadasCount = realizadas.length;
 backupRow.innerHTML = `
-<button class="backup-inline-btn export" id="export-btn">➡️ Exportar</button>
-<button class="backup-inline-btn import" id="import-btn">⬅️ Importar</button>
+<button class="backup-inline-btn export" id="export-btn">⬇️ Exportar</button>
+<button class="backup-inline-btn import" id="import-btn">⬆️ Importar</button>
 <button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Realizadas${realizadasCount > 0 ? ` <span class="realizadas-badge">${realizadasCount}</span>` : ''}</button>
 `;
 list.appendChild(backupRow);
 
 backupRow.querySelector('#export-btn').addEventListener('click', exportData);
-backupRow.querySelector('#import-btn').addEventListener('click', () => {
-document.getElementById('file-input').click();
+backupRow.querySelector('#import-btn').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('file-input').click();
 });
 backupRow.querySelector('#realizadas-btn').addEventListener('click', openRealizadas);
 
@@ -2002,189 +2006,6 @@ return;
 openDetail(viewingId);
 }
 
-// ─── BACKUP FUNCTIONS ───
-function exportData() {
-    if (consultas.length === 0) {
-        showToast('toast-error', 'Nenhuma consulta para exportar.');
-        return;
-    }
-
-    // Exporta TODAS as consultas com seus status intactos
-    const data = {
-        exportadoEm: new Date().toISOString(),
-        versao: '1.0',
-        total: consultas.length,
-        consultas: consultas.map(c => ({
-            ...c,
-            // Garante que o status seja preservado
-            // Salva status efetivo para restaurar fielmente ao importar
-            status: cardStatus(c.data, c.status)
-        }))
-    };
-
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const d = new Date();
-    const dd = String(d.getDate()).padStart(2,'0');
-    const mm = String(d.getMonth()+1).padStart(2,'0');
-    const aa = String(d.getFullYear()).slice(2);
-    const filename = `consultas_${dd}${mm}${aa}.json`;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-
-    showToast('toast-export', `Exportadas ${consultas.length} consultas como ${filename}`);
-}
-
-function importData(file) {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-        try {
-            console.log('📥 Iniciando importação...');
-            let rawData = JSON.parse(e.target.result);
-            console.log('📄 Dados brutos:', rawData);
-            
-            let dadosImportados = [];
-            
-            if (Array.isArray(rawData)) {
-                dadosImportados = rawData;
-            } else if (rawData.consultas && Array.isArray(rawData.consultas)) {
-                dadosImportados = rawData.consultas;
-            } else if (rawData.data && Array.isArray(rawData.data)) {
-                dadosImportados = rawData.data;
-            } else {
-                if (rawData.id && rawData.data) {
-                    dadosImportados = [rawData];
-                } else {
-                    showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.');
-                    return;
-                }
-            }
-            
-            console.log(`📊 Encontrados ${dadosImportados.length} registros`);
-            
-            if (dadosImportados.length === 0) {
-                showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
-                return;
-            }
-            
-            const consultasImportadas = dadosImportados
-                .filter(c => c && typeof c === 'object' && c.id && c.data)
-                .map(c => {
-                    let status = c.status || null;
-                    if (!status) {
-                        status = cardStatus(c.data, null);
-                    }
-                    
-                    return {
-                        id: c.id || 'import_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                        titulo: c.titulo || c.tipo || c.nome || 'Consulta',
-                        medico: c.medico || c.medico_nome || '',
-                        especialista: c.especialista || c.clinica || c.especialidade || '',
-                        data: c.data || '',
-                        hora: c.hora || c.horario || '',
-                        chegada: c.chegada || c.chegar_em || c.chegar || '',
-                        local: c.local || c.endereco || '',
-                        maps: c.maps || c.link_maps || '',
-                        contato: c.contato || c.telefone || c.tel || '',
-                        obs: c.obs || c.observacoes || c.detalhes || '',
-                        tags: Array.isArray(c.tags) ? c.tags : (c.preparacoes || []),
-                        status: status,
-                        criadoEm: c.criadoEm || c.data_criacao || new Date().toISOString(),
-                        atualizadoEm: new Date().toISOString(),
-                        tipo: c.tipo || c.titulo || ''
-                    };
-                })
-                .filter(c => c.data);
-            
-            console.log(`✅ ${consultasImportadas.length} consultas válidas importadas:`, consultasImportadas);
-            
-            if (consultasImportadas.length === 0) {
-                showToast('toast-error', 'Nenhuma consulta válida encontrada.');
-                return;
-            }
-            
-            const realizadasCount = consultasImportadas.filter(c => c.status === 'past').length;
-            const ativasCount = consultasImportadas.length - realizadasCount;
-            
-            pendingImportData = consultasImportadas;
-            
-            showChoice(
-                `Encontradas ${consultasImportadas.length} consulta${consultasImportadas.length > 1 ? 's' : ''}\n` +
-                `📅 ${ativasCount} agendada${ativasCount > 1 ? 's' : ''} | 🩺 ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}\n\n` +
-                `Como deseja proceder?`
-            );
-            
-        } catch (err) {
-            console.error('❌ Erro ao importar:', err);
-            showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message);
-        }
-    };
-    
-    reader.onerror = () => {
-        showToast('toast-error', 'Erro ao ler o arquivo.');
-    };
-    
-    reader.readAsText(file);
-}
-
-function processImport(choice) {
-    const imported = pendingImportData;
-    if (!imported) return;
-
-    let resultado = '';
-    
-    if (choice === 'replace') {
-        // Substitui completamente
-        consultas = imported;
-        resultado = `Substituídas por ${consultas.length} consultas.`;
-    } else {
-        // Mescla: mantém IDs únicos
-        const existingIds = new Set(consultas.map(c => c.id));
-        
-        // Filtra apenas as novas (que não existem)
-        const novos = imported.filter(c => !existingIds.has(c.id));
-        
-        // Atualiza consultas existentes que têm mesmo ID mas dados diferentes
-        // (opcional: atualiza dados de consultas existentes)
-        imported.forEach(c => {
-            const idx = consultas.findIndex(ex => ex.id === c.id);
-            if (idx !== -1) {
-                // Atualiza a consulta existente com os dados do arquivo
-                consultas[idx] = {
-                    ...consultas[idx],
-                    ...c,
-                    // Mantém o criadoEm original
-                    criadoEm: consultas[idx].criadoEm || c.criadoEm
-                };
-            }
-        });
-        
-        // Adiciona as novas
-        consultas = [...consultas, ...novos];
-        
-        resultado = `${novos.length} nova${novos.length > 1 ? 's' : ''} consulta${novos.length > 1 ? 's' : ''} importada${novos.length > 1 ? 's' : ''}. ` +
-                    `Total: ${consultas.length} consultas.`;
-    }
-
-    save();
-    render();
-    
-    // Fecha a view de realizadas se estiver aberta
-    if (realizadasOpen) {
-        closeRealizadas();
-    }
-    
-    showToast('toast-import', resultado);
-    hideChoice();
-    pendingImportData = null;
-}
-
 // ─── COMPARTILHAR ───
 function shareConsulta() {
 const c = consultas.find(x => x.id === viewingId);
@@ -2380,6 +2201,127 @@ tag: `consulta-2h-${c.id}`,
 });
 }
 
+// ─── FUNÇÕES DE EXPORTAÇÃO E IMPORTAÇÃO ───
+
+function exportData() {
+// Exporta TODAS as consultas sem filtro
+const dados = JSON.stringify(consultas, null, 2);
+const blob = new Blob([dados], { type: 'application/json' });
+const url = URL.createObjectURL(blob);
+
+// Para dispositivos móveis, tenta compartilhar via sistema
+if (navigator.share) {
+// Para compartilhar arquivo via sistema
+const file = new File([dados], 'consultas_agenda.json', { type: 'application/json' });
+navigator.share({
+title: 'Consultas Agenda',
+files: [file]
+}).catch(() => {
+// Fallback: download
+downloadFile(url);
+});
+} else {
+// Desktop: download
+downloadFile(url);
+}
+
+// Limpa a URL depois de um tempo
+setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function downloadFile(url) {
+const a = document.createElement('a');
+a.href = url;
+a.download = `consultas_agenda_${new Date().toISOString().slice(0,10)}.json`;
+document.body.appendChild(a);
+a.click();
+a.remove();
+showToast('toast-export', 'Arquivo exportado com sucesso!');
+}
+
+function importData(file) {
+const reader = new FileReader();
+reader.onload = function(e) {
+try {
+const dados = JSON.parse(e.target.result);
+if (!Array.isArray(dados) || dados.length === 0) {
+showToast('toast-error', 'Arquivo inválido ou vazio.');
+return;
+}
+
+// Verifica se os dados são válidos (tem pelo menos os campos básicos)
+const isValid = dados.every(item => item.id && (item.titulo || item.tipo));
+if (!isValid) {
+showToast('toast-error', 'Formato de arquivo inválido.');
+return;
+}
+
+pendingImportData = dados;
+const plural = dados.length > 1 ? 's' : '';
+showChoice(`Encontradas ${dados.length} consulta${plural} no arquivo. Como deseja proceder?`);
+
+} catch (err) {
+showToast('toast-error', 'Erro ao ler o arquivo: ' + err.message);
+}
+};
+reader.readAsText(file);
+}
+
+function processImport(mode) {
+if (!pendingImportData) return;
+
+let importedCount = 0;
+if (mode === 'replace') {
+// Substitui completamente
+consultas = pendingImportData;
+importedCount = pendingImportData.length;
+} else if (mode === 'merge') {
+// Mescla: atualiza existentes, adiciona novos
+pendingImportData.forEach(item => {
+const existing = consultas.find(c => c.id === item.id);
+if (existing) {
+// Atualiza existente
+Object.assign(existing, item);
+} else {
+// Adiciona novo
+consultas.push(item);
+}
+importedCount++;
+});
+}
+
+save();
+render();
+hideChoice();
+pendingImportData = null;
+
+// Mostra toast de sucesso
+const plural = importedCount > 1 ? 's' : '';
+showToast('toast-import', `${importedCount} consulta${plural} importada${plural} com sucesso!`);
+
+// Fecha realizadas se estiver aberto, para atualizar a lista
+if (realizadasOpen) closeRealizadas();
+
+// Verifica lembretes novamente
+checkReminder();
+}
+
+// ─── FILE INPUT HANDLER ───
+document.getElementById('file-input').addEventListener('change', function(e) {
+    const file = this.files[0];
+    if (!file) return;
+    
+    // Verifica se é um arquivo JSON
+    if (!file.name.toLowerCase().endsWith('.json')) {
+        showToast('toast-error', 'Por favor, selecione um arquivo JSON.');
+        this.value = '';
+        return;
+    }
+    
+    importData(file);
+    this.value = ''; // Reseta o input
+});
+
 // ─── EVENTS ───
 
 document.getElementById('fab-btn').addEventListener('click', () => openForm());
@@ -2430,7 +2372,6 @@ btn.addEventListener('click', () => updateStatus(btn.dataset.status));
 
 document.getElementById('f-hora').addEventListener('change', e => {
     const chegada = document.getElementById('f-chegada');
-    // Remove a verificação e sempre recalcula
     const [h,m] = e.target.value.split(':').map(Number);
     const total = h * 60 + m - 30;
     if (total >= 0) {
@@ -2502,9 +2443,6 @@ if (e.target === document.getElementById('toast-error')) hideToast('toast-error'
 
 // Init
 load();
-
-
-
 render();
 checkReminder();
 
