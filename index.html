@@ -295,17 +295,6 @@ border: 1.5px solid transparent;
 
 .tag:active { opacity: 0.7; transform: scale(0.96); }
 
-.card-obs {
-font-size: var(--font-xs);
-color: var(--amber-600);
-background: var(--amber-50);
-border-left: 3px solid var(--amber-400);
-border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-padding: 5px 10px;
-margin-top: 0.65rem;
-line-height: 1.4;
-}
-
 /* ─── BACKUP ROW (inline na lista) ─── */
 .backup-inline-row {
 display: flex;
@@ -1702,7 +1691,6 @@ ${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.map(t => {
 const info = TAG_LABELS[t];
 return info ? `<span class="tag" style="background:${info.bg};color:${info.color};border-color:${info.color}22" data-tag="${t}">${info.label}</span>` : '';
 }).join('')}</div>` : ''}
-${c.obs ? `<div class="card-obs">📝 ${c.obs}</div>` : ''}
 </div>
 `;
 
