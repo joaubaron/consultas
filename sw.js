@@ -2,8 +2,7 @@ const CACHE_VERSION = '25.06.2026-1850';
 const CACHE_NAME = `consultas-${CACHE_VERSION}`;
 
 const CACHE = CACHE_NAME;
-const FILES = [
-  'index.html',
+const STATIC_FILES = [
   'manifest.json',
   'icone192.png',
   'icone512.png',
@@ -12,7 +11,15 @@ const FILES = [
 ];
 
 self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
+  e.waitUntil(
+    caches.open(CACHE).then(async c => {
+      // Arquivos estáticos normalmente
+      await c.addAll(STATIC_FILES);
+      // index.html com cache-bust para garantir versão nova do CDN
+      const resp = await fetch(`index.html?v=${CACHE_VERSION}`, { cache: 'no-store' });
+      await c.put('index.html', resp);
+    })
+  );
   self.skipWaiting();
 });
 
