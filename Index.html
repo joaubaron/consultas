@@ -83,26 +83,35 @@ letter-spacing: -0.01em;
 }
 
 .btn-unimed-header {
-background: rgba(255,255,255,0.15);
-border: 1.5px solid rgba(255,255,255,0.25);
-color: white;
-padding: 8px 16px;
-border-radius: var(--radius-pill);
-font-weight: 700;
-font-size: var(--font-sm);
-cursor: pointer;
-backdrop-filter: blur(4px);
-transition: background 0.15s, transform 0.1s;
-white-space: nowrap;
-display: flex;
-align-items: center;
-gap: 6px;
-flex-shrink: 0;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  backdrop-filter: none !important;
+  height: auto !important;
+  width: auto !important;
+  min-height: unset !important;
+  min-width: unset !important;
+  gap: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .btn-unimed-header:active {
-background: rgba(255,255,255,0.28);
-transform: scale(0.95);
+  background: transparent !important;
+  transform: none !important;
+}
+
+.btn-unimed-header img {
+  height: 60px !important;
+  width: auto !important;
+  display: block !important;
+  border: none !important;
+  max-width: 100%;
 }
 
 /* ─── FAB ─── */
