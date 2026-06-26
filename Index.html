@@ -89,10 +89,11 @@ letter-spacing: -0.01em;
   box-shadow: none !important;
   outline: none !important;
   backdrop-filter: none !important;
-  height: 20px !important;
-  max-height: 20px !important;
-  width: auto !important;
+  /* REMOVA height, max-height e overflow */
+  height: auto !important;
+  max-height: none !important;
   min-height: unset !important;
+  width: auto !important;
   min-width: unset !important;
   gap: 0 !important;
   display: flex !important;
@@ -101,7 +102,7 @@ letter-spacing: -0.01em;
   cursor: pointer;
   flex-shrink: 0;
   align-self: center !important;
-  overflow: hidden !important;
+  overflow: visible !important;
 }
 
 .btn-unimed-header:active {
@@ -110,15 +111,14 @@ letter-spacing: -0.01em;
 }
 
 .btn-unimed-header img {
-  height: auto;
-  width: 40px;
-  max-width: 60px;
-  display: block;
-  border: none;
+  height: 40px !important;
+  width: auto !important;
+  max-width: none !important;
+  display: block !important;
+  border: none !important;
 }
-
+  
 /* ─── FAB ─── */
-
 .fab {
 position: fixed;
 bottom: 1.75rem;
