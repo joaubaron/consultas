@@ -1569,8 +1569,10 @@ return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.
 
 function cardStatus(dataStr, manualStatus) {
 const t = today();
+if (manualStatus === 'past') return 'past';
+if (manualStatus === 'upcoming') return 'upcoming';
+if (manualStatus === 'today') return 'today';
 if (dataStr < t) return 'past';
-if (manualStatus) return manualStatus;
 if (dataStr === t) return 'today';
 return 'upcoming';
 }
@@ -2065,22 +2067,14 @@ function importData(file) {
                 return;
             }
 
-            // Verifica se todas as consultas têm status definido
-            // Se não tiver, calcula baseado na data
+            // Normaliza campos obrigatórios sem tocar no status salvo
             validImported.forEach(c => {
-                if (!c.status) {
-                    const hoje = new Date().toISOString().slice(0, 10);
-                    if (c.data < hoje) {
-                        c.status = 'past';
-                    } else if (c.data === hoje) {
-                        c.status = 'today';
-                    } else {
-                        c.status = 'upcoming';
-                    }
-                }
                 // Garante que campos obrigatórios existam
                 c.titulo = c.titulo || c.tipo || 'Consulta';
                 c.tags = c.tags || [];
+                // status: preserva exatamente o que veio do JSON
+                // (undefined → null, para não disparar lógica errada em cardStatus)
+                if (c.status === undefined) c.status = null;
             });
 
             pendingImportData = validImported;
