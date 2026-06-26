@@ -2017,7 +2017,8 @@ function exportData() {
         consultas: consultas.map(c => ({
             ...c,
             // Garante que o status seja preservado
-            status: c.status || null
+            // Salva status efetivo para restaurar fielmente ao importar
+            status: cardStatus(c.data, c.status)
         }))
     };
 
