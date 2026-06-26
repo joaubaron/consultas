@@ -1,4 +1,4 @@
-const CACHE_VERSION = '26.06.2026-1730';
+const CACHE_VERSION = '26.06.2026-1732';
 const CACHE_NAME = `consultas-${CACHE_VERSION}`;
 
 const CACHE = CACHE_NAME;
