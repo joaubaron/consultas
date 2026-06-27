@@ -83,18 +83,21 @@ letter-spacing: -0.01em;
 }
 
 .btn-unimed-header {
-  background: url('unimed-1024.png') center/contain no-repeat;
+  background: none;
   border: none;
   padding: 0;
   cursor: pointer;
-  display: block;
-  width: 72px;
-  max-width: 72px;
-  height: 26px;
-  max-height: 26px;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
 }
 
+  .btn-unimed-header img {
+  height: 36px;
+  width: auto;
+  display: block;
+  }
+  
 .btn-unimed-header:active {
   opacity: 0.7;
 }
@@ -1215,7 +1218,9 @@ backdrop-filter: blur(3px);
 <div class="header-left">
 <h1>🩺 Agenda Médica</h1>
 </div>
-<button class="btn-unimed-header" onclick="openImageModal()"></button>
+<button class="btn-unimed-header" onclick="openImageModal()">
+<img src="unimed-1024.png" alt="Unimed">
+</button>
 </div>
 </header>
 
