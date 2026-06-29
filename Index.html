@@ -83,25 +83,25 @@ letter-spacing: -0.01em;
 }
 
 .btn-unimed-header {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
+background: none;
+border: none;
+padding: 0;
+cursor: pointer;
+display: flex;
+align-items: center;
+flex-shrink: 0;
 }
 
 .btn-unimed-header img {
-  height: 10px;
-  width: auto;
-  display: block;
+height: 10px;
+width: auto;
+display: block;
 }
 
 .btn-unimed-header:active {
-  opacity: 0.7;
+opacity: 0.7;
 }
-  
+
 /* ─── FAB ─── */
 .fab {
 position: fixed;
@@ -1214,16 +1214,16 @@ backdrop-filter: blur(3px);
 
 <header>
 <header>
-  <div class="header-content">
-    <div class="header-left">
-      <h1>🩺 Agenda Médica</h1>
-    </div>
-    <button class="btn-unimed-header" onclick="openImageModal()">
-      <img src="unimed-1024.png" alt="Unimed" style="width: 40px; height: 40px;">
-    </button>
-  </div>
+<div class="header-content">
+<div class="header-left">
+<h1>🩺 Agenda Médica</h1>
+</div>
+<button class="btn-unimed-header" onclick="openImageModal()">
+<img src="unimed-1024.png" alt="Unimed" style="width: 30px; height: 30px;">
+</button>
+</div>
 </header>
-  
+
 <div id="list-view">
 <!-- LEMBRETE BANNER -->
 <div class="reminder-banner" id="reminder-banner">
@@ -1641,8 +1641,8 @@ list.appendChild(backupRow);
 
 backupRow.querySelector('#export-btn').addEventListener('click', exportData);
 backupRow.querySelector('#import-btn').addEventListener('click', function(e) {
-    e.stopPropagation();
-    document.getElementById('file-input').click();
+e.stopPropagation();
+document.getElementById('file-input').click();
 });
 backupRow.querySelector('#realizadas-btn').addEventListener('click', openRealizadas);
 
@@ -2009,249 +2009,249 @@ openDetail(viewingId);
 // ─── BACKUP FUNCTIONS (REESCRITAS COMPLETAMENTE) ───
 
 function exportData() {
-    if (consultas.length === 0) {
-        showToast('toast-error', 'Nenhuma consulta para exportar.');
-        return;
-    }
+if (consultas.length === 0) {
+showToast('toast-error', 'Nenhuma consulta para exportar.');
+return;
+}
 
-    try {
-        // Exporta TODAS as consultas com dados COMPLETOS e STATUS PRESERVADO
-        const dataToExport = consultas.map(c => {
-            // Calcula o status real baseado na data e no status manual
-            const status = cardStatus(c.data, c.status);
-            
-            return {
-                id: c.id,
-                titulo: c.titulo || '',
-                medico: c.medico || '',
-                especialista: c.especialista || '',
-                data: c.data || '',
-                hora: c.hora || '',
-                chegada: c.chegada || '',
-                local: c.local || '',
-                maps: c.maps || '',
-                contato: c.contato || '',
-                obs: c.obs || '',
-                tags: c.tags || [],
-                status: status, // Preserva o status REAL
-                criadoEm: c.criadoEm || new Date().toISOString(),
-                atualizadoEm: new Date().toISOString(),
-                // Versão original para compatibilidade
-                tipo: c.tipo || c.titulo || ''
-            };
-        });
+try {
+// Exporta TODAS as consultas com dados COMPLETOS e STATUS PRESERVADO
+const dataToExport = consultas.map(c => {
+// Calcula o status real baseado na data e no status manual
+const status = cardStatus(c.data, c.status);
 
-        const exportObj = {
-            versao: '2.0',
-            exportadoEm: new Date().toISOString(),
-            total: dataToExport.length,
-            consultas: dataToExport
-        };
+return {
+id: c.id,
+titulo: c.titulo || '',
+medico: c.medico || '',
+especialista: c.especialista || '',
+data: c.data || '',
+hora: c.hora || '',
+chegada: c.chegada || '',
+local: c.local || '',
+maps: c.maps || '',
+contato: c.contato || '',
+obs: c.obs || '',
+tags: c.tags || [],
+status: status, // Preserva o status REAL
+criadoEm: c.criadoEm || new Date().toISOString(),
+atualizadoEm: new Date().toISOString(),
+// Versão original para compatibilidade
+tipo: c.tipo || c.titulo || ''
+};
+});
 
-        const json = JSON.stringify(exportObj, null, 2);
-        const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        
-        const d = new Date();
-        const dd = String(d.getDate()).padStart(2, '0');
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const aa = String(d.getFullYear()).slice(2);
-        const filename = `consultas_${dd}${mm}${aa}.json`;
-        
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
-        
-        showToast('toast-export', `Exportadas ${consultas.length} consultas com status preservado.`);
-    } catch (err) {
-        console.error('Erro ao exportar:', err);
-        showToast('toast-error', 'Erro ao exportar: ' + err.message);
-    }
+const exportObj = {
+versao: '2.0',
+exportadoEm: new Date().toISOString(),
+total: dataToExport.length,
+consultas: dataToExport
+};
+
+const json = JSON.stringify(exportObj, null, 2);
+const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+const url = URL.createObjectURL(blob);
+
+const a = document.createElement('a');
+a.href = url;
+
+const d = new Date();
+const dd = String(d.getDate()).padStart(2, '0');
+const mm = String(d.getMonth() + 1).padStart(2, '0');
+const aa = String(d.getFullYear()).slice(2);
+const filename = `consultas_${dd}${mm}${aa}.json`;
+
+a.download = filename;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+
+setTimeout(() => URL.revokeObjectURL(url), 5000);
+
+showToast('toast-export', `Exportadas ${consultas.length} consultas com status preservado.`);
+} catch (err) {
+console.error('Erro ao exportar:', err);
+showToast('toast-error', 'Erro ao exportar: ' + err.message);
+}
 }
 
 function importData(file) {
-    const reader = new FileReader();
-    
-    reader.onload = (e) => {
-        try {
-            let dadosImportados = [];
-            let rawData;
-            
-            try {
-                rawData = JSON.parse(e.target.result);
-            } catch (parseErr) {
-                showToast('toast-error', 'Arquivo inválido. Não é um JSON válido.');
-                return;
-            }
-            
-            // Extrai os dados do arquivo, independente da estrutura
-            if (Array.isArray(rawData)) {
-                dadosImportados = rawData;
-            } else if (rawData.consultas && Array.isArray(rawData.consultas)) {
-                dadosImportados = rawData.consultas;
-            } else if (rawData.data && Array.isArray(rawData.data)) {
-                dadosImportados = rawData.data;
-            } else {
-                // Tenta usar o objeto inteiro como uma única consulta
-                if (rawData.id && rawData.data) {
-                    dadosImportados = [rawData];
-                } else {
-                    showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.');
-                    return;
-                }
-            }
-            
-            if (dadosImportados.length === 0) {
-                showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
-                return;
-            }
-            
-            // Normaliza e valida cada consulta
-            const consultasImportadas = dadosImportados
-                .filter(c => c && typeof c === 'object' && c.id && c.data)
-                .map(c => {
-                    // Calcula o status baseado na data e no status salvo (se houver)
-                    let status = c.status || null;
-                    
-                    // Se não tiver status, calcula automaticamente
-                    if (!status) {
-                        status = cardStatus(c.data, null);
-                    }
-                    
-                    return {
-                        id: c.id || 'import_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                        titulo: c.titulo || c.tipo || c.nome || 'Consulta',
-                        medico: c.medico || c.medico_nome || '',
-                        especialista: c.especialista || c.clinica || c.especialidade || '',
-                        data: c.data || '',
-                        hora: c.hora || c.horario || '',
-                        chegada: c.chegada || c.chegar_em || c.chegar || '',
-                        local: c.local || c.endereco || '',
-                        maps: c.maps || c.link_maps || '',
-                        contato: c.contato || c.telefone || c.tel || '',
-                        obs: c.obs || c.observacoes || c.detalhes || '',
-                        tags: Array.isArray(c.tags) ? c.tags : (c.preparacoes || []),
-                        status: status, // PRESERVA O STATUS ORIGINAL
-                        criadoEm: c.criadoEm || c.data_criacao || new Date().toISOString(),
-                        atualizadoEm: new Date().toISOString(),
-                        // Mantém campos antigos para compatibilidade
-                        tipo: c.tipo || c.titulo || ''
-                    };
-                })
-                .filter(c => c.data); // Filtra consultas sem data
-                
-            if (consultasImportadas.length === 0) {
-                showToast('toast-error', 'Nenhuma consulta válida encontrada.');
-                return;
-            }
-            
-            // Conta quantas são realizadas vs ativas
-            const realizadasCount = consultasImportadas.filter(c => c.status === 'past').length;
-            const ativasCount = consultasImportadas.length - realizadasCount;
-            
-            // Armazena os dados para processamento
-            pendingImportData = consultasImportadas;
-            
-            // Mostra opções para o usuário
-            showChoice(
-                `Encontradas ${consultasImportadas.length} consulta${consultasImportadas.length > 1 ? 's' : ''}\n` +
-                `📅 ${ativasCount} agendada${ativasCount > 1 ? 's' : ''} | 🩺 ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}\n\n` +
-                `Como deseja proceder?`
-            );
-            
-        } catch (err) {
-            console.error('Erro ao importar:', err);
-            showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message);
-        }
-    };
-    
-    reader.onerror = () => {
-        showToast('toast-error', 'Erro ao ler o arquivo.');
-    };
-    
-    reader.readAsText(file);
+const reader = new FileReader();
+
+reader.onload = (e) => {
+try {
+let dadosImportados = [];
+let rawData;
+
+try {
+rawData = JSON.parse(e.target.result);
+} catch (parseErr) {
+showToast('toast-error', 'Arquivo inválido. Não é um JSON válido.');
+return;
+}
+
+// Extrai os dados do arquivo, independente da estrutura
+if (Array.isArray(rawData)) {
+dadosImportados = rawData;
+} else if (rawData.consultas && Array.isArray(rawData.consultas)) {
+dadosImportados = rawData.consultas;
+} else if (rawData.data && Array.isArray(rawData.data)) {
+dadosImportados = rawData.data;
+} else {
+// Tenta usar o objeto inteiro como uma única consulta
+if (rawData.id && rawData.data) {
+dadosImportados = [rawData];
+} else {
+showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.');
+return;
+}
+}
+
+if (dadosImportados.length === 0) {
+showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.');
+return;
+}
+
+// Normaliza e valida cada consulta
+const consultasImportadas = dadosImportados
+.filter(c => c && typeof c === 'object' && c.id && c.data)
+.map(c => {
+// Calcula o status baseado na data e no status salvo (se houver)
+let status = c.status || null;
+
+// Se não tiver status, calcula automaticamente
+if (!status) {
+status = cardStatus(c.data, null);
+}
+
+return {
+id: c.id || 'import_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+titulo: c.titulo || c.tipo || c.nome || 'Consulta',
+medico: c.medico || c.medico_nome || '',
+especialista: c.especialista || c.clinica || c.especialidade || '',
+data: c.data || '',
+hora: c.hora || c.horario || '',
+chegada: c.chegada || c.chegar_em || c.chegar || '',
+local: c.local || c.endereco || '',
+maps: c.maps || c.link_maps || '',
+contato: c.contato || c.telefone || c.tel || '',
+obs: c.obs || c.observacoes || c.detalhes || '',
+tags: Array.isArray(c.tags) ? c.tags : (c.preparacoes || []),
+status: status, // PRESERVA O STATUS ORIGINAL
+criadoEm: c.criadoEm || c.data_criacao || new Date().toISOString(),
+atualizadoEm: new Date().toISOString(),
+// Mantém campos antigos para compatibilidade
+tipo: c.tipo || c.titulo || ''
+};
+})
+.filter(c => c.data); // Filtra consultas sem data
+
+if (consultasImportadas.length === 0) {
+showToast('toast-error', 'Nenhuma consulta válida encontrada.');
+return;
+}
+
+// Conta quantas são realizadas vs ativas
+const realizadasCount = consultasImportadas.filter(c => c.status === 'past').length;
+const ativasCount = consultasImportadas.length - realizadasCount;
+
+// Armazena os dados para processamento
+pendingImportData = consultasImportadas;
+
+// Mostra opções para o usuário
+showChoice(
+`Encontradas ${consultasImportadas.length} consulta${consultasImportadas.length > 1 ? 's' : ''}\n` +
+`📅 ${ativasCount} agendada${ativasCount > 1 ? 's' : ''} | 🩺 ${realizadasCount} realizada${realizadasCount > 1 ? 's' : ''}\n\n` +
+`Como deseja proceder?`
+);
+
+} catch (err) {
+console.error('Erro ao importar:', err);
+showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message);
+}
+};
+
+reader.onerror = () => {
+showToast('toast-error', 'Erro ao ler o arquivo.');
+};
+
+reader.readAsText(file);
 }
 
 function processImport(choice) {
-    if (!pendingImportData || pendingImportData.length === 0) {
-        showToast('toast-error', 'Nenhum dado para importar.');
-        hideChoice();
-        return;
-    }
+if (!pendingImportData || pendingImportData.length === 0) {
+showToast('toast-error', 'Nenhum dado para importar.');
+hideChoice();
+return;
+}
 
-    try {
-        if (choice === 'replace') {
-            // SUBSTITUIÇÃO COMPLETA
-            consultas = JSON.parse(JSON.stringify(pendingImportData)); // Clona para evitar referências
-            const msg = `Substituídas por ${consultas.length} consultas.`;
-            save();
-            render();
-            hideChoice();
-            pendingImportData = null;
-            
-            // Fecha realizadas se estiver aberta
-            if (realizadasOpen) {
-                closeRealizadas();
-            }
-            
-            showToast('toast-import', msg);
-        } else {
-            // MESCLAGEM
-            const existingIds = new Set(consultas.map(c => c.id));
-            let importadas = 0;
-            let atualizadas = 0;
-            let puladas = 0;
-            
-            pendingImportData.forEach(c => {
-                const idx = consultas.findIndex(ex => ex.id === c.id);
-                
-                if (idx !== -1) {
-                    // Atualiza consulta existente (preserva data de criação original)
-                    const criadoEmOriginal = consultas[idx].criadoEm || consultas[idx].data_criacao;
-                    consultas[idx] = {
-                        ...c,
-                        criadoEm: criadoEmOriginal || c.criadoEm,
-                        atualizadoEm: new Date().toISOString()
-                    };
-                    atualizadas++;
-                } else {
-                    // Adiciona nova consulta
-                    consultas.push({
-                        ...c,
-                        criadoEm: c.criadoEm || new Date().toISOString(),
-                        atualizadoEm: new Date().toISOString()
-                    });
-                    importadas++;
-                }
-            });
-            
-            const msg = `${importadas} nova${importadas > 1 ? 's' : ''} consulta${importadas > 1 ? 's' : ''} importada${importadas > 1 ? 's' : ''}, ` +
-                       `${atualizadas} atualizada${atualizadas > 1 ? 's' : ''}. Total: ${consultas.length} consultas.`;
-            
-            save();
-            render();
-            hideChoice();
-            pendingImportData = null;
-            
-            // Fecha realizadas se estiver aberta
-            if (realizadasOpen) {
-                closeRealizadas();
-            }
-            
-            showToast('toast-import', msg);
-        }
-    } catch (err) {
-        console.error('Erro ao processar importação:', err);
-        showToast('toast-error', 'Erro ao importar: ' + err.message);
-        hideChoice();
-        pendingImportData = null;
-    }
+try {
+if (choice === 'replace') {
+// SUBSTITUIÇÃO COMPLETA
+consultas = JSON.parse(JSON.stringify(pendingImportData)); // Clona para evitar referências
+const msg = `Substituídas por ${consultas.length} consultas.`;
+save();
+render();
+hideChoice();
+pendingImportData = null;
+
+// Fecha realizadas se estiver aberta
+if (realizadasOpen) {
+closeRealizadas();
+}
+
+showToast('toast-import', msg);
+} else {
+// MESCLAGEM
+const existingIds = new Set(consultas.map(c => c.id));
+let importadas = 0;
+let atualizadas = 0;
+let puladas = 0;
+
+pendingImportData.forEach(c => {
+const idx = consultas.findIndex(ex => ex.id === c.id);
+
+if (idx !== -1) {
+// Atualiza consulta existente (preserva data de criação original)
+const criadoEmOriginal = consultas[idx].criadoEm || consultas[idx].data_criacao;
+consultas[idx] = {
+...c,
+criadoEm: criadoEmOriginal || c.criadoEm,
+atualizadoEm: new Date().toISOString()
+};
+atualizadas++;
+} else {
+// Adiciona nova consulta
+consultas.push({
+...c,
+criadoEm: c.criadoEm || new Date().toISOString(),
+atualizadoEm: new Date().toISOString()
+});
+importadas++;
+}
+});
+
+const msg = `${importadas} nova${importadas > 1 ? 's' : ''} consulta${importadas > 1 ? 's' : ''} importada${importadas > 1 ? 's' : ''}, ` +
+`${atualizadas} atualizada${atualizadas > 1 ? 's' : ''}. Total: ${consultas.length} consultas.`;
+
+save();
+render();
+hideChoice();
+pendingImportData = null;
+
+// Fecha realizadas se estiver aberta
+if (realizadasOpen) {
+closeRealizadas();
+}
+
+showToast('toast-import', msg);
+}
+} catch (err) {
+console.error('Erro ao processar importação:', err);
+showToast('toast-error', 'Erro ao importar: ' + err.message);
+hideChoice();
+pendingImportData = null;
+}
 }
 
 // ─── COMPARTILHAR ───
@@ -2451,18 +2451,18 @@ tag: `consulta-2h-${c.id}`,
 
 // ─── FILE INPUT HANDLER ───
 document.getElementById('file-input').addEventListener('change', function(e) {
-    const file = this.files[0];
-    if (!file) return;
-    
-    // Verifica se é um arquivo JSON
-    if (!file.name.toLowerCase().endsWith('.json')) {
-        showToast('toast-error', 'Por favor, selecione um arquivo JSON.');
-        this.value = '';
-        return;
-    }
-    
-    importData(file);
-    this.value = ''; // Reseta o input
+const file = this.files[0];
+if (!file) return;
+
+// Verifica se é um arquivo JSON
+if (!file.name.toLowerCase().endsWith('.json')) {
+showToast('toast-error', 'Por favor, selecione um arquivo JSON.');
+this.value = '';
+return;
+}
+
+importData(file);
+this.value = ''; // Reseta o input
 });
 
 // ─── EVENTS ───
@@ -2514,12 +2514,12 @@ btn.addEventListener('click', () => updateStatus(btn.dataset.status));
 });
 
 document.getElementById('f-hora').addEventListener('change', e => {
-    const chegada = document.getElementById('f-chegada');
-    const [h,m] = e.target.value.split(':').map(Number);
-    const total = h * 60 + m - 30;
-    if (total >= 0) {
-        chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
-    }
+const chegada = document.getElementById('f-chegada');
+const [h,m] = e.target.value.split(':').map(Number);
+const total = h * 60 + m - 30;
+if (total >= 0) {
+chegada.value = `${String(Math.floor(total/60)).padStart(2,'0')}:${String(total%60).padStart(2,'0')}`;
+}
 });
 
 // Fechar banner de lembrete
