@@ -1,23 +1,23 @@
 {
-  "name": "Consultas Médicas",
-  "short_name": "Consultas",
-  "description": "Agenda de consultas médicas offline",
-  "start_url": "index.html",
-  "display": "standalone",
-  "background_color": "#185FA5",
-  "theme_color": "#185FA5",
-  "icons": [
-    {
-      "src": "icone192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "icone512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    }
-  ]
+"name": "Consultas Médicas",
+"short_name": "Consultas",
+"description": "Agenda de consultas médicas offline",
+"start_url": "index.html",
+"display": "standalone",
+"background_color": "#185FA5",
+"theme_color": "#185FA5",
+"icons": [
+{
+"src": "icone192.png",
+"sizes": "192x192",
+"type": "image/png",
+"purpose": "any"
+},
+{
+"src": "icone512.png",
+"sizes": "512x512",
+"type": "image/png",
+"purpose": "any"
+}
+]
 }
