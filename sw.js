@@ -6,6 +6,7 @@ const STATIC_FILES = [
   'manifest.json',
   'icone192.png',
   'icone512.png',
+  'unimed-1024.png',
   'unimed1.webp',
   'unimed2.webp'
 ];
