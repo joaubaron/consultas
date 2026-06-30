@@ -11,6 +11,8 @@
 <link rel="manifest" href="manifest.json">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+button { outline: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+button:focus, button:focus-visible { outline: none; }
 
 :root {
 --blue-50: #E6F1FB;
@@ -71,9 +73,13 @@ box-shadow: 0 2px 16px rgba(12,68,124,0.3);
 }
 .header-content { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
 .header-left h1 { font-size: var(--font-lg); font-weight: 700; letter-spacing: -0.01em; }
-.btn-unimed-header { background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; flex-shrink: 0; }
-.btn-unimed-header img { height: 28px; width: auto; display: block; }
+.btn-unimed-header {
+background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; flex-shrink: 0;
+outline: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
+}
+.btn-unimed-header img { height: 28px; width: auto; display: block; -webkit-user-drag: none; }
 .btn-unimed-header:active { opacity: 1; }
+.btn-unimed-header:focus, .btn-unimed-header:focus-visible { outline: none; }
 
 /* FAB */
 .fab {
@@ -1032,7 +1038,7 @@ function buildCard(c, status) {
   }
 
   const diasLabel = status !== 'past' ? diasRestantes(c.data) : '';
-  const resultadoBadge = status === 'past' && hasResultado(c) ? `<span class="card-resultado-badge">📄 Resultado</span>` : '';
+  const resultadoBadge = status === 'past' && hasResultado(c) ? `<span class="card-resultado-badge">📋 Resultado</span>` : '';
 
   card.innerHTML = `
     <div class="card-stripe ${stripeClass}"></div>
