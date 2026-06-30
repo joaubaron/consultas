@@ -75,16 +75,20 @@ box-shadow: 0 2px 16px rgba(12,68,124,0.3);
 .header-content { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
 .header-left h1 { font-size: var(--font-lg); font-weight: 700; letter-spacing: -0.01em; }
 .btn-unimed-header {
-background: none;
-border: none;
+background: none !important;
+border: none !important;
 padding: 0;
 cursor: pointer;
 display: flex;
 align-items: center;
 flex-shrink: 0;
-outline: none;
--webkit-tap-highlight-color: transparent;
+outline: none !important;
+-webkit-tap-highlight-color: transparent !important;
 -webkit-touch-callout: none;
+box-shadow: none !important;
+text-decoration: none;
+-webkit-appearance: none;
+appearance: none;
 }
 
 .btn-unimed-header img {
@@ -98,17 +102,24 @@ user-select: none;
 pointer-events: none;
 }
 
-.btn-unimed-header:active {
-opacity: 1;
-background: transparent !important;
+/* Remove todos os estados de foco/interação */
+.btn-unimed-header:focus,
+.btn-unimed-header:focus-visible,
+.btn-unimed-header:focus-within,
+.btn-unimed-header:active,
+.btn-unimed-header:visited,
+.btn-unimed-header:hover {
 outline: none !important;
 box-shadow: none !important;
+background: none !important;
+border: none !important;
+-webkit-tap-highlight-color: transparent !important;
 }
 
-.btn-unimed-header:focus,
-.btn-unimed-header:focus-visible {
-outline: none !important;
-box-shadow: none !important;
+/* Remove o highlight do iOS/Safari */
+.btn-unimed-header {
+-webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+-webkit-tap-highlight-color: transparent !important;
 }
 
 /* FAB */
