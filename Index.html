@@ -10,7 +10,7 @@
 <title>Agenda Médica</title>
 <link rel="manifest" href="manifest.json">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 button { outline: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
 button:focus, button:focus-visible { outline: none; }
 
@@ -414,8 +414,10 @@ width: 100%; max-width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 display: none; position: fixed; inset: 0; background: rgba(4,44,83,0.92); z-index: 600;
 align-items: center; justify-content: center; padding: 1.5rem 1.25rem 2rem;
 flex-direction: column; gap: 0; backdrop-filter: blur(6px);
+opacity: 0; transition: opacity 0.18s ease;
 }
 .image-modal.open { display: flex; }
+.image-modal.open.show { opacity: 1; }
 .image-modal-inner { display: flex; flex-direction: column; align-items: center; width: 100%; max-width: 440px; gap: 0; }
 .image-modal-img-wrap { width: 100%; perspective: 900px; }
 .image-modal-content {
@@ -648,7 +650,7 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 <header>
 <div class="header-content">
 <div class="header-left"><h1>🩺 Agenda Médica</h1></div>
-<div class="btn-unimed-header" onclick="openImageModal()">
+<div class="btn-unimed-header" role="button" tabindex="0" onclick="openImageModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openImageModal();}">
 <img src="unimed-1024.png" alt="Unimed">
 </div>
 </div>
@@ -1152,9 +1154,15 @@ img.src = IMAGES[0]; img.alt = 'Carteirinha Unimed - Frente'; img.style.transfor
 document.getElementById('side-pill').classList.remove('verso');
 document.getElementById('label-frente').classList.add('active');
 document.getElementById('label-verso').classList.remove('active');
-document.getElementById('image-modal').classList.add('open');
+const modal = document.getElementById('image-modal');
+modal.classList.add('open');
+requestAnimationFrame(() => requestAnimationFrame(() => modal.classList.add('show')));
 }
-function closeImageModal() { document.getElementById('image-modal').classList.remove('open'); }
+function closeImageModal() {
+const modal = document.getElementById('image-modal');
+modal.classList.remove('show');
+setTimeout(() => modal.classList.remove('open'), 180);
+}
 
 /* ── DETAIL ── */
 function openDetail(id) {
