@@ -887,19 +887,19 @@ let deletingRealizadaId = null;
 const IMAGES = ['unimed1.webp', 'unimed2.webp'];
 
 const TAG_LABELS = {
-  exames:    { label: '📄 Exames',     bg: '#F1EFE8', color: '#5F5E5A' },
-  jejum:     { label: '🚫 Jejum',      bg: '#FFF3CD', color: '#664D03' },
-  roupa:     { label: '👕 Roupa',      bg: '#E1F5EE', color: '#0F6E56' },
-  documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
-  receitas:  { label: '💊 Receitas',   bg: '#F3EEF8', color: '#6B3FA0' },
+exames:    { label: '📄 Exames',     bg: '#F1EFE8', color: '#5F5E5A' },
+jejum:     { label: '🚫 Jejum',      bg: '#FFF3CD', color: '#664D03' },
+roupa:     { label: '👕 Roupa',      bg: '#E1F5EE', color: '#0F6E56' },
+documento: { label: '🪪 Documentos', bg: '#E6F1FB', color: '#0C447C' },
+receitas:  { label: '💊 Receitas',   bg: '#F3EEF8', color: '#6B3FA0' },
 };
 
 /* ── TOASTS ── */
 function showToast(id, msg) {
-  const el = document.getElementById(id);
-  const p = el.querySelector('p');
-  if (p) p.textContent = msg;
-  el.classList.add('open');
+const el = document.getElementById(id);
+const p = el.querySelector('p');
+if (p) p.textContent = msg;
+el.classList.add('open');
 }
 function hideToast(id) { document.getElementById(id).classList.remove('open'); }
 function showChoice(msg) { document.getElementById('choice-msg').textContent = msg; document.getElementById('choice-overlay').classList.add('open'); }
@@ -907,8 +907,20 @@ function hideChoice() { document.getElementById('choice-overlay').classList.remo
 
 /* ── DATA ── */
 function load() {
-  try { const r = localStorage.getItem(STORAGE_KEY); consultas = r ? JSON.parse(r) : []; }
-  catch(e) { consultas = []; }
+try { 
+const r = localStorage.getItem(STORAGE_KEY); 
+consultas = r ? JSON.parse(r) : [];
+
+// LIMPA STATUS INVÁLIDOS
+consultas = consultas.map(c => {
+const statusValido = ['past', 'upcoming', 'today', null, undefined];
+if (!statusValido.includes(c.status)) {
+delete c.status;
+}
+return c;
+});
+
+} catch(e) { consultas = []; }
 }
 function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(consultas)); }
 function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
@@ -917,594 +929,594 @@ function formatDate(str) { if (!str) return ''; const [y,m,d] = str.split('-'); 
 function today() { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; }
 
 function cardStatus(dataStr, manualStatus) {
-  if (manualStatus === 'past') return 'past';
-  if (manualStatus === 'upcoming') return 'upcoming';
-  if (manualStatus === 'today') return 'today';
-  if (!dataStr) return 'upcoming';
-  const t = today();
-  if (dataStr < t) return 'past';
-  if (dataStr === t) return 'today';
-  return 'upcoming';
+if (manualStatus === 'past') return 'past';
+if (manualStatus === 'upcoming') return 'upcoming';
+if (manualStatus === 'today') return 'today';
+if (!dataStr) return 'upcoming';
+const t = today();
+if (dataStr < t) return 'past';
+if (dataStr === t) return 'today';
+return 'upcoming';
 }
 
 function monthLabel(str) {
-  if (!str) return '';
-  const [y,m] = str.split('-');
-  const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  return `${months[parseInt(m)-1]} ${y}`;
+if (!str) return '';
+const [y,m] = str.split('-');
+const months = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+return `${months[parseInt(m)-1]} ${y}`;
 }
 
 function hasResultado(c) {
-  return !!(c.resultado && (c.resultado.diagnostico || c.resultado.medicacao || c.resultado.retornoPrazo || c.resultado.retornoData || c.resultado.exames));
+return !!(c.resultado && (c.resultado.diagnostico || c.resultado.medicacao || c.resultado.retornoPrazo || c.resultado.retornoData || c.resultado.exames));
 }
 
 /* ── RENDER ── */
 function render() {
-  const list = document.getElementById('list');
-  const empty = document.getElementById('empty');
-  const realizadasList = document.getElementById('realizadas-list');
-  const realizadasEmpty = document.getElementById('realizadas-empty');
+const list = document.getElementById('list');
+const empty = document.getElementById('empty');
+const realizadasList = document.getElementById('realizadas-list');
+const realizadasEmpty = document.getElementById('realizadas-empty');
 
-  const sorted = [...consultas].sort((a,b) => ((a.data||'')+(a.hora||'')).localeCompare((b.data||'')+(b.hora||'')));
-  const ativas = sorted.filter(c => cardStatus(c.data, c.status) !== 'past');
-  const realizadas = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
+const sorted = [...consultas].sort((a,b) => ((a.data||'')+(a.hora||'')).localeCompare((b.data||'')+(b.hora||'')));
+const ativas = sorted.filter(c => cardStatus(c.data, c.status) !== 'past');
+const realizadas = sorted.filter(c => cardStatus(c.data, c.status) === 'past');
 
-  list.innerHTML = '';
-  if (ativas.length === 0) { empty.style.display = 'block'; }
-  else {
-    empty.style.display = 'none';
-    let lastMonth = null;
-    ativas.forEach(c => {
-      const status = cardStatus(c.data, c.status);
-      const mn = monthLabel(c.data);
-      if (mn !== lastMonth) {
-        const ml = document.createElement('div');
-        ml.className = 'month-label';
-        const cnt = ativas.filter(x => monthLabel(x.data) === mn).length;
-        ml.innerHTML = `<span>${mn}</span><span class="month-count">${cnt === 1 ? '1 consulta' : `${cnt} consultas`}</span>`;
-        list.appendChild(ml);
-        lastMonth = mn;
-      }
-      list.appendChild(buildCard(c, status));
-    });
-  }
+list.innerHTML = '';
+if (ativas.length === 0) { empty.style.display = 'block'; }
+else {
+empty.style.display = 'none';
+let lastMonth = null;
+ativas.forEach(c => {
+const status = cardStatus(c.data, c.status);
+const mn = monthLabel(c.data);
+if (mn !== lastMonth) {
+const ml = document.createElement('div');
+ml.className = 'month-label';
+const cnt = ativas.filter(x => monthLabel(x.data) === mn).length;
+ml.innerHTML = `<span>${mn}</span><span class="month-count">${cnt === 1 ? '1 consulta' : `${cnt} consultas`}</span>`;
+list.appendChild(ml);
+lastMonth = mn;
+}
+list.appendChild(buildCard(c, status));
+});
+}
 
-  const bRow = document.createElement('div');
-  bRow.className = 'backup-inline-row';
-  const rc = realizadas.length;
-  bRow.innerHTML = `
-    <button class="backup-inline-btn export" id="export-btn">⬇️ Exportar</button>
-    <button class="backup-inline-btn import" id="import-btn">⬆️ Importar</button>
-    <button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Realizadas${rc > 0 ? ` <span class="realizadas-badge">${rc}</span>` : ''}</button>
-  `;
-  list.appendChild(bRow);
-  bRow.querySelector('#export-btn').addEventListener('click', exportData);
-  bRow.querySelector('#import-btn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('file-input').click(); });
-  bRow.querySelector('#realizadas-btn').addEventListener('click', openRealizadas);
+const bRow = document.createElement('div');
+bRow.className = 'backup-inline-row';
+const rc = realizadas.length;
+bRow.innerHTML = `
+<button class="backup-inline-btn export" id="export-btn">⬇️ Exportar</button>
+<button class="backup-inline-btn import" id="import-btn">⬆️ Importar</button>
+<button class="backup-inline-btn realizadas" id="realizadas-btn">🩺 Realizadas${rc > 0 ? ` <span class="realizadas-badge">${rc}</span>` : ''}</button>
+`;
+list.appendChild(bRow);
+bRow.querySelector('#export-btn').addEventListener('click', exportData);
+bRow.querySelector('#import-btn').addEventListener('click', e => { e.stopPropagation(); document.getElementById('file-input').click(); });
+bRow.querySelector('#realizadas-btn').addEventListener('click', openRealizadas);
 
-  realizadasList.innerHTML = '';
-  if (realizadas.length === 0) { realizadasEmpty.style.display = 'block'; }
-  else {
-    realizadasEmpty.style.display = 'none';
-    let lastMonth = null;
-    realizadas.forEach(c => {
-      const mn = monthLabel(c.data);
-      if (mn !== lastMonth) {
-        const ml = document.createElement('div');
-        ml.className = 'month-label';
-        const cnt = realizadas.filter(x => monthLabel(x.data) === mn).length;
-        ml.innerHTML = `<span>${mn}</span><span class="month-count">${cnt === 1 ? '1 realizada' : `${cnt} realizadas`}</span>`;
-        realizadasList.appendChild(ml);
-        lastMonth = mn;
-      }
-      const card = buildCard(c, 'past');
-      const topRow = card.querySelector('.card-top-row');
-      if (topRow) {
-        const btnX = document.createElement('button');
-        btnX.className = 'btn-delete-realizada';
-        btnX.textContent = '\u2715';
-        btnX.title = 'Apagar esta consulta';
-        btnX.addEventListener('click', e => {
-          e.stopPropagation();
-          deletingRealizadaId = c.id;
-          document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar consulta?';
-          document.getElementById('confirm-realizadas-msg').textContent = 'Esta consulta será excluída. Esta ação não pode ser desfeita.';
-          document.getElementById('confirm-realizadas-overlay').classList.add('open');
-        });
-        topRow.appendChild(btnX);
-      }
-      realizadasList.appendChild(card);
-    });
-  }
+realizadasList.innerHTML = '';
+if (realizadas.length === 0) { realizadasEmpty.style.display = 'block'; }
+else {
+realizadasEmpty.style.display = 'none';
+let lastMonth = null;
+realizadas.forEach(c => {
+const mn = monthLabel(c.data);
+if (mn !== lastMonth) {
+const ml = document.createElement('div');
+ml.className = 'month-label';
+const cnt = realizadas.filter(x => monthLabel(x.data) === mn).length;
+ml.innerHTML = `<span>${mn}</span><span class="month-count">${cnt === 1 ? '1 realizada' : `${cnt} realizadas`}</span>`;
+realizadasList.appendChild(ml);
+lastMonth = mn;
+}
+const card = buildCard(c, 'past');
+const topRow = card.querySelector('.card-top-row');
+if (topRow) {
+const btnX = document.createElement('button');
+btnX.className = 'btn-delete-realizada';
+btnX.textContent = '\u2715';
+btnX.title = 'Apagar esta consulta';
+btnX.addEventListener('click', e => {
+e.stopPropagation();
+deletingRealizadaId = c.id;
+document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar consulta?';
+document.getElementById('confirm-realizadas-msg').textContent = 'Esta consulta será excluída. Esta ação não pode ser desfeita.';
+document.getElementById('confirm-realizadas-overlay').classList.add('open');
+});
+topRow.appendChild(btnX);
+}
+realizadasList.appendChild(card);
+});
+}
 }
 
 function buildCard(c, status) {
-  const card = document.createElement('div');
-  card.className = 'card';
-  card.dataset.id = c.id;
-  const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
-  const statusLabels = { upcoming: '📅 Agendada', today: '🔔 Hoje', past: '🩺 Realizada' };
-  const titulo = c.titulo || c.tipo || 'Consulta';
+const card = document.createElement('div');
+card.className = 'card';
+card.dataset.id = c.id;
+const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
+const statusLabels = { upcoming: '📅 Agendada', today: '🔔 Hoje', past: '🩺 Realizada' };
+const titulo = c.titulo || c.tipo || 'Consulta';
 
-  function diasRestantes(ds) {
-    if (!ds) return '';
-    const [y,m,d] = ds.split('-').map(Number);
-    const alvo = new Date(y,m-1,d);
-    const hoje = new Date(); hoje.setHours(0,0,0,0);
-    const diff = Math.round((alvo - hoje) / 86400000);
-    if (diff === 0) return '';
-    if (diff === 1) return ' · amanhã';
-    if (diff > 1) return ` · em ${diff} dias`;
-    return '';
-  }
+function diasRestantes(ds) {
+if (!ds) return '';
+const [y,m,d] = ds.split('-').map(Number);
+const alvo = new Date(y,m-1,d);
+const hoje = new Date(); hoje.setHours(0,0,0,0);
+const diff = Math.round((alvo - hoje) / 86400000);
+if (diff === 0) return '';
+if (diff === 1) return ' · amanhã';
+if (diff > 1) return ` · em ${diff} dias`;
+return '';
+}
 
-  const diasLabel = status !== 'past' ? diasRestantes(c.data) : '';
-  const resultadoBadge = status === 'past' && hasResultado(c) ? `<span class="card-resultado-badge">📋 Resultado</span>` : '';
+const diasLabel = status !== 'past' ? diasRestantes(c.data) : '';
+const resultadoBadge = status === 'past' && hasResultado(c) ? `<span class="card-resultado-badge">📋 Resultado</span>` : '';
 
-  card.innerHTML = `
-    <div class="card-stripe ${stripeClass}"></div>
-    <div class="card-body">
-      <div class="card-top-row">
-        <span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
-        <span class="card-status-badge ${status}">${statusLabels[status]}</span>
-        ${resultadoBadge}
-      </div>
-      <div class="card-title">${titulo}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
-      ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
-      <div class="card-meta">
-        ${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
-        ${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
-      </div>
-      ${c.local ? `<div class="card-meta">${c.maps ? `<a class="meta-item card-contato-link" href="${c.maps}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="meta-icon">📍</span>${c.local}</a>` : `<span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span>`}</div>` : ''}
-      ${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
-      ${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="tag" style="background:${i.bg};color:${i.color};border-color:${i.color}22">${i.label}</span>` : ''; }).join('')}</div>` : ''}
-    </div>
-  `;
-  card.addEventListener('click', () => openDetail(c.id));
-  return card;
+card.innerHTML = `
+<div class="card-stripe ${stripeClass}"></div>
+<div class="card-body">
+<div class="card-top-row">
+<span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
+<span class="card-status-badge ${status}">${statusLabels[status]}</span>
+${resultadoBadge}
+</div>
+<div class="card-title">${titulo}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
+${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
+<div class="card-meta">
+${c.chegada ? `<span class="meta-item"><span class="meta-icon">⏰</span>Chegar às ${c.chegada}</span>` : ''}
+${c.hora ? `<span class="meta-item"><span class="meta-icon">🕐</span>Consulta às ${c.hora}</span>` : ''}
+</div>
+${c.local ? `<div class="card-meta">${c.maps ? `<a class="meta-item card-contato-link" href="${c.maps}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><span class="meta-icon">📍</span>${c.local}</a>` : `<span class="meta-item"><span class="meta-icon">📍</span>${c.local}</span>`}</div>` : ''}
+${c.contato ? `<div class="card-meta"><a class="meta-item card-contato-link" href="tel:${c.contato.replace(/\D/g,'')}" onclick="event.stopPropagation()"><span class="meta-icon">📞</span>${c.contato}</a></div>` : ''}
+${c.tags && c.tags.length ? `<div class="card-tags">${c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="tag" style="background:${i.bg};color:${i.color};border-color:${i.color}22">${i.label}</span>` : ''; }).join('')}</div>` : ''}
+</div>
+`;
+card.addEventListener('click', () => openDetail(c.id));
+return card;
 }
 
 /* ── REALIZADAS ── */
 function openRealizadas() {
-  realizadasOpen = true;
-  document.getElementById('list-view').style.display = 'none';
-  document.getElementById('realizadas-view').classList.add('active');
-  document.getElementById('fab-btn').style.display = 'none';
+realizadasOpen = true;
+document.getElementById('list-view').style.display = 'none';
+document.getElementById('realizadas-view').classList.add('active');
+document.getElementById('fab-btn').style.display = 'none';
 }
 function closeRealizadas() {
-  realizadasOpen = false;
-  document.getElementById('list-view').style.display = '';
-  document.getElementById('realizadas-view').classList.remove('active');
-  document.getElementById('fab-btn').style.display = '';
+realizadasOpen = false;
+document.getElementById('list-view').style.display = '';
+document.getElementById('realizadas-view').classList.remove('active');
+document.getElementById('fab-btn').style.display = '';
 }
 
 /* ── IMAGE MODAL ── */
 function showSide(index) {
-  const img = document.getElementById('image-modal-img');
-  if (currentImageIndex === index) return;
-  img.classList.add('flip-out');
-  setTimeout(() => {
-    currentImageIndex = index;
-    img.src = IMAGES[index];
-    img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
-    img.style.transform = 'rotateY(90deg)';
-    img.classList.remove('flip-out');
-    requestAnimationFrame(() => requestAnimationFrame(() => { img.style.transform = ''; }));
-  }, 225);
-  document.getElementById('side-pill').classList.toggle('verso', index === 1);
-  document.getElementById('label-frente').classList.toggle('active', index === 0);
-  document.getElementById('label-verso').classList.toggle('active', index === 1);
+const img = document.getElementById('image-modal-img');
+if (currentImageIndex === index) return;
+img.classList.add('flip-out');
+setTimeout(() => {
+currentImageIndex = index;
+img.src = IMAGES[index];
+img.alt = index === 0 ? 'Carteirinha Unimed - Frente' : 'Carteirinha Unimed - Verso';
+img.style.transform = 'rotateY(90deg)';
+img.classList.remove('flip-out');
+requestAnimationFrame(() => requestAnimationFrame(() => { img.style.transform = ''; }));
+}, 225);
+document.getElementById('side-pill').classList.toggle('verso', index === 1);
+document.getElementById('label-frente').classList.toggle('active', index === 0);
+document.getElementById('label-verso').classList.toggle('active', index === 1);
 }
 function openImageModal() {
-  currentImageIndex = 0;
-  const img = document.getElementById('image-modal-img');
-  img.src = IMAGES[0]; img.alt = 'Carteirinha Unimed - Frente'; img.style.transform = '';
-  document.getElementById('side-pill').classList.remove('verso');
-  document.getElementById('label-frente').classList.add('active');
-  document.getElementById('label-verso').classList.remove('active');
-  document.getElementById('image-modal').classList.add('open');
+currentImageIndex = 0;
+const img = document.getElementById('image-modal-img');
+img.src = IMAGES[0]; img.alt = 'Carteirinha Unimed - Frente'; img.style.transform = '';
+document.getElementById('side-pill').classList.remove('verso');
+document.getElementById('label-frente').classList.add('active');
+document.getElementById('label-verso').classList.remove('active');
+document.getElementById('image-modal').classList.add('open');
 }
 function closeImageModal() { document.getElementById('image-modal').classList.remove('open'); }
 
 /* ── DETAIL ── */
 function openDetail(id) {
-  const c = consultas.find(x => x.id === id);
-  if (!c) return;
-  viewingId = id;
+const c = consultas.find(x => x.id === id);
+if (!c) return;
+viewingId = id;
 
-  document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
+document.getElementById('detail-header-title').textContent = formatDate(c.data) + (c.hora ? ' · ' + c.hora : '');
 
-  if (c.especialista && c.especialista.includes(' – ')) {
-    const pts = c.especialista.split(' – ');
-    document.getElementById('d-especialista').textContent = pts[0].toUpperCase() + ' – ' + pts[1].split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
-  } else {
-    document.getElementById('d-especialista').textContent = c.especialista ? c.especialista.toUpperCase() : '';
-  }
+if (c.especialista && c.especialista.includes(' – ')) {
+const pts = c.especialista.split(' – ');
+document.getElementById('d-especialista').textContent = pts[0].toUpperCase() + ' – ' + pts[1].split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase()).join(' ');
+} else {
+document.getElementById('d-especialista').textContent = c.especialista ? c.especialista.toUpperCase() : '';
+}
 
-  document.getElementById('d-titulo').textContent = c.titulo || c.tipo || 'Consulta';
-  document.getElementById('d-medico').textContent = c.medico ? '👨‍⚕️ ' + c.medico : '';
-  document.getElementById('d-data').textContent = formatDate(c.data) || '—';
-  document.getElementById('d-hora').textContent = c.hora || '—';
+document.getElementById('d-titulo').textContent = c.titulo || c.tipo || 'Consulta';
+document.getElementById('d-medico').textContent = c.medico ? '👨‍⚕️ ' + c.medico : '';
+document.getElementById('d-data').textContent = formatDate(c.data) || '—';
+document.getElementById('d-hora').textContent = c.hora || '—';
 
-  const chegadaCard = document.getElementById('d-chegada-card');
-  if (c.chegada) { chegadaCard.style.display = ''; document.getElementById('d-chegada').textContent = c.chegada + 'h'; }
-  else chegadaCard.style.display = 'none';
+const chegadaCard = document.getElementById('d-chegada-card');
+if (c.chegada) { chegadaCard.style.display = ''; document.getElementById('d-chegada').textContent = c.chegada + 'h'; }
+else chegadaCard.style.display = 'none';
 
-  const localCard = document.getElementById('d-local-card');
-  if (c.local) {
-    localCard.style.display = ''; document.getElementById('d-local').textContent = c.local;
-    const ml = document.getElementById('d-maps-link');
-    if (c.maps) { ml.style.display = 'flex'; ml.href = c.maps; } else ml.style.display = 'none';
-  } else localCard.style.display = 'none';
+const localCard = document.getElementById('d-local-card');
+if (c.local) {
+localCard.style.display = ''; document.getElementById('d-local').textContent = c.local;
+const ml = document.getElementById('d-maps-link');
+if (c.maps) { ml.style.display = 'flex'; ml.href = c.maps; } else ml.style.display = 'none';
+} else localCard.style.display = 'none';
 
-  const contatoCard = document.getElementById('d-contato-card');
-  if (c.contato) {
-    contatoCard.style.display = '';
-    const cl = document.getElementById('d-contato');
-    cl.textContent = c.contato; cl.href = 'tel:' + c.contato.replace(/\D/g,'');
-  } else contatoCard.style.display = 'none';
+const contatoCard = document.getElementById('d-contato-card');
+if (c.contato) {
+contatoCard.style.display = '';
+const cl = document.getElementById('d-contato');
+cl.textContent = c.contato; cl.href = 'tel:' + c.contato.replace(/\D/g,'');
+} else contatoCard.style.display = 'none';
 
-  const obsCard = document.getElementById('d-obs-card');
-  if (c.obs) { obsCard.style.display = ''; document.getElementById('d-obs').textContent = c.obs; }
-  else obsCard.style.display = 'none';
+const obsCard = document.getElementById('d-obs-card');
+if (c.obs) { obsCard.style.display = ''; document.getElementById('d-obs').textContent = c.obs; }
+else obsCard.style.display = 'none';
 
-  const tagsSection = document.getElementById('d-tags-section');
-  const tagsDiv = document.getElementById('d-tags');
-  if (c.tags && c.tags.length) {
-    tagsSection.style.display = '';
-    tagsDiv.innerHTML = c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="detail-tag" style="background:${i.bg};color:${i.color}">${i.label}</span>` : ''; }).join('');
-  } else tagsSection.style.display = 'none';
+const tagsSection = document.getElementById('d-tags-section');
+const tagsDiv = document.getElementById('d-tags');
+if (c.tags && c.tags.length) {
+tagsSection.style.display = '';
+tagsDiv.innerHTML = c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="detail-tag" style="background:${i.bg};color:${i.color}">${i.label}</span>` : ''; }).join('');
+} else tagsSection.style.display = 'none';
 
-  const currentStatus = cardStatus(c.data, c.status);
-  document.querySelectorAll('.status-btn').forEach(btn => {
-    btn.className = 'status-btn';
-    if (btn.dataset.status === currentStatus) btn.classList.add(`active-${currentStatus}`);
-  });
+const currentStatus = cardStatus(c.data, c.status);
+document.querySelectorAll('.status-btn').forEach(btn => {
+btn.className = 'status-btn';
+if (btn.dataset.status === currentStatus) btn.classList.add(`active-${currentStatus}`);
+});
 
-  renderDetailResultado(c, currentStatus);
-  document.getElementById('detail-overlay').classList.add('open');
+renderDetailResultado(c, currentStatus);
+document.getElementById('detail-overlay').classList.add('open');
 }
 
 function renderDetailResultado(c, status) {
-  const sec = document.getElementById('d-resultado-section');
-  const content = document.getElementById('d-resultado-content');
-  const row = document.getElementById('detail-action-row');
+const sec = document.getElementById('d-resultado-section');
+const content = document.getElementById('d-resultado-content');
+const row = document.getElementById('detail-action-row');
 
-  if (status === 'past') {
-    sec.style.display = '';
-    if (hasResultado(c)) {
-      const r = c.resultado;
-      let html = '<div class="resultado-grid">';
-      if (r.diagnostico) html += `<div class="resultado-item"><div class="resultado-item-label">🔬 Diagnóstico</div><div class="resultado-item-value">${r.diagnostico}</div></div>`;
-      if (r.medicacao)   html += `<div class="resultado-item"><div class="resultado-item-label">💊 Medicação</div><div class="resultado-item-value">${r.medicacao}</div></div>`;
-      if (r.exames)      html += `<div class="resultado-item"><div class="resultado-item-label">📄 Exames solicitados</div><div class="resultado-item-value">${r.exames}</div></div>`;
-      if (r.retornoPrazo || r.retornoData) {
-        const txt = [r.retornoPrazo, r.retornoData ? formatDate(r.retornoData) : ''].filter(Boolean).join(' · ');
-        html += `<div class="resultado-item retorno">
-          <div class="resultado-item-label">📅 Retorno</div>
-          <div class="resultado-item-value">${txt}</div>
-          ${r.retornoData ? `<button class="btn-criar-retorno" onclick="criarRetorno()">📋 Criar nova consulta de retorno</button>` : ''}
-        </div>`;
-      }
-      html += '</div>';
-      content.innerHTML = html;
-    } else {
-      content.innerHTML = `<div class="resultado-vazio" onclick="openResultadoSheet()">
-        <span class="resultado-vazio-icon">📋</span>
-        <div class="resultado-vazio-text">
-          <div class="resultado-vazio-title">Registrar resultado</div>
-          <div class="resultado-vazio-sub">Diagnóstico, medicação, retorno e exames</div>
-        </div>
-      </div>`;
-    }
-  } else {
-    sec.style.display = 'none';
-  }
+if (status === 'past') {
+sec.style.display = '';
+if (hasResultado(c)) {
+const r = c.resultado;
+let html = '<div class="resultado-grid">';
+if (r.diagnostico) html += `<div class="resultado-item"><div class="resultado-item-label">🔬 Diagnóstico</div><div class="resultado-item-value">${r.diagnostico}</div></div>`;
+if (r.medicacao)   html += `<div class="resultado-item"><div class="resultado-item-label">💊 Medicação</div><div class="resultado-item-value">${r.medicacao}</div></div>`;
+if (r.exames)      html += `<div class="resultado-item"><div class="resultado-item-label">📄 Exames solicitados</div><div class="resultado-item-value">${r.exames}</div></div>`;
+if (r.retornoPrazo || r.retornoData) {
+const txt = [r.retornoPrazo, r.retornoData ? formatDate(r.retornoData) : ''].filter(Boolean).join(' · ');
+html += `<div class="resultado-item retorno">
+<div class="resultado-item-label">📅 Retorno</div>
+<div class="resultado-item-value">${txt}</div>
+${r.retornoData ? `<button class="btn-criar-retorno" onclick="criarRetorno()">📋 Criar nova consulta de retorno</button>` : ''}
+</div>`;
+}
+html += '</div>';
+content.innerHTML = html;
+} else {
+content.innerHTML = `<div class="resultado-vazio" onclick="openResultadoSheet()">
+<span class="resultado-vazio-icon">📋</span>
+<div class="resultado-vazio-text">
+<div class="resultado-vazio-title">Registrar resultado</div>
+<div class="resultado-vazio-sub">Diagnóstico, medicação, retorno e exames</div>
+</div>
+</div>`;
+}
+} else {
+sec.style.display = 'none';
+}
 
-  row.innerHTML = `
-    <button class="btn btn-secondary" id="detail-edit-btn">Editar</button>
-    <button class="btn btn-primary" id="detail-share-btn">Compartilhar</button>
-    <button class="btn btn-danger" id="detail-delete-btn">Excluir</button>
-  `;
-  document.getElementById('detail-edit-btn').addEventListener('click', () => { const id = viewingId; closeDetail(); openForm(id); });
-  document.getElementById('detail-share-btn').addEventListener('click', shareConsulta);
-  document.getElementById('detail-delete-btn').addEventListener('click', () => document.getElementById('confirm-overlay').classList.add('open'));
+row.innerHTML = `
+<button class="btn btn-secondary" id="detail-edit-btn">Editar</button>
+<button class="btn btn-primary" id="detail-share-btn">Compartilhar</button>
+<button class="btn btn-danger" id="detail-delete-btn">Excluir</button>
+`;
+document.getElementById('detail-edit-btn').addEventListener('click', () => { const id = viewingId; closeDetail(); openForm(id); });
+document.getElementById('detail-share-btn').addEventListener('click', shareConsulta);
+document.getElementById('detail-delete-btn').addEventListener('click', () => document.getElementById('confirm-overlay').classList.add('open'));
 
-  const btnER = document.getElementById('btn-edit-resultado');
-  if (btnER) btnER.addEventListener('click', openResultadoSheet);
+const btnER = document.getElementById('btn-edit-resultado');
+if (btnER) btnER.addEventListener('click', openResultadoSheet);
 }
 
 function closeDetail() {
-  document.getElementById('detail-overlay').classList.remove('open');
-  viewingId = null;
-  if (realizadasOpen) {
-    document.getElementById('list-view').style.display = 'none';
-    document.getElementById('realizadas-view').classList.add('active');
-    document.getElementById('fab-btn').style.display = 'none';
-  }
+document.getElementById('detail-overlay').classList.remove('open');
+viewingId = null;
+if (realizadasOpen) {
+document.getElementById('list-view').style.display = 'none';
+document.getElementById('realizadas-view').classList.add('active');
+document.getElementById('fab-btn').style.display = 'none';
+}
 }
 
 /* ── FORM ── */
 function openForm(id) {
-  editingId = id || null;
-  document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
-  const c = id ? consultas.find(x => x.id === id) : null;
-  document.getElementById('f-titulo').value     = c ? (c.titulo || c.tipo || '') : '';
-  document.getElementById('f-medico').value     = c ? (c.medico || '') : '';
-  document.getElementById('f-especialista').value = c ? c.especialista : '';
-  document.getElementById('f-data').value       = c ? c.data : today();
-  document.getElementById('f-hora').value       = c ? c.hora : '';
-  document.getElementById('f-chegada').value    = c ? c.chegada : '';
-  document.getElementById('f-local').value      = c ? c.local : '';
-  document.getElementById('f-maps').value       = c ? c.maps : '';
-  document.getElementById('f-contato').value    = c ? (c.contato || '') : '';
-  document.getElementById('f-obs').value        = c ? c.obs : '';
-  document.querySelectorAll('.chk-label').forEach(lbl => {
-    const inp = lbl.querySelector('input');
-    if (!inp) return;
-    const checked = c && c.tags && c.tags.includes(lbl.dataset.val);
-    inp.checked = checked; lbl.classList.toggle('checked', checked);
-  });
-  document.getElementById('form-overlay').classList.add('open');
+editingId = id || null;
+document.getElementById('form-title').textContent = id ? 'Editar consulta' : 'Nova consulta';
+const c = id ? consultas.find(x => x.id === id) : null;
+document.getElementById('f-titulo').value     = c ? (c.titulo || c.tipo || '') : '';
+document.getElementById('f-medico').value     = c ? (c.medico || '') : '';
+document.getElementById('f-especialista').value = c ? c.especialista : '';
+document.getElementById('f-data').value       = c ? c.data : today();
+document.getElementById('f-hora').value       = c ? c.hora : '';
+document.getElementById('f-chegada').value    = c ? c.chegada : '';
+document.getElementById('f-local').value      = c ? c.local : '';
+document.getElementById('f-maps').value       = c ? c.maps : '';
+document.getElementById('f-contato').value    = c ? (c.contato || '') : '';
+document.getElementById('f-obs').value        = c ? c.obs : '';
+document.querySelectorAll('.chk-label').forEach(lbl => {
+const inp = lbl.querySelector('input');
+if (!inp) return;
+const checked = c && c.tags && c.tags.includes(lbl.dataset.val);
+inp.checked = checked; lbl.classList.toggle('checked', checked);
+});
+document.getElementById('form-overlay').classList.add('open');
 }
 function closeForm() { document.getElementById('form-overlay').classList.remove('open'); editingId = null; }
 
 function saveForm() {
-  const titulo = document.getElementById('f-titulo').value.trim();
-  if (!titulo) { document.getElementById('f-titulo').focus(); return; }
-  const tags = [];
-  document.querySelectorAll('.chk-label').forEach(lbl => { if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val); });
-  const obj = {
-    id: editingId || genId(),
-    titulo,
-    medico:       document.getElementById('f-medico').value.trim(),
-    especialista: document.getElementById('f-especialista').value.trim(),
-    data:         document.getElementById('f-data').value,
-    hora:         document.getElementById('f-hora').value,
-    chegada:      document.getElementById('f-chegada').value,
-    local:        document.getElementById('f-local').value.trim(),
-    maps:         document.getElementById('f-maps').value.trim(),
-    contato:      document.getElementById('f-contato').value.trim(),
-    obs:          document.getElementById('f-obs').value.trim(),
-    tags,
-    criadoEm:    editingId ? (consultas.find(x=>x.id===editingId)||{}).criadoEm : new Date().toISOString(),
-    atualizadoEm: new Date().toISOString(),
-  };
-  if (editingId) {
-    const ex = consultas.find(x => x.id === editingId);
-    if (ex && ex.status) obj.status = ex.status;
-    if (ex && ex.resultado) obj.resultado = ex.resultado;
-  }
-  if (editingId) { const idx = consultas.findIndex(x => x.id === editingId); if (idx >= 0) consultas[idx] = obj; }
-  else consultas.push(obj);
-  save(); render(); closeForm();
-  if (editingId) openDetail(obj.id);
+const titulo = document.getElementById('f-titulo').value.trim();
+if (!titulo) { document.getElementById('f-titulo').focus(); return; }
+const tags = [];
+document.querySelectorAll('.chk-label').forEach(lbl => { if (lbl.querySelector('input') && lbl.querySelector('input').checked) tags.push(lbl.dataset.val); });
+const obj = {
+id: editingId || genId(),
+titulo,
+medico:       document.getElementById('f-medico').value.trim(),
+especialista: document.getElementById('f-especialista').value.trim(),
+data:         document.getElementById('f-data').value,
+hora:         document.getElementById('f-hora').value,
+chegada:      document.getElementById('f-chegada').value,
+local:        document.getElementById('f-local').value.trim(),
+maps:         document.getElementById('f-maps').value.trim(),
+contato:      document.getElementById('f-contato').value.trim(),
+obs:          document.getElementById('f-obs').value.trim(),
+tags,
+criadoEm:    editingId ? (consultas.find(x=>x.id===editingId)||{}).criadoEm : new Date().toISOString(),
+atualizadoEm: new Date().toISOString(),
+};
+if (editingId) {
+const ex = consultas.find(x => x.id === editingId);
+if (ex && ex.status) obj.status = ex.status;
+if (ex && ex.resultado) obj.resultado = ex.resultado;
+}
+if (editingId) { const idx = consultas.findIndex(x => x.id === editingId); if (idx >= 0) consultas[idx] = obj; }
+else consultas.push(obj);
+save(); render(); closeForm();
+if (editingId) openDetail(obj.id);
 }
 
 function deleteConsulta(id) { consultas = consultas.filter(x => x.id !== id); save(); render(); closeDetail(); }
 
 function updateStatus(status) {
-  if (!viewingId) return;
-  const c = consultas.find(x => x.id === viewingId);
-  if (!c) return;
-  const autoStatus = cardStatus(c.data, null);
-  if (status === autoStatus) delete c.status;
-  else c.status = status;
-  c.atualizadoEm = new Date().toISOString();
-  save(); render();
+if (!viewingId) return;
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+const autoStatus = cardStatus(c.data, null);
+if (status === autoStatus) delete c.status;
+else c.status = status;
+c.atualizadoEm = new Date().toISOString();
+save(); render();
 
-  const nowPast = cardStatus(c.data, c.status) === 'past';
+const nowPast = cardStatus(c.data, c.status) === 'past';
 
-  if (nowPast && !hasResultado(c)) {
-    openDetail(viewingId);
-    setTimeout(() => document.getElementById('registrar-prompt-overlay').classList.add('open'), 350);
-    return;
-  }
+if (nowPast && !hasResultado(c)) {
+openDetail(viewingId);
+setTimeout(() => document.getElementById('registrar-prompt-overlay').classList.add('open'), 350);
+return;
+}
 
-  if (realizadasOpen && !nowPast) realizadasOpen = false;
-  if (!realizadasOpen && nowPast) { closeDetail(); return; }
-  openDetail(viewingId);
+if (realizadasOpen && !nowPast) realizadasOpen = false;
+if (!realizadasOpen && nowPast) { closeDetail(); return; }
+openDetail(viewingId);
 }
 
 /* ── RESULTADO SHEET ── */
 function openResultadoSheet() {
-  const c = consultas.find(x => x.id === viewingId);
-  if (!c) return;
-  const r = c.resultado || {};
-  document.getElementById('r-diagnostico').value   = r.diagnostico   || '';
-  document.getElementById('r-medicacao').value     = r.medicacao     || '';
-  document.getElementById('r-retorno-prazo').value = r.retornoPrazo  || '';
-  document.getElementById('r-retorno-data').value  = r.retornoData   || '';
-  document.getElementById('r-exames').value        = r.exames        || '';
-  document.getElementById('resultado-overlay').classList.add('open');
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+const r = c.resultado || {};
+document.getElementById('r-diagnostico').value   = r.diagnostico   || '';
+document.getElementById('r-medicacao').value     = r.medicacao     || '';
+document.getElementById('r-retorno-prazo').value = r.retornoPrazo  || '';
+document.getElementById('r-retorno-data').value  = r.retornoData   || '';
+document.getElementById('r-exames').value        = r.exames        || '';
+document.getElementById('resultado-overlay').classList.add('open');
 }
 function closeResultadoSheet() { document.getElementById('resultado-overlay').classList.remove('open'); }
 
 function saveResultado() {
-  const c = consultas.find(x => x.id === viewingId);
-  if (!c) return;
-  c.resultado = {
-    diagnostico:  document.getElementById('r-diagnostico').value.trim(),
-    medicacao:    document.getElementById('r-medicacao').value.trim(),
-    retornoPrazo: document.getElementById('r-retorno-prazo').value.trim(),
-    retornoData:  document.getElementById('r-retorno-data').value,
-    exames:       document.getElementById('r-exames').value.trim(),
-  };
-  c.atualizadoEm = new Date().toISOString();
-  save(); render();
-  closeResultadoSheet();
-  openDetail(viewingId);
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+c.resultado = {
+diagnostico:  document.getElementById('r-diagnostico').value.trim(),
+medicacao:    document.getElementById('r-medicacao').value.trim(),
+retornoPrazo: document.getElementById('r-retorno-prazo').value.trim(),
+retornoData:  document.getElementById('r-retorno-data').value,
+exames:       document.getElementById('r-exames').value.trim(),
+};
+c.atualizadoEm = new Date().toISOString();
+save(); render();
+closeResultadoSheet();
+openDetail(viewingId);
 }
 
 function criarRetorno() {
-  const c = consultas.find(x => x.id === viewingId);
-  if (!c) return;
-  closeDetail();
-  const r = c.resultado || {};
-  editingId = null;
-  document.getElementById('form-title').textContent = 'Nova consulta de retorno';
-  document.getElementById('f-titulo').value     = 'Retorno – ' + (c.titulo || 'Consulta');
-  document.getElementById('f-medico').value     = c.medico || '';
-  document.getElementById('f-especialista').value = c.especialista || '';
-  document.getElementById('f-data').value       = r.retornoData || today();
-  document.getElementById('f-hora').value       = '';
-  document.getElementById('f-chegada').value    = '';
-  document.getElementById('f-local').value      = c.local || '';
-  document.getElementById('f-maps').value       = c.maps || '';
-  document.getElementById('f-contato').value    = c.contato || '';
-  document.getElementById('f-obs').value        = r.retornoPrazo ? `Retorno de ${r.retornoPrazo}` : '';
-  document.querySelectorAll('.chk-label').forEach(lbl => { lbl.querySelector('input').checked = false; lbl.classList.remove('checked'); });
-  document.getElementById('form-overlay').classList.add('open');
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+closeDetail();
+const r = c.resultado || {};
+editingId = null;
+document.getElementById('form-title').textContent = 'Nova consulta de retorno';
+document.getElementById('f-titulo').value     = 'Retorno – ' + (c.titulo || 'Consulta');
+document.getElementById('f-medico').value     = c.medico || '';
+document.getElementById('f-especialista').value = c.especialista || '';
+document.getElementById('f-data').value       = r.retornoData || today();
+document.getElementById('f-hora').value       = '';
+document.getElementById('f-chegada').value    = '';
+document.getElementById('f-local').value      = c.local || '';
+document.getElementById('f-maps').value       = c.maps || '';
+document.getElementById('f-contato').value    = c.contato || '';
+document.getElementById('f-obs').value        = r.retornoPrazo ? `Retorno de ${r.retornoPrazo}` : '';
+document.querySelectorAll('.chk-label').forEach(lbl => { lbl.querySelector('input').checked = false; lbl.classList.remove('checked'); });
+document.getElementById('form-overlay').classList.add('open');
 }
 
 /* ── BACKUP ── */
 function exportData() {
-  if (consultas.length === 0) { showToast('toast-error', 'Nenhuma consulta para exportar.'); return; }
-  try {
-    const exp = consultas.map(c => ({ ...c, status: cardStatus(c.data, c.status), atualizadoEm: new Date().toISOString(), tipo: c.tipo || c.titulo || '' }));
-    const blob = new Blob([JSON.stringify({ versao: '2.0', exportadoEm: new Date().toISOString(), total: exp.length, consultas: exp }, null, 2)], { type: 'application/json;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    const d = new Date();
-    a.download = `consultas_${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(2)}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 5000);
-    showToast('toast-export', `Exportadas ${consultas.length} consultas com status preservado.`);
-  } catch(err) { showToast('toast-error', 'Erro ao exportar: ' + err.message); }
+if (consultas.length === 0) { showToast('toast-error', 'Nenhuma consulta para exportar.'); return; }
+try {
+const exp = consultas.map(c => ({ ...c, status: cardStatus(c.data, c.status), atualizadoEm: new Date().toISOString(), tipo: c.tipo || c.titulo || '' }));
+const blob = new Blob([JSON.stringify({ versao: '2.0', exportadoEm: new Date().toISOString(), total: exp.length, consultas: exp }, null, 2)], { type: 'application/json;charset=utf-8' });
+const url = URL.createObjectURL(blob);
+const a = document.createElement('a'); a.href = url;
+const d = new Date();
+a.download = `consultas_${String(d.getDate()).padStart(2,'0')}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(2)}.json`;
+document.body.appendChild(a); a.click(); document.body.removeChild(a);
+setTimeout(() => URL.revokeObjectURL(url), 5000);
+showToast('toast-export', `Exportadas ${consultas.length} consultas com status preservado.`);
+} catch(err) { showToast('toast-error', 'Erro ao exportar: ' + err.message); }
 }
 
 function importData(file) {
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    try {
-      let raw; try { raw = JSON.parse(e.target.result); } catch { showToast('toast-error', 'Arquivo inválido. Não é um JSON válido.'); return; }
-      let dados = [];
-      if (Array.isArray(raw)) dados = raw;
-      else if (raw.consultas && Array.isArray(raw.consultas)) dados = raw.consultas;
-      else if (raw.data && Array.isArray(raw.data)) dados = raw.data;
-      else if (raw.id && raw.data) dados = [raw];
-      else { showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.'); return; }
-      if (!dados.length) { showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.'); return; }
-      const importadas = dados.filter(c => c && typeof c === 'object' && c.id && c.data).map(c => ({
-        id: c.id, titulo: c.titulo || c.tipo || c.nome || 'Consulta',
-        medico: c.medico || '', especialista: c.especialista || '',
-        data: c.data, hora: c.hora || '', chegada: c.chegada || '',
-        local: c.local || '', maps: c.maps || '', contato: c.contato || '',
-        obs: c.obs || '', tags: Array.isArray(c.tags) ? c.tags : [],
-        status: c.status || null, resultado: c.resultado || null,
-        criadoEm: c.criadoEm || new Date().toISOString(),
-        atualizadoEm: new Date().toISOString(), tipo: c.tipo || c.titulo || ''
-      })).filter(c => c.data);
-      if (!importadas.length) { showToast('toast-error', 'Nenhuma consulta válida encontrada.'); return; }
-      const rc = importadas.filter(c => c.status === 'past').length;
-      const ac = importadas.length - rc;
-      pendingImportData = importadas;
-      showChoice(`Encontradas ${importadas.length} consulta${importadas.length > 1 ? 's' : ''}\n📅 ${ac} agendada${ac !== 1 ? 's' : ''} | 🩺 ${rc} realizada${rc !== 1 ? 's' : ''}\n\nComo deseja proceder?`);
-    } catch(err) { showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message); }
-  };
-  reader.onerror = () => showToast('toast-error', 'Erro ao ler o arquivo.');
-  reader.readAsText(file);
+const reader = new FileReader();
+reader.onload = (e) => {
+try {
+let raw; try { raw = JSON.parse(e.target.result); } catch { showToast('toast-error', 'Arquivo inválido. Não é um JSON válido.'); return; }
+let dados = [];
+if (Array.isArray(raw)) dados = raw;
+else if (raw.consultas && Array.isArray(raw.consultas)) dados = raw.consultas;
+else if (raw.data && Array.isArray(raw.data)) dados = raw.data;
+else if (raw.id && raw.data) dados = [raw];
+else { showToast('toast-error', 'Formato inválido. O arquivo não contém uma lista de consultas.'); return; }
+if (!dados.length) { showToast('toast-error', 'Nenhuma consulta encontrada no arquivo.'); return; }
+const importadas = dados.filter(c => c && typeof c === 'object' && c.id && c.data).map(c => ({
+id: c.id, titulo: c.titulo || c.tipo || c.nome || 'Consulta',
+medico: c.medico || '', especialista: c.especialista || '',
+data: c.data, hora: c.hora || '', chegada: c.chegada || '',
+local: c.local || '', maps: c.maps || '', contato: c.contato || '',
+obs: c.obs || '', tags: Array.isArray(c.tags) ? c.tags : [],
+status: c.status || null, resultado: c.resultado || null,
+criadoEm: c.criadoEm || new Date().toISOString(),
+atualizadoEm: new Date().toISOString(), tipo: c.tipo || c.titulo || ''
+})).filter(c => c.data);
+if (!importadas.length) { showToast('toast-error', 'Nenhuma consulta válida encontrada.'); return; }
+const rc = importadas.filter(c => c.status === 'past').length;
+const ac = importadas.length - rc;
+pendingImportData = importadas;
+showChoice(`Encontradas ${importadas.length} consulta${importadas.length > 1 ? 's' : ''}\n📅 ${ac} agendada${ac !== 1 ? 's' : ''} | 🩺 ${rc} realizada${rc !== 1 ? 's' : ''}\n\nComo deseja proceder?`);
+} catch(err) { showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message); }
+};
+reader.onerror = () => showToast('toast-error', 'Erro ao ler o arquivo.');
+reader.readAsText(file);
 }
 
 function processImport(choice) {
-  if (!pendingImportData || !pendingImportData.length) { showToast('toast-error', 'Nenhum dado para importar.'); hideChoice(); return; }
-  try {
-    if (choice === 'replace') {
-      consultas = JSON.parse(JSON.stringify(pendingImportData));
-      save(); render(); hideChoice(); pendingImportData = null;
-      if (realizadasOpen) closeRealizadas();
-      showToast('toast-import', `Substituídas por ${consultas.length} consultas.`);
-    } else {
-      let imp = 0, upd = 0;
-      pendingImportData.forEach(c => {
-        const idx = consultas.findIndex(ex => ex.id === c.id);
-        if (idx !== -1) { consultas[idx] = { ...c, criadoEm: consultas[idx].criadoEm || c.criadoEm, atualizadoEm: new Date().toISOString() }; upd++; }
-        else { consultas.push({ ...c, atualizadoEm: new Date().toISOString() }); imp++; }
-      });
-      save(); render(); hideChoice(); pendingImportData = null;
-      if (realizadasOpen) closeRealizadas();
-      showToast('toast-import', `${imp} nova${imp !== 1 ? 's' : ''} importada${imp !== 1 ? 's' : ''}, ${upd} atualizada${upd !== 1 ? 's' : ''}. Total: ${consultas.length}.`);
-    }
-  } catch(err) { showToast('toast-error', 'Erro ao importar: ' + err.message); hideChoice(); pendingImportData = null; }
+if (!pendingImportData || !pendingImportData.length) { showToast('toast-error', 'Nenhum dado para importar.'); hideChoice(); return; }
+try {
+if (choice === 'replace') {
+consultas = JSON.parse(JSON.stringify(pendingImportData));
+save(); render(); hideChoice(); pendingImportData = null;
+if (realizadasOpen) closeRealizadas();
+showToast('toast-import', `Substituídas por ${consultas.length} consultas.`);
+} else {
+let imp = 0, upd = 0;
+pendingImportData.forEach(c => {
+const idx = consultas.findIndex(ex => ex.id === c.id);
+if (idx !== -1) { consultas[idx] = { ...c, criadoEm: consultas[idx].criadoEm || c.criadoEm, atualizadoEm: new Date().toISOString() }; upd++; }
+else { consultas.push({ ...c, atualizadoEm: new Date().toISOString() }); imp++; }
+});
+save(); render(); hideChoice(); pendingImportData = null;
+if (realizadasOpen) closeRealizadas();
+showToast('toast-import', `${imp} nova${imp !== 1 ? 's' : ''} importada${imp !== 1 ? 's' : ''}, ${upd} atualizada${upd !== 1 ? 's' : ''}. Total: ${consultas.length}.`);
+}
+} catch(err) { showToast('toast-error', 'Erro ao importar: ' + err.message); hideChoice(); pendingImportData = null; }
 }
 
 /* ── SHARE ── */
 function shareConsulta() {
-  const c = consultas.find(x => x.id === viewingId);
-  if (!c) return;
-  const titulo = c.titulo || c.tipo || 'Consulta';
-  const linhas = [titulo];
-  if (c.medico) linhas.push(c.medico);
-  const clinica = c.especialista ? c.especialista.split(' – ').pop().trim() : '';
-  const dataHora = c.data ? formatDate(c.data) + (c.hora ? ' às ' + c.hora : '') : '';
-  if (clinica && dataHora) linhas.push(clinica + ': ' + dataHora); else if (dataHora) linhas.push(dataHora);
-  if (c.chegada) linhas.push('Chegar às ' + c.chegada);
-  if (c.local || c.maps) { linhas.push(' '); if (c.local) linhas.push(c.local); if (c.maps) linhas.push(c.maps); }
-  if (c.tags && c.tags.length) { linhas.push(' '); linhas.push('Levar / Preparar:'); c.tags.forEach(t => { const i = TAG_LABELS[t]; if (i) linhas.push('- ' + i.label.replace(/^\S+\s/, '')); }); }
-  if (c.contato) linhas.push(' \nContato: ' + c.contato);
-  const texto = linhas.join('\n');
-  if (navigator.share) { navigator.share({ title: titulo, text: texto }).catch(() => {}); }
-  else { navigator.clipboard.writeText(texto).then(() => showToast('toast-export', 'Texto copiado!')).catch(() => showToast('toast-error', 'Não foi possível compartilhar.')); }
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+const titulo = c.titulo || c.tipo || 'Consulta';
+const linhas = [titulo];
+if (c.medico) linhas.push(c.medico);
+const clinica = c.especialista ? c.especialista.split(' – ').pop().trim() : '';
+const dataHora = c.data ? formatDate(c.data) + (c.hora ? ' às ' + c.hora : '') : '';
+if (clinica && dataHora) linhas.push(clinica + ': ' + dataHora); else if (dataHora) linhas.push(dataHora);
+if (c.chegada) linhas.push('Chegar às ' + c.chegada);
+if (c.local || c.maps) { linhas.push(' '); if (c.local) linhas.push(c.local); if (c.maps) linhas.push(c.maps); }
+if (c.tags && c.tags.length) { linhas.push(' '); linhas.push('Levar / Preparar:'); c.tags.forEach(t => { const i = TAG_LABELS[t]; if (i) linhas.push('- ' + i.label.replace(/^\S+\s/, '')); }); }
+if (c.contato) linhas.push(' \nContato: ' + c.contato);
+const texto = linhas.join('\n');
+if (navigator.share) { navigator.share({ title: titulo, text: texto }).catch(() => {}); }
+else { navigator.clipboard.writeText(texto).then(() => showToast('toast-export', 'Texto copiado!')).catch(() => showToast('toast-error', 'Não foi possível compartilhar.')); }
 }
 
 /* ── LEMBRETES ── */
 function getProximasConsultas(dias) {
-  const t = today();
-  const lim = new Date(); lim.setDate(lim.getDate() + dias);
-  const limStr = lim.toISOString().slice(0,10);
-  return consultas.filter(c => { const s = cardStatus(c.data, c.status); return (s === 'upcoming' || s === 'today') && c.data >= t && c.data <= limStr; })
-    .sort((a,b) => (a.data+(a.hora||'')).localeCompare(b.data+(b.hora||'')));
+const t = today();
+const lim = new Date(); lim.setDate(lim.getDate() + dias);
+const limStr = lim.toISOString().slice(0,10);
+return consultas.filter(c => { const s = cardStatus(c.data, c.status); return (s === 'upcoming' || s === 'today') && c.data >= t && c.data <= limStr; })
+.sort((a,b) => (a.data+(a.hora||'')).localeCompare(b.data+(b.hora||'')));
 }
 
 function checkReminder() {
-  const proximas = getProximasConsultas(3);
-  if (!proximas.length) return;
-  const banner = document.getElementById('reminder-banner');
-  const title  = document.getElementById('reminder-banner-title');
-  const text   = document.getElementById('reminder-banner-text');
-  const btn    = document.getElementById('reminder-banner-btn');
-  const p = proximas[0];
-  const t = today();
-  title.textContent = proximas.length === 1 ? (p.titulo || 'Consulta') : `${proximas.length} consultas`;
-  function fds(str) { if (!str) return ''; const [y,m,d] = str.split('-'); return `${d}/${m}/${y.slice(2)}`; }
-  const am = new Date(); am.setDate(am.getDate()+1);
-  const amStr = `${am.getFullYear()}-${String(am.getMonth()+1).padStart(2,'0')}-${String(am.getDate()).padStart(2,'0')}`;
-  let desc = p.data === t ? `Hoje ${fds(p.data)} às ${p.hora||'--:--'}` : p.data === amStr ? `Amanhã ${fds(p.data)} às ${p.hora||'--:--'}` : `${fds(p.data)} às ${p.hora||'--:--'}`;
-  if (p.medico) desc += ` com ${p.medico}`;
-  text.textContent = desc;
-  const perm = ('Notification' in window) ? Notification.permission : 'denied';
-  if (perm === 'granted') { btn.textContent = 'Ativo'; btn.style.background = 'var(--blue-600)'; btn.onclick = null; }
-  else if (perm === 'denied') { btn.style.display = 'none'; }
-  else { btn.textContent = 'Ativar'; btn.style.background = 'var(--blue-600)'; btn.onclick = requestNotificationPermission; }
-  banner.classList.add('visible');
+const proximas = getProximasConsultas(3);
+if (!proximas.length) return;
+const banner = document.getElementById('reminder-banner');
+const title  = document.getElementById('reminder-banner-title');
+const text   = document.getElementById('reminder-banner-text');
+const btn    = document.getElementById('reminder-banner-btn');
+const p = proximas[0];
+const t = today();
+title.textContent = proximas.length === 1 ? (p.titulo || 'Consulta') : `${proximas.length} consultas`;
+function fds(str) { if (!str) return ''; const [y,m,d] = str.split('-'); return `${d}/${m}/${y.slice(2)}`; }
+const am = new Date(); am.setDate(am.getDate()+1);
+const amStr = `${am.getFullYear()}-${String(am.getMonth()+1).padStart(2,'0')}-${String(am.getDate()).padStart(2,'0')}`;
+let desc = p.data === t ? `Hoje ${fds(p.data)} às ${p.hora||'--:--'}` : p.data === amStr ? `Amanhã ${fds(p.data)} às ${p.hora||'--:--'}` : `${fds(p.data)} às ${p.hora||'--:--'}`;
+if (p.medico) desc += ` com ${p.medico}`;
+text.textContent = desc;
+const perm = ('Notification' in window) ? Notification.permission : 'denied';
+if (perm === 'granted') { btn.textContent = 'Ativo'; btn.style.background = 'var(--blue-600)'; btn.onclick = null; }
+else if (perm === 'denied') { btn.style.display = 'none'; }
+else { btn.textContent = 'Ativar'; btn.style.background = 'var(--blue-600)'; btn.onclick = requestNotificationPermission; }
+banner.classList.add('visible');
 }
 
 async function requestNotificationPermission() {
-  if (!('Notification' in window)) return;
-  const r = await Notification.requestPermission();
-  if (r === 'granted') { scheduleNotifications(); checkReminder(); showToast('toast-import', 'Avisos ativados!'); }
-  else showToast('toast-error', 'Permissão negada. Ative nas configurações do navegador.');
+if (!('Notification' in window)) return;
+const r = await Notification.requestPermission();
+if (r === 'granted') { scheduleNotifications(); checkReminder(); showToast('toast-import', 'Avisos ativados!'); }
+else showToast('toast-error', 'Permissão negada. Ative nas configurações do navegador.');
 }
 
 function scheduleNotifications() {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  getProximasConsultas(30).forEach(c => {
-    if (!c.hora) return;
-    const [h,m] = c.hora.split(':').map(Number);
-    const dc = parseDate(c.data);
-    const vesp = new Date(dc); vesp.setDate(vesp.getDate()-1); vesp.setHours(20,0,0,0);
-    const ant  = new Date(dc); ant.setHours(h-2,m,0,0);
-    const now  = new Date();
-    if (vesp > now) setTimeout(() => new Notification('🩺 Consulta amanhã!', { body: `${c.titulo||'Consulta'} com ${c.medico||'médico'} às ${c.hora}`, icon: 'icons/icon-192.png', tag: `cv-${c.id}` }), vesp - now);
-    if (ant  > now) setTimeout(() => new Notification('⏰ Consulta em 2 horas!', { body: `${c.titulo||'Consulta'} com ${c.medico||'médico'} às ${c.hora}`, icon: 'icons/icon-192.png', tag: `ca-${c.id}` }), ant  - now);
-  });
+if (!('Notification' in window) || Notification.permission !== 'granted') return;
+getProximasConsultas(30).forEach(c => {
+if (!c.hora) return;
+const [h,m] = c.hora.split(':').map(Number);
+const dc = parseDate(c.data);
+const vesp = new Date(dc); vesp.setDate(vesp.getDate()-1); vesp.setHours(20,0,0,0);
+const ant  = new Date(dc); ant.setHours(h-2,m,0,0);
+const now  = new Date();
+if (vesp > now) setTimeout(() => new Notification('🩺 Consulta amanhã!', { body: `${c.titulo||'Consulta'} com ${c.medico||'médico'} às ${c.hora}`, icon: 'icons/icon-192.png', tag: `cv-${c.id}` }), vesp - now);
+if (ant  > now) setTimeout(() => new Notification('⏰ Consulta em 2 horas!', { body: `${c.titulo||'Consulta'} com ${c.medico||'médico'} às ${c.hora}`, icon: 'icons/icon-192.png', tag: `ca-${c.id}` }), ant  - now);
+});
 }
 
 /* ── EVENTS ── */
 document.getElementById('file-input').addEventListener('change', function() {
-  const f = this.files[0]; if (!f) return;
-  if (!f.name.toLowerCase().endsWith('.json')) { showToast('toast-error', 'Por favor, selecione um arquivo JSON.'); this.value = ''; return; }
-  importData(f); this.value = '';
+const f = this.files[0]; if (!f) return;
+if (!f.name.toLowerCase().endsWith('.json')) { showToast('toast-error', 'Por favor, selecione um arquivo JSON.'); this.value = ''; return; }
+importData(f); this.value = '';
 });
 
 document.getElementById('fab-btn').addEventListener('click', () => openForm());
@@ -1516,30 +1528,30 @@ document.getElementById('image-modal').addEventListener('click', e => { if (e.ta
 document.getElementById('form-overlay').addEventListener('click', e => { if (e.target === document.getElementById('form-overlay')) closeForm(); });
 
 document.querySelectorAll('.chk-label').forEach(lbl => {
-  lbl.addEventListener('click', () => { const inp = lbl.querySelector('input'); inp.checked = !inp.checked; lbl.classList.toggle('checked', inp.checked); });
+lbl.addEventListener('click', () => { const inp = lbl.querySelector('input'); inp.checked = !inp.checked; lbl.classList.toggle('checked', inp.checked); });
 });
 document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('click', () => updateStatus(btn.dataset.status)));
 
 document.getElementById('f-hora').addEventListener('change', e => {
-  const [h,m] = e.target.value.split(':').map(Number);
-  const tot = h * 60 + m - 30;
-  if (tot >= 0) document.getElementById('f-chegada').value = `${String(Math.floor(tot/60)).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
+const [h,m] = e.target.value.split(':').map(Number);
+const tot = h * 60 + m - 30;
+if (tot >= 0) document.getElementById('f-chegada').value = `${String(Math.floor(tot/60)).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
 });
 
 document.getElementById('reminder-banner-close').addEventListener('click', () => document.getElementById('reminder-banner').classList.remove('visible'));
 document.getElementById('btn-voltar-lista').addEventListener('click', closeRealizadas);
 document.getElementById('btn-clear-realizadas').addEventListener('click', () => {
-  deletingRealizadaId = null;
-  document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar realizadas?';
-  document.getElementById('confirm-realizadas-msg').textContent = 'Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.';
-  document.getElementById('confirm-realizadas-overlay').classList.add('open');
+deletingRealizadaId = null;
+document.getElementById('confirm-realizadas-titulo').textContent = 'Apagar realizadas?';
+document.getElementById('confirm-realizadas-msg').textContent = 'Todas as consultas realizadas serão excluídas. Esta ação não pode ser desfeita.';
+document.getElementById('confirm-realizadas-overlay').classList.add('open');
 });
 document.getElementById('confirm-realizadas-cancel').addEventListener('click', () => document.getElementById('confirm-realizadas-overlay').classList.remove('open'));
 document.getElementById('confirm-realizadas-ok').addEventListener('click', () => {
-  document.getElementById('confirm-realizadas-overlay').classList.remove('open');
-  if (deletingRealizadaId) { consultas = consultas.filter(x => x.id !== deletingRealizadaId); deletingRealizadaId = null; }
-  else { consultas = consultas.filter(c => cardStatus(c.data, c.status) !== 'past'); closeRealizadas(); }
-  save(); render();
+document.getElementById('confirm-realizadas-overlay').classList.remove('open');
+if (deletingRealizadaId) { consultas = consultas.filter(x => x.id !== deletingRealizadaId); deletingRealizadaId = null; }
+else { consultas = consultas.filter(c => cardStatus(c.data, c.status) !== 'past'); closeRealizadas(); }
+save(); render();
 });
 
 document.getElementById('confirm-cancel').addEventListener('click', () => document.getElementById('confirm-overlay').classList.remove('open'));
@@ -1562,12 +1574,12 @@ document.getElementById('resultado-overlay').addEventListener('click', e => { if
 
 document.getElementById('registrar-prompt-close').addEventListener('click', () => document.getElementById('registrar-prompt-overlay').classList.remove('open'));
 document.getElementById('registrar-prompt-skip').addEventListener('click', () => {
-  document.getElementById('registrar-prompt-overlay').classList.remove('open');
-  if (!realizadasOpen) closeDetail();
+document.getElementById('registrar-prompt-overlay').classList.remove('open');
+if (!realizadasOpen) closeDetail();
 });
 document.getElementById('registrar-prompt-ok').addEventListener('click', () => {
-  document.getElementById('registrar-prompt-overlay').classList.remove('open');
-  openResultadoSheet();
+document.getElementById('registrar-prompt-overlay').classList.remove('open');
+openResultadoSheet();
 });
 
 /* ── INIT ── */
