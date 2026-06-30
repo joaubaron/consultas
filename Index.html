@@ -75,7 +75,7 @@ box-shadow: 0 2px 16px rgba(12,68,124,0.3);
 .header-content { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; }
 .header-left h1 { font-size: var(--font-lg); font-weight: 700; letter-spacing: -0.01em; }
 .btn-unimed-header {
-background: none !important;
+background: transparent !important;
 border: none !important;
 padding: 0;
 cursor: pointer;
@@ -87,8 +87,6 @@ outline: none !important;
 -webkit-touch-callout: none;
 box-shadow: none !important;
 text-decoration: none;
--webkit-appearance: none;
-appearance: none;
 }
 
 .btn-unimed-header img {
@@ -650,9 +648,9 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 <header>
 <div class="header-content">
 <div class="header-left"><h1>🩺 Agenda Médica</h1></div>
-<button class="btn-unimed-header" onclick="openImageModal()">
+<div class="btn-unimed-header" role="button" tabindex="0" onclick="openImageModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openImageModal();}">
 <img src="unimed-1024.png" alt="Unimed">
-</button>
+</div>
 </div>
 </header>
 
