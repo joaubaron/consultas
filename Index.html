@@ -78,7 +78,16 @@ box-shadow: 0 2px 16px rgba(12,68,124,0.3);
 background: none; border: none; padding: 0; cursor: pointer; display: flex; align-items: center; flex-shrink: 0;
 outline: none; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none;
 }
-.btn-unimed-header img { height: 28px; width: auto; display: block; -webkit-user-drag: none; }
+.btn-unimed-header img {
+height: 28px;
+width: auto;
+display: block;
+-webkit-user-drag: none;
+-webkit-user-select: none;
+user-select: none;
+-webkit-touch-callout: none;
+pointer-events: none;
+}
 .btn-unimed-header:active { opacity: 1; }
 .btn-unimed-header:focus, .btn-unimed-header:focus-visible { outline: none; }
 
