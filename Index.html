@@ -539,8 +539,21 @@ display: flex; align-items: center; gap: 5px;
 .realizadas-actions { display: flex; gap: 0.5rem; align-items: center; }
 .realizadas-empty { text-align: center; padding: 3.5rem 2rem; color: var(--gray-400); }
 .realizadas-empty .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
-.realizadas-empty h2 { font-size: var(--font-md); font-weight: 600; color: var(--gray-600); }
-.realizadas-empty p { font-size: var(--font-sm); margin-top: 0.4rem; }
+.realizadas-empty h2 { 
+    font-size: var(--font-md); 
+    font-weight: 600; 
+    color: var(--gray-600);
+    list-style: none;
+}
+
+.realizadas-empty h2::before {
+    content: "📋 ";
+}
+
+.realizadas-empty p { 
+    font-size: var(--font-sm); 
+    margin-top: 0.4rem; 
+}
 
 #confirm-realizadas-overlay {
 display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 500;
@@ -685,7 +698,6 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 </div>
 <div id="realizadas-list" class="list" style="padding-top:0.25rem"></div>
 <div id="realizadas-empty" class="realizadas-empty" style="display:none">
-<div class="icon">📋</div>
 <h2>Nenhuma consulta realizada</h2>
 <p>Consultas marcadas como realizadas aparecerão aqui</p>
 </div>
