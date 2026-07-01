@@ -1,4 +1,4 @@
-const CACHE_VERSION = '01.07.2026-1202';
+const CACHE_VERSION = '01.07.2026-1231';
 const CACHE_NAME = `consultas-${CACHE_VERSION}`;
 
 const CACHE = CACHE_NAME;
@@ -26,6 +26,7 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   e.respondWith(
-    caches.match(e.request).then(r => r || fetch(e.request))
+    fetch(e.request)
+      .catch(() => caches.match(e.request))
   );
 });
