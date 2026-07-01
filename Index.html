@@ -1626,7 +1626,7 @@ document.getElementById('registrar-prompt-overlay').classList.remove('open');
 openResultadoSheet();
 });
 
-/* ── INIT ── */
+/* ─ INIT ─ */
 load(); render(); checkReminder();
 if ('Notification' in window && Notification.permission === 'granted') scheduleNotifications();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
