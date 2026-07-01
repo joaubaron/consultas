@@ -544,16 +544,16 @@ display: flex; align-items: center; gap: 5px;
 .realizadas-actions { display: flex; gap: 0.5rem; align-items: center; }
 .realizadas-empty { text-align: center; padding: 3.5rem 2rem; color: var(--gray-400); }
 .realizadas-empty .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
-.realizadas-empty h2 { 
-    font-size: var(--font-md); 
-    font-weight: 600; 
+.realizadas-empty h2 {
+    font-size: var(--font-md);
+    font-weight: 600;
     color: var(--gray-600);
     list-style: none;
 }
 
-.realizadas-empty p { 
-    font-size: var(--font-sm); 
-    margin-top: 0.4rem; 
+.realizadas-empty p {
+    font-size: var(--font-sm);
+    margin-top: 0.4rem;
 }
 
 #confirm-realizadas-overlay {
@@ -699,7 +699,8 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 </div>
 <div id="realizadas-list" class="list" style="padding-top:0.25rem"></div>
 <div id="realizadas-empty" class="realizadas-empty" style="display:none">
-<h2>📋 Nenhuma consulta realizada</h2>
+<div class="icon">📋</div>
+<h2>Nenhuma consulta realizada</h2>
 <p>Consultas marcadas como realizadas aparecerão aqui</p>
 </div>
 </div>
@@ -959,8 +960,8 @@ function hideChoice() { document.getElementById('choice-overlay').classList.remo
 
 /* ── DATA ── */
 function load() {
-try { 
-const r = localStorage.getItem(STORAGE_KEY); 
+try {
+const r = localStorage.getItem(STORAGE_KEY);
 consultas = r ? JSON.parse(r) : [];
 
 // LIMPA STATUS INVÁLIDOS
@@ -1222,7 +1223,7 @@ const tagsSection = document.getElementById('d-tags-section');
 const tagsDiv = document.getElementById('d-tags');
 if (c.tags && c.tags.length) {
 tagsSection.style.display = '';
-tagsDiv.innerHTML = c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="detail-tag" style="background:${i.bg};color:${i.color}">${i.label}</span>` : ''; }).join('');
+tagsDiv.innerHTML = c.tags.map(t => { const i = TAG_LABELS[t]; return i ? `<span class="detail-tag" style="background:${i.bg};color:${i.color}">${i.label}</span>` : ''; }).join(' ');
 } else tagsSection.style.display = 'none';
 
 const currentStatus = cardStatus(c.data, c.status);
