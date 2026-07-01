@@ -1,4 +1,4 @@
-const CACHE_VERSION = '01.07.2026-1530';
+const CACHE_VERSION = '01.07.2026-1532';
 const CACHE_NAME = `consultas-${CACHE_VERSION}`;
 
 const CACHE = CACHE_NAME;
@@ -7,7 +7,7 @@ const FILES = [
   'manifest.json',
   'icone192.png',
   'icone512.png',
-  'unimed-1024.png',
+  'unimed.png',
   'unimed1.webp',
   'unimed2.webp'
 ];
