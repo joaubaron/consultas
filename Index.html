@@ -1579,7 +1579,8 @@ document.querySelectorAll('.status-btn').forEach(btn => btn.addEventListener('cl
 
 document.getElementById('f-hora').addEventListener('change', e => {
 const [h,m] = e.target.value.split(':').map(Number);
-const tot = h * 60 + m - 15;
+// Para 20 minutos
+const tot = h * 60 + m - 20;
 if (tot >= 0) document.getElementById('f-chegada').value = `${String(Math.floor(tot/60)).padStart(2,'0')}:${String(tot%60).padStart(2,'0')}`;
 });
 
