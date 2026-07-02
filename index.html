@@ -761,9 +761,7 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 <div class="detail-grid">
 <div class="detail-card blue"><div class="detail-card-label">Data</div><div class="detail-card-value" id="d-data"></div></div>
 <div class="detail-card blue"><div class="detail-card-label">Consulta às</div><div class="detail-card-value" id="d-hora"></div></div>
-<div class="detail-card full" id="d-gcal-card">
-<a class="maps-btn" id="d-gcal-link" href="#" target="_blank" rel="noopener" style="background:var(--teal-600)">📅 Adicionar ao Google Calendar</a>
-</div>
+
 <div class="detail-card teal full" id="d-chegada-card" style="display:none">
 <div class="detail-card-chegada-row">
 <span class="detail-card-label" style="margin-bottom:0">⏱️ Chegar às</span>
@@ -1159,7 +1157,10 @@ card.innerHTML = `
 <div class="card-stripe ${stripeClass}"></div>
 <div class="card-body">
 <div class="card-top-row">
-<span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
+<span class="card-data" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+  ${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}
+  ${c.data ? `<a href="${buildGCalUrl(c)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:0.65rem;font-weight:600;color:var(--teal-600);text-decoration:none;background:var(--teal-50);padding:2px 8px;border-radius:100px;border:1px solid #9FE1CB;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">📅 Google</a>` : ''}
+</span>
 <span class="card-status-badge ${status}">${statusLabels[status]}</span>
 ${resultadoBadge}
 </div>
@@ -1288,10 +1289,6 @@ contatoCard.style.display = '';
 const cl = document.getElementById('d-contato');
 cl.textContent = c.contato; cl.href = 'tel:' + c.contato.replace(/\D/g,'');
 } else contatoCard.style.display = 'none';
-
-const gcalCard = document.getElementById('d-gcal-card');
-if (c.data) { gcalCard.style.display = ''; document.getElementById('d-gcal-link').href = buildGCalUrl(c); }
-else gcalCard.style.display = 'none';
 
 const obsCard = document.getElementById('d-obs-card');
 if (c.obs) { obsCard.style.display = ''; document.getElementById('d-obs').textContent = c.obs; }
