@@ -1705,6 +1705,14 @@ openResultadoSheet();
 load(); render(); checkReminder();
 if ('Notification' in window && Notification.permission === 'granted') scheduleNotifications();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+/* Reagenda os lembretes toda vez que o app volta a ficar visível (reabriu o PWA, voltou de outra aba),
+   não só no load inicial — cobre o caso de timers perdidos enquanto o app estava fechado/em segundo plano. */
+document.addEventListener('visibilitychange', () => {
+if (document.visibilityState !== 'visible') return;
+checkReminder();
+if ('Notification' in window && Notification.permission === 'granted') scheduleNotifications();
+});
 </script>
 </body>
 </html>
