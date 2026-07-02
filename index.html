@@ -761,7 +761,9 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 <div class="detail-grid">
 <div class="detail-card blue"><div class="detail-card-label">Data</div><div class="detail-card-value" id="d-data"></div></div>
 <div class="detail-card blue"><div class="detail-card-label">Consulta às</div><div class="detail-card-value" id="d-hora"></div></div>
-
+<div class="detail-card full" id="d-gcal-card">
+<a class="maps-btn" id="d-gcal-link" href="#" target="_blank" rel="noopener" style="background:var(--teal-600)">📅 Adicionar ao Google Calendar</a>
+</div>
 <div class="detail-card teal full" id="d-chegada-card" style="display:none">
 <div class="detail-card-chegada-row">
 <span class="detail-card-label" style="margin-bottom:0">⏱️ Chegar às</span>
@@ -1156,13 +1158,11 @@ const resultadoBadge = status === 'past' && hasResultado(c) ? `<span class="card
 card.innerHTML = `
 <div class="card-stripe ${stripeClass}"></div>
 <div class="card-body">
-<div class="card-top-row" style="display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap; margin-bottom:0.55rem;">
+<div class="card-top-row">
 <span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
-${status === 'today' ? `<span class="card-status-badge today" style="font-size:var(--font-xs);font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);white-space:nowrap;letter-spacing:0.03em;border:1.5px solid #9FE1CB;background:var(--teal-50);color:var(--teal-600);">🔔 Hoje</span>` : `<span class="card-status-badge ${status}">${statusLabels[status]}</span>`}
-${c.data ? `<span onclick="event.stopPropagation();window.open('${buildGCalUrl(c)}','_blank')" style="font-size:var(--font-xs);font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);background:var(--teal-50);color:var(--teal-600);border:1.5px solid #9FE1CB;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;cursor:pointer;">📅 + Google</span>` : ''}
+<span class="card-status-badge ${status}">${statusLabels[status]}</span>
 ${resultadoBadge}
 </div>
-
 <div class="card-title">${titulo}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
 ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
 <div class="card-meta">
