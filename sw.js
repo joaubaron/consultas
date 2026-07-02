@@ -1,4 +1,4 @@
-const CACHE_VERSION = '02.07.2026-1134';
+const CACHE_VERSION = '02.07.2026-1206';
 const CACHE_NAME = `consultas-${CACHE_VERSION}`;
 
 const CACHE = CACHE_NAME;
