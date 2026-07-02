@@ -1135,7 +1135,7 @@ const card = document.createElement('div');
 card.className = 'card';
 card.dataset.id = c.id;
 const stripeClass = status === 'today' ? 'today-stripe' : status === 'upcoming' ? 'upcoming' : 'past-stripe';
-const statusLabels = { upcoming: '📅 Agendada', today: '🔔 Hoje', past: '🩺 Realizada' };
+const statusLabels = { upcoming: '🕒 Agendada', today: '🔔 Hoje', past: '🩺 Realizada' };
 const titulo = c.titulo || c.tipo || 'Consulta';
 
 function diasRestantes(ds) {
@@ -1551,7 +1551,7 @@ if (!importadas.length) { showToast('toast-error', 'Nenhuma consulta válida enc
 const rc = importadas.filter(c => c.status === 'past').length;
 const ac = importadas.length - rc;
 pendingImportData = importadas;
-showChoice(`Encontradas ${importadas.length} consulta${importadas.length > 1 ? 's' : ''}\n📅 ${ac} agendada${ac !== 1 ? 's' : ''} | 🩺 ${rc} realizada${rc !== 1 ? 's' : ''}\n\nComo deseja proceder?`);
+showChoice(`Encontradas ${importadas.length} consulta${importadas.length > 1 ? 's' : ''}\n🕒 ${ac} agendada${ac !== 1 ? 's' : ''} | 🩺 ${rc} realizada${rc !== 1 ? 's' : ''}\n\nComo deseja proceder?`);
 } catch(err) { showToast('toast-error', 'Erro ao processar o arquivo: ' + err.message); }
 };
 reader.onerror = () => showToast('toast-error', 'Erro ao ler o arquivo.');
