@@ -761,6 +761,9 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 <div class="detail-grid">
 <div class="detail-card blue"><div class="detail-card-label">Data</div><div class="detail-card-value" id="d-data"></div></div>
 <div class="detail-card blue"><div class="detail-card-label">Consulta às</div><div class="detail-card-value" id="d-hora"></div></div>
+<div class="detail-card full" id="d-gcal-card">
+<a class="maps-btn" id="d-gcal-link" href="#" target="_blank" rel="noopener" style="background:var(--teal-600)">📅 Adicionar ao Google Calendar</a>
+</div>
 <div class="detail-card teal full" id="d-chegada-card" style="display:none">
 <div class="detail-card-chegada-row">
 <span class="detail-card-label" style="margin-bottom:0">⏱️ Chegar às</span>
@@ -1224,6 +1227,31 @@ setTimeout(() => modal.classList.remove('open'), 180);
 }
 
 /* ── DETAIL ── */
+function buildGCalUrl(c) {
+const [y,m,d] = c.data.split('-').map(Number);
+let h = 9, min = 0;
+if (c.hora) { const p = c.hora.split(':').map(Number); h = p[0]; min = p[1]; }
+const pad = n => String(n).padStart(2,'0');
+const start = `${y}${pad(m)}${pad(d)}T${pad(h)}${pad(min)}00`;
+const endDate = new Date(y, m-1, d, h, min); endDate.setHours(endDate.getHours()+1);
+const end = `${endDate.getFullYear()}${pad(endDate.getMonth()+1)}${pad(endDate.getDate())}T${pad(endDate.getHours())}${pad(endDate.getMinutes())}00`;
+const titulo = c.titulo || c.tipo || 'Consulta';
+const detalhesPartes = [];
+if (c.medico) detalhesPartes.push(`Médico: ${c.medico}`);
+if (c.especialista) detalhesPartes.push(c.especialista);
+if (c.contato) detalhesPartes.push(`Contato: ${c.contato}`);
+if (c.obs) detalhesPartes.push(c.obs);
+const params = new URLSearchParams({
+action: 'TEMPLATE',
+text: titulo,
+dates: `${start}/${end}`,
+details: detalhesPartes.join('\n'),
+location: c.local || '',
+ctz: 'America/Sao_Paulo'
+});
+return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
 function openDetail(id) {
 const c = consultas.find(x => x.id === id);
 if (!c) return;
@@ -1260,6 +1288,10 @@ contatoCard.style.display = '';
 const cl = document.getElementById('d-contato');
 cl.textContent = c.contato; cl.href = 'tel:' + c.contato.replace(/\D/g,'');
 } else contatoCard.style.display = 'none';
+
+const gcalCard = document.getElementById('d-gcal-card');
+if (c.data) { gcalCard.style.display = ''; document.getElementById('d-gcal-link').href = buildGCalUrl(c); }
+else gcalCard.style.display = 'none';
 
 const obsCard = document.getElementById('d-obs-card');
 if (c.obs) { obsCard.style.display = ''; document.getElementById('d-obs').textContent = c.obs; }
