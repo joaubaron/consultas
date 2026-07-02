@@ -1157,13 +1157,12 @@ card.innerHTML = `
 <div class="card-stripe ${stripeClass}"></div>
 <div class="card-body">
 <div class="card-top-row">
-<span class="card-data" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-  ${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}
-  ${c.data ? `<a href="${buildGCalUrl(c)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:0.65rem;font-weight:600;color:var(--teal-600);text-decoration:none;background:var(--teal-50);padding:2px 8px;border-radius:100px;border:1px solid #9FE1CB;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">📅 Google</a>` : ''}
-</span>
+<span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
+${c.data ? `<a href="${buildGCalUrl(c)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:0.65rem;font-weight:600;color:var(--teal-600);text-decoration:none;background:var(--teal-50);padding:2px 8px;border-radius:100px;border:1px solid #9FE1CB;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">📅 + Google</a>` : ''}
 <span class="card-status-badge ${status}">${statusLabels[status]}</span>
 ${resultadoBadge}
 </div>
+
 <div class="card-title">${titulo}${c.medico ? ` <span style="color:var(--blue-600);font-weight:600">com ${c.medico}</span>` : ''}</div>
 ${c.especialista ? `<div class="card-especialista">${c.especialista}</div>` : ''}
 <div class="card-meta">
