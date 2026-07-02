@@ -66,7 +66,7 @@ min-height: 100dvh;
 -webkit-font-smoothing: antialiased;
 }
 
-/*  HEADER  */
+/* HEADER */
 header {
 background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-600) 100%);
 color: white;
@@ -872,6 +872,18 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 </div>
 </div>
 
+<!-- Confirm Apagar Resultado -->
+<div class="confirm-overlay" id="confirm-resultado-overlay" style="z-index:800">
+<div class="confirm-box">
+<h3>Apagar resultado?</h3>
+<p>Diagnóstico, medicação, exames e retorno registrados serão apagados. Esta ação não pode ser desfeita.</p>
+<div class="btn-row">
+<button class="btn btn-secondary" id="confirm-resultado-cancel">Cancelar</button>
+<button class="btn btn-danger" id="confirm-resultado-ok">Apagar</button>
+</div>
+</div>
+</div>
+
 <!-- Resultado View (somente leitura, aberto pelo badge do card) -->
 <div class="prompt-overlay" id="resultado-view-overlay">
 <div class="prompt-box">
@@ -918,6 +930,7 @@ padding: 0.5rem 0 0.25rem; border-bottom: 2px solid #C9ADE8; margin-bottom: 1rem
 </div>
 </div>
 <div class="prompt-box-actions">
+<button class="btn btn-danger" id="resultado-delete" style="flex:0 0 auto;padding:0.8rem 0.9rem">🗑️</button>
 <button class="btn btn-secondary" id="resultado-cancel">Cancelar</button>
 <button class="btn btn-purple" id="resultado-save">Salvar resultado</button>
 </div>
@@ -1410,6 +1423,18 @@ document.getElementById('resultado-overlay').classList.add('open');
 }
 function closeResultadoSheet() { document.getElementById('resultado-overlay').classList.remove('open'); }
 
+function deleteResultado() {
+const c = consultas.find(x => x.id === viewingId);
+if (!c) return;
+delete c.resultado;
+c.atualizadoEm = new Date().toISOString();
+save(); render();
+document.getElementById('confirm-resultado-overlay').classList.remove('open');
+closeResultadoSheet();
+closeResultadoView();
+if (viewingId) openDetail(viewingId);
+}
+
 function openResultadoView(id) {
 const c = consultas.find(x => x.id === id);
 if (!c || !hasResultado(c)) return;
@@ -1661,6 +1686,9 @@ document.getElementById('resultado-view-overlay').addEventListener('click', e =>
 document.getElementById('resultado-view-editar').addEventListener('click', () => { closeResultadoView(); openResultadoSheet(); });
 document.getElementById('resultado-cancel').addEventListener('click', closeResultadoSheet);
 document.getElementById('resultado-save').addEventListener('click', saveResultado);
+document.getElementById('resultado-delete').addEventListener('click', () => document.getElementById('confirm-resultado-overlay').classList.add('open'));
+document.getElementById('confirm-resultado-cancel').addEventListener('click', () => document.getElementById('confirm-resultado-overlay').classList.remove('open'));
+document.getElementById('confirm-resultado-ok').addEventListener('click', deleteResultado);
 document.getElementById('resultado-overlay').addEventListener('click', e => { if (e.target === document.getElementById('resultado-overlay')) closeResultadoSheet(); });
 
 document.getElementById('registrar-prompt-close').addEventListener('click', () => document.getElementById('registrar-prompt-overlay').classList.remove('open'));
