@@ -1159,7 +1159,7 @@ card.innerHTML = `
 <div class="card-top-row" style="display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap; margin-bottom:0.55rem;">
 <span class="card-data">${formatDate(c.data)}${diasLabel ? `<span style="font-weight:500;color:var(--blue-600)">${diasLabel}</span>` : ''}</span>
 ${status === 'today' ? `<span class="card-status-badge today" style="font-size:var(--font-xs);font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);white-space:nowrap;letter-spacing:0.03em;border:1.5px solid #9FE1CB;background:var(--teal-50);color:var(--teal-600);">🔔 Hoje</span>` : `<span class="card-status-badge ${status}">${statusLabels[status]}</span>`}
-${c.data ? `<a href="${buildGCalUrl(c)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="font-size:var(--font-xs);font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);background:var(--teal-50);color:var(--teal-600);border:1.5px solid #9FE1CB;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;">📅 + Google</a>` : ''}
+${c.data ? `<span onclick="event.stopPropagation();window.open('${buildGCalUrl(c)}','_blank')" style="font-size:var(--font-xs);font-weight:700;padding:2px 10px;border-radius:var(--radius-pill);background:var(--teal-50);color:var(--teal-600);border:1.5px solid #9FE1CB;text-decoration:none;white-space:nowrap;display:inline-flex;align-items:center;gap:3px;cursor:pointer;">📅 + Google</span>` : ''}
 ${resultadoBadge}
 </div>
 
